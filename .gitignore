@@ -1,0 +1,18 @@
+# dependencies
+node_modules/
+
+# build
+dist/
+
+# Vite
+.vite/
+
+# system files
+.DS_Store
+
+# logs
+*.log
+
+# others
+.env
+*.map

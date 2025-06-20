@@ -1,0 +1,38 @@
+import { useState } from "react";
+import dogImage from "@/assets/images/dog.jpg";
+import UserDropdown from "./UserDropdown";
+import { AnimatePresence } from "framer-motion";
+
+const UserProfile = () => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="h-full p-4 flex items-center gap-4 rounded-xl hover:bg-gray-100 cursor-pointer">
+        {/* 프로필 이미지 */}
+        <div className="w-14 h-14 rounded-full border border-gray-300 flex justify-center items-center overflow-hidden">
+          <img
+            src={dogImage}
+            alt="User Profile"
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* 이름과 이메일 */}
+        <div className="flex flex-col">
+          <span className="text-xl font-semibold text-gray-800">홍길동</span>
+          <span className="text-sm text-gray-400">gildong@example.com</span>
+        </div>
+
+        {/* 드롭다운 메뉴 */}
+        <AnimatePresence>{isHovered && <UserDropdown />}</AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+export default UserProfile;
