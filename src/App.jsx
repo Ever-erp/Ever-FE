@@ -5,12 +5,15 @@ import Reservation from "./pages/Reservation";
 import Notice from "./pages/Notice";
 import Survey from "./pages/Survey";
 import Organization from "./pages/Organization";
-import Signup from "./pages/Signup";
+import AuthPageLayout from "./layouts/AuthPageLayout";
+import SignUpForm from "./components/specific/signup/SignupForm";
+import LoginForm from "./components/specific/login/LoginForm";
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* 기본 레이아웃 */}
         <Route path="/" element={<DefaultLayout />}>
           <Route index element={<Calendar />} />
           <Route path="reservation" element={<Reservation />} />
@@ -18,7 +21,24 @@ function App() {
           <Route path="survey" element={<Survey />} />
           <Route path="organization" element={<Organization />} />
         </Route>
-        <Route path="/signup" element={<Signup />} />
+        {/* 회원가입 */}
+        <Route
+          path="/signup"
+          element={
+            <AuthPageLayout>
+              <SignUpForm />
+            </AuthPageLayout>
+          }
+        />
+        {/* 로그인 */}
+        <Route
+          path="/login"
+          element={
+            <AuthPageLayout>
+              <LoginForm />
+            </AuthPageLayout>
+          }
+        />
       </Routes>
     </Router>
   );
