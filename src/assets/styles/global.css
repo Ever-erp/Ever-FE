@@ -7,3 +7,42 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+/* 모달 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-modalSlideIn {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+/* 버튼 클릭 애니메이션 */
+.btn-click {
+  transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+}
+
+.btn-click:active {
+  transform: scale(0.95) translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

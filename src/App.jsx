@@ -4,8 +4,8 @@ import Calendar from "./pages/Calendar";
 import Reservation from "./pages/Reservation";
 import Notice from "./pages/Notice";
 import Survey from "./pages/Survey";
-import Organization from "./pages/Organization";
-
+import SingleNotice from "./pages/SingleNotice";
+import WritePage from "./pages/WritePage";
 function App() {
   return (
     <Router>
@@ -14,8 +14,9 @@ function App() {
           <Route index element={<Calendar />} />
           <Route path="reservation" element={<Reservation />} />
           <Route path="notice" element={<Notice />} />
+          <Route path="notice/write" element={<WritePage />} />
+          <Route path="notice/:noticeId" element={<SingleNotice />} />
           <Route path="survey" element={<Survey />} />
-          <Route path="organization" element={<Organization />} />
         </Route>
       </Routes>
     </Router>
