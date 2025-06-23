@@ -1,15 +1,15 @@
-import React, { useState, useSyncExternalStore } from "react";
+import React, { useEffect, useState, useSyncExternalStore } from "react";
 import SignupAccountInfo from "./account-input-form/SignupAccountInfo";
 import SignupProfileInfo from "./profile-input-form/SignupProfileInfo";
 import SignupClassInfo from "./class-input-form/SignupClassInfo";
 import AuthSwitchPrompt from "../auth/AuthSwitchPrompt";
 import AuthHeader from "../auth/AuthHeader";
-import Logo from "@/components/layout/Logo";
 import { uploadImageToFirebase } from "@/services/uploadImage"; // 이미지 업로드 함수 import
 import { useNavigate } from "react-router-dom";
 
 const SignUpForm = () => {
   const [step, setStep] = useState(1); // 1단계: 계정 정보, 2단계: 프로필 정보, 3단계: 클래스 정보
+  const [classList, setClassList] = useState([]);
   const navigate = useNavigate();
 
   // 전체 폼 데이터 상태 (계정 + 프로필 + 클래스)
@@ -39,17 +39,46 @@ const SignUpForm = () => {
     setStep((prev) => prev - 1);
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/auth/class/all", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          alert("반 정보 로드 실패: " + errorData.message);
+          return;
+        }
+
+        const res = await response.json();
+        console.log(res);
+        const formatted = res.data.map((item, index) => ({
+          label: item.name,
+          value: index,
+          full: item, // 해당 반의 전체 정보 (name, cohort 등)
+        }));
+        setClassList(formatted);
+      } catch (error) {
+        console.error(error);
+        alert("로그인 중 오류가 발생했습니다.");
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("회원 정보:", member);
-
     try {
-      // let profileImageUrl = null;
-
-      // if (member.image) {
-      //   profileImageUrl = await uploadImageToFirebase(member.image);
-      //   console.log("이미지 업로드 성공:", profileImageUrl);
-      // }
+      const profileImageUrl = member.image
+        ? await uploadImageToFirebase(member.image)
+        : null;
 
       const response = await fetch("http://localhost:8080/auth/signup", {
         method: "POST",
@@ -65,7 +94,8 @@ const SignUpForm = () => {
           gender: member.gender,
           phone: member.phone,
           address: member.addr,
-          // profileImage: profileImageUrlm, // 업로드된 이미지 URL
+          classId: 1,
+          // profileImage: profileImageUrl, // firebase에 업로드된 이미지 URL
         }),
       });
 
@@ -79,7 +109,7 @@ const SignUpForm = () => {
       const data = await response.json();
       console.log(data);
       alert("회원가입 성공! 환영합니다, " + data.name);
-      navigate("/login");
+      navigate("/login"); // 로그인 페이지로 이동
     } catch (error) {
       console.error(error);
       alert("회원가입 중 오류가 발생했습니다.");
@@ -112,6 +142,7 @@ const SignUpForm = () => {
           {step === 3 && (
             <SignupClassInfo
               member={member}
+              classList={classList} // 백엔드에서 받아온 반(이름, 기수) 정보
               updateMember={updateMember}
               onPrev={prevStep}
             />

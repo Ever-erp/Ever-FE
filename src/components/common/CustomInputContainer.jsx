@@ -2,6 +2,7 @@ import React from "react";
 
 const CustomInputContainer = ({ label, children, isValid, isFocus }) => {
   return (
+    // 자식을 담는 컨테이너
     <div className="relative w-full max-w-xl mt-6">
       {/* 라벨 */}
       <label
@@ -11,8 +12,7 @@ const CustomInputContainer = ({ label, children, isValid, isFocus }) => {
       >
         {label}
       </label>
-      {/* 자식을 담는 컨테이너 */}
-      {/* focus시 선 굵기*/}
+      {/* focus시 선 굵기 */}
       <div
         className={`w-full flex items-center border 
           ${isValid ? "border-brand" : "border-gray-300"} 

@@ -10,7 +10,6 @@ const SignupAccountInfo = ({ member, updateMember, onNext }) => {
   };
 
   const handleNext = (e) => {
-    console.log("회원가입 데이터:", member);
     onNext?.(); // 유저 프로필 정보 입력으로 이동
   };
 

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import dogImage from "@/assets/images/dog.jpg";
 import UserDropdown from "./UserDropdown";
 import { AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
+import dogImage from "@/assets/images/dog.jpg";
 
 const UserProfile = () => {
   const user = useSelector((state) => state.user.user);
@@ -19,7 +19,7 @@ const UserProfile = () => {
         {/* 프로필 이미지 */}
         <div className="w-14 h-14 rounded-full border border-gray-300 flex justify-center items-center overflow-hidden">
           <img
-            src={dogImage}
+            src={user?.image ? user.image : dogImage}
             alt="User Profile"
             className="w-full h-full object-cover"
           />

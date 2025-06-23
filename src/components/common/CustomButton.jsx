@@ -13,8 +13,7 @@ const CustomButton = ({
   // variant별 스타일 맵
   const variantStyles = {
     brand: "bg-brand text-white hover:bg-opacity-90",
-    outline:
-      "bg-white border border-brand text-brand hover:bg-brand hover:text-white",
+    outline: "bg-white border border-brand text-brand hover:bg-gray-200",
     gray: "bg-white border border-gray-300 text-gray-500 hover:bg-gray-200 hover:text-gray-500",
   };
 

@@ -7,6 +7,7 @@ const CustomInput = ({
   value,
   onChange,
   type = "text",
+  isReadonly = false,
 }) => {
   const [focused, setFocused] = useState(false);
   const isValid = focused || value;
@@ -22,6 +23,7 @@ const CustomInput = ({
         onBlur={() => setFocused(false)}
         onChange={(e) => onChange(e.target.value)}
         className={`w-full text-gray-800 focus:outline-none`}
+        readOnly={isReadonly}
       />
     </CustomInputContainer>
   );
