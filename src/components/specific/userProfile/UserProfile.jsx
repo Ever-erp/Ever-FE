@@ -2,8 +2,11 @@ import { useState } from "react";
 import dogImage from "@/assets/images/dog.jpg";
 import UserDropdown from "./UserDropdown";
 import { AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
 
 const UserProfile = () => {
+  const user = useSelector((state) => state.user.user);
+
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -24,8 +27,10 @@ const UserProfile = () => {
 
         {/* 이름과 이메일 */}
         <div className="flex flex-col">
-          <span className="text-xl font-semibold text-gray-800">홍길동</span>
-          <span className="text-sm text-gray-400">gildong@example.com</span>
+          <span className="text-xl font-semibold text-gray-800">
+            {user.name}
+          </span>
+          <span className="text-sm text-gray-400">{user.email}</span>
         </div>
 
         {/* 드롭다운 메뉴 */}
