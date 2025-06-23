@@ -7,12 +7,10 @@ import {
   useReactFlow,
 } from "reactflow";
 import OrganizationNodeVertical from "./OrganizationNodeVertical";
-import OrganizationNodeHorizontal from "./OrganizationNodeHorizontal";
 
 const nodeTypes = {
   organizationNode: OrganizationNodeVertical,
   organizationNodeVertical: OrganizationNodeVertical,
-  organizationNodeHorizontal: OrganizationNodeHorizontal,
 };
 
 const OrganizationBody = ({
