@@ -1,3 +1,5 @@
+@import "reactflow/dist/style.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,6 +8,42 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+/* React Flow 커스텀 스타일 */
+.react-flow__node-organizationNode {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.react-flow__handle {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+}
+
+.react-flow__edge-path {
+  stroke-width: 2px;
+}
+
+.react-flow__minimap {
+  background-color: #f8fafc !important;
+}
+
+.react-flow__controls {
+  background: white !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+}
+
+.react-flow__controls button {
+  background: white !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.react-flow__controls button:hover {
+  background: #f1f5f9 !important;
 }
 
 /* 모달 애니메이션 */
