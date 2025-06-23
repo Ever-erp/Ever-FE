@@ -1,0 +1,11 @@
+.clickable {
+  cursor: pointer;
+}
+
+.hover-fill rect {
+  transition: fill 0.3s;
+}
+
+.hover-fill:hover rect {
+  fill: lightblue;
+}
