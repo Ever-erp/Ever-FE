@@ -7,7 +7,7 @@ import {
   useReactFlow,
 } from "reactflow";
 import OrganizationNodeVertical from "./OrganizationNodeVertical";
-import OrganizationNodeHorizontal from "./OrganizationHorizontal";
+import OrganizationNodeHorizontal from "./OrganizationNodeHorizontal";
 
 const nodeTypes = {
   organizationNode: OrganizationNodeVertical,
