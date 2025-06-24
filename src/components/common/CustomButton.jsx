@@ -8,12 +8,13 @@ const CustomButton = ({
   onFocus,
   onBlur,
   className = "",
+  rounded = "rounded-md",
   ...props
 }) => {
   // variant별 스타일 맵
   const variantStyles = {
     brand: "bg-brand text-white hover:bg-opacity-90",
-    outline: "bg-white border border-brand text-brand hover:bg-gray-200",
+    outline: "bg-white border border-brand text-brand hover:bg-gray-150",
     gray: "bg-white border border-gray-300 text-gray-500 hover:bg-gray-200 hover:text-gray-500",
   };
 
@@ -28,7 +29,7 @@ const CustomButton = ({
       onClick={onClick}
       onFocus={onFocus}
       onBlur={onBlur}
-      className={`w-full rounded-md font-medium py-2 px-4 hover:bg-opacity-90 transition ${variantStyle} ${className}`}
+      className={`w-full font-medium py-2 px-4 hover:bg-opacity-90 transition ${variantStyle} ${rounded} ${className} `}
       {...props}
     >
       {label}

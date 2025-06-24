@@ -76,10 +76,7 @@ const SignUpForm = () => {
     e.preventDefault();
     console.log("회원 정보:", member);
     try {
-      const profileImageUrl = member.image
-        ? await uploadImageToFirebase(member.image)
-        : null;
-
+      // 1. 회원 정보 서버에 저장 (이미지 URL 없이)
       const response = await fetch("http://localhost:8080/auth/signup", {
         method: "POST",
         headers: {
@@ -94,14 +91,14 @@ const SignUpForm = () => {
           gender: member.gender,
           phone: member.phone,
           address: member.addr,
-          classId: 1,
-          // profileImage: profileImageUrl, // firebase에 업로드된 이미지 URL
+          className: member.className,
+          cohort: member.classCohort,
+          profileImage: null, // firebase에 업로드된 이미지 URL
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.log(errorData);
         alert("회원가입 실패: " + errorData.message);
         return;
       }
@@ -109,6 +106,33 @@ const SignUpForm = () => {
       const data = await response.json();
       console.log(data);
       alert("회원가입 성공! 환영합니다, " + data.name);
+
+      // 2. 이미지가 있다면 이미지 업로드
+      if (member.email && member.image) {
+        const profileImageUrl = await uploadImageToFirebase(
+          member.image,
+          member.email
+        );
+
+        // 3. 서버에 이미지 URL 업데이트 요청
+        const updateResponse = await fetch(
+          `http://localhost:8080/auth/updateImage`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: member.email,
+              profileImage: profileImageUrl,
+            }),
+          }
+        );
+
+        if (!updateResponse) {
+          alert("이미지 업데이트 실패");
+          return;
+        }
+      }
+
       navigate("/login"); // 로그인 페이지로 이동
     } catch (error) {
       console.error(error);

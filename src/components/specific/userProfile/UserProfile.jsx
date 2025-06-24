@@ -6,8 +6,9 @@ import dogImage from "@/assets/images/dog.jpg";
 
 const UserProfile = () => {
   const user = useSelector((state) => state.user.user);
-
   const [isHovered, setIsHovered] = useState(false);
+
+  if (!user) return null; // 로그아웃시 유저 정보 null
 
   return (
     <div
@@ -19,9 +20,9 @@ const UserProfile = () => {
         {/* 프로필 이미지 */}
         <div className="w-14 h-14 rounded-full border border-gray-300 flex justify-center items-center overflow-hidden">
           <img
-            src={user?.image ? user.image : dogImage}
+            src={user?.profileImage ? user.profileImage : dogImage}
             alt="User Profile"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
           />
         </div>
 

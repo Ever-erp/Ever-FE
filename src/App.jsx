@@ -13,42 +13,16 @@ import Organization from "./pages/Organization";
 import AuthPageLayout from "./layouts/AuthPageLayout";
 import SignUpForm from "./components/specific/signup/SignupForm";
 import LoginForm from "./components/specific/login/LoginForm";
+import PrivateRoute from "./components/specific/routes/PrivateRoute";
+import { useSelector } from "react-redux";
 
 function App() {
-  const isLoggedIn = () => {
-    return !!localStorage.getItem("accessToken");
-  };
+  const user = useSelector((state) => state.user.user);
+
   return (
     <Router>
       <Routes>
-        <Route
-          path="/"
-          element={
-            isLoggedIn() ? (
-              <Navigate to="/calendar" />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        {/* 기본 레이아웃 */}
-        <Route path="/" element={<DefaultLayout />}>
-          <Route path="calendar" element={<Calendar />} />
-          <Route path="reservation" element={<Reservation />} />
-          <Route path="notice" element={<Notice />} />
-          <Route path="survey" element={<Survey />} />
-          <Route path="organization" element={<Organization />} />
-        </Route>
-        {/* 회원가입 */}
-        <Route
-          path="/signup"
-          element={
-            <AuthPageLayout>
-              <SignUpForm />
-            </AuthPageLayout>
-          }
-        />
-        {/* 로그인 */}
+        {/* 로그인/회원가입: 로그인 상태라도 접근 가능 */}
         <Route
           path="/login"
           element={
@@ -57,6 +31,30 @@ function App() {
             </AuthPageLayout>
           }
         />
+        <Route
+          path="/signup"
+          element={
+            <AuthPageLayout>
+              <SignUpForm />
+            </AuthPageLayout>
+          }
+        />
+
+        {/* 보호된 경로: 로그인 안 하면 접근 불가 */}
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <DefaultLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route path="calendar" element={<Calendar />} />
+          <Route path="reservation" element={<Reservation />} />
+          <Route path="notice" element={<Notice />} />
+          <Route path="survey" element={<Survey />} />
+          <Route path="organization" element={<Organization />} />
+        </Route>
       </Routes>
     </Router>
   );

@@ -49,7 +49,7 @@ const LoginForm = () => {
       dispatch(setUser(res.data.memberResponseDto));
       localStorage.setItem("accessToken", res.data.tokenDto.accessToken);
       localStorage.setItem("refreshToken", res.data.tokenDto.refreshToken);
-      navigate("/"); // 메인 페이지로 이동
+      navigate("/calendar"); // 메인 페이지로 이동
     } catch (error) {
       console.error(error);
       alert("로그인 중 오류가 발생했습니다.");
