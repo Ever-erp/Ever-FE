@@ -45,7 +45,6 @@ const Notice = () => {
     });
     handlePageChange(page);
     handleSizeChange(size);
-    console.log(page, size);
   }, [page, size]);
 
   return (
