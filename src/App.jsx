@@ -8,6 +8,9 @@ import SingleNotice from "./pages/SingleNotice";
 import WritePage from "./pages/WritePage";
 import Organization from "./pages/Organization";
 import OrganizationClass from "./pages/OrganizationClass";
+import SingleSurvey from "./pages/SingleSurvey";
+import SurveyWrite from "./pages/SurveyWrite";
+import SurveySubmit from "./pages/SurveySubmit";
 function App() {
   return (
     <Router>
@@ -19,6 +22,9 @@ function App() {
           <Route path="notice/write" element={<WritePage />} />
           <Route path="notice/:noticeId" element={<SingleNotice />} />
           <Route path="survey" element={<Survey />} />
+          <Route path="survey/:surveyId" element={<SingleSurvey />} />
+          <Route path="survey/:surveyId/submit" element={<SurveySubmit />} />
+          <Route path="survey/write" element={<SurveyWrite />} />
           <Route path="organization" element={<Organization />} />
           <Route path="organization/:classId" element={<OrganizationClass />} />
         </Route>
