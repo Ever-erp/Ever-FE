@@ -1,11 +1,42 @@
 .clickable {
   cursor: pointer;
 }
-
-.hover-fill rect {
+.clickable:hover rect {
+  @apply fill-subBrand;
+}
+rect {
   transition: fill 0.3s;
 }
 
-.hover-fill:hover rect {
-  fill: lightblue;
+g.clickable.selected rect {
+  @apply fill-brand;
+}
+g.clickable.selected path {
+  @apply fill-white;
+}
+
+.g.clickable.selected:hover path {
+  @apply fill-white;
+}
+
+/* 내가 예약한 방 */
+g.clickable.reserved rect {
+  @apply fill-positive;
+}
+g.clickable.reserved:hover rect {
+  @apply brightness-95;
+}
+
+/* 만석인 방 */
+/* g.clickable.full {
+  @apply pointer-events-none;
+} */
+.g.clickable.selected.full rect {
+  @apply fill-positive;
+}
+g.clickable.full rect {
+  @apply fill-negative;
+}
+g.clickable.full:hover rect {
+  @apply brightness-95;
 }

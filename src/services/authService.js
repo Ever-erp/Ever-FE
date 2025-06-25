@@ -25,6 +25,6 @@ export const reissueToken = async (navigate) => {
   } catch (error) {
     console.error("토큰 재발급 오류:", error);
     navigate("/login");
-    throw error;
+    throw false;
   }
 };
