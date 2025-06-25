@@ -1,4 +1,4 @@
-import UserProfile from "../specific/UserProfile";
+import UserProfile from "@/components/specific/userProfile/UserProfile";
 
 const Header = () => {
   return (
