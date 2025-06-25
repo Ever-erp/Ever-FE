@@ -17,6 +17,7 @@ const UserDropdown = () => {
 
   const handleLogout = () => {
     dispatch(clearUser()); // Redux 상태 초기화
+    persistor.purge(); // Redux Persist가 저장한 상태 초기화
     localStorage.removeItem("accessToken"); // 토큰 삭제
     localStorage.removeItem("refreshToken"); // 토큰 삭제
     navigate("/login"); // 로그인 페이지 이동
