@@ -4,7 +4,12 @@ import FullScreenContainer from "../layouts/FullScreenContainer";
 import VideoLoop from "../components/specific/intro-video/VideoLoop";
 
 const Auth = () => {
+  const user = useSelector((state) => state.user);
   const [isSignUpComplete, setIsSignUpComplete] = useState(false);
+
+  if (user?.isLoggedIn) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <FullScreenContainer>

@@ -15,6 +15,7 @@ import SignUpForm from "./components/specific/signup/SignupForm";
 import LoginForm from "./components/specific/login/LoginForm";
 import PrivateRoute from "./components/specific/routes/PrivateRoute";
 import { useSelector } from "react-redux";
+import PublicRoute from "./components/specific/routes/PublicRoute";
 
 function App() {
   const user = useSelector((state) => state.user.user);
@@ -26,17 +27,21 @@ function App() {
         <Route
           path="/login"
           element={
-            <AuthPageLayout>
-              <LoginForm />
-            </AuthPageLayout>
+            <PublicRoute>
+              <AuthPageLayout>
+                <LoginForm />
+              </AuthPageLayout>
+            </PublicRoute>
           }
         />
         <Route
           path="/signup"
           element={
-            <AuthPageLayout>
-              <SignUpForm />
-            </AuthPageLayout>
+            <PublicRoute>
+              <AuthPageLayout>
+                <SignUpForm />
+              </AuthPageLayout>
+            </PublicRoute>
           }
         />
 
