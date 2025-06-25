@@ -9,7 +9,11 @@ import Calendar from "./pages/Calendar";
 import Reservation from "./pages/Reservation";
 import Notice from "./pages/Notice";
 import Survey from "./pages/Survey";
+import SingleNotice from "./pages/SingleNotice";
+import WritePage from "./pages/WritePage";
 import Organization from "./pages/Organization";
+import OrganizationClass from "./pages/OrganizationClass";
+
 import AuthPageLayout from "./layouts/AuthPageLayout";
 import SignUpForm from "./components/specific/signup/SignupForm";
 import LoginForm from "./components/specific/login/LoginForm";
@@ -57,8 +61,11 @@ function App() {
           <Route path="calendar" element={<Calendar />} />
           <Route path="reservation" element={<Reservation />} />
           <Route path="notice" element={<Notice />} />
+          <Route path="notice/write" element={<WritePage />} />
+          <Route path="notice/:noticeId" element={<SingleNotice />} />
           <Route path="survey" element={<Survey />} />
           <Route path="organization" element={<Organization />} />
+          <Route path="organization/:classId" element={<OrganizationClass />} />
         </Route>
       </Routes>
     </Router>
