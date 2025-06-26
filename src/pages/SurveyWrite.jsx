@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthFetch } from "../hooks/useAuthFetch";
+import { transformDataForAPI } from "../util/surveyUtil";
+import { surveyCreateFetch } from "../services/survey/surveyFetch";
 
 const SurveyWrite = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthFetch();
+  const token = localStorage.getItem("accessToken");
 
   const [surveyData, setSurveyData] = useState({
     title: "",
@@ -17,6 +22,7 @@ const SurveyWrite = () => {
       },
     ],
   });
+
   // 문항 추가 (특정 문항 아래에)
   const addQuestion = (afterIndex) => {
     const newQuestion = {
@@ -110,10 +116,56 @@ const SurveyWrite = () => {
     });
   };
   // 설문 저장
-  const handleSave = () => {
-    console.log("설문 저장:", surveyData);
-    // API 호출 로직
-    navigate("/survey");
+  const handleSave = async () => {
+    // 유효성 검사
+    if (!surveyData.title.trim()) {
+      alert("설문 제목을 입력해주세요.");
+      return;
+    }
+
+    if (!surveyData.description.trim()) {
+      alert("설문 설명을 입력해주세요.");
+      return;
+    }
+
+    if (!surveyData.endDate) {
+      alert("마감일을 선택해주세요.");
+      return;
+    }
+
+    // 질문 유효성 검사
+    for (let i = 0; i < surveyData.questions.length; i++) {
+      const question = surveyData.questions[i];
+      if (!question.question.trim()) {
+        alert(`${i + 1}번 문항의 질문을 입력해주세요.`);
+        return;
+      }
+
+      if (question.type === "객관식") {
+        const validOptions = question.options.filter(
+          (option) => option.trim() !== ""
+        );
+        if (validOptions.length < 2) {
+          alert(`${i + 1}번 문항은 최소 2개의 선택지가 필요합니다.`);
+          return;
+        }
+      }
+    }
+
+    const apiData = transformDataForAPI(surveyData);
+    try {
+      const response = await surveyCreateFetch(apiData, token);
+
+      if (response.status === 201) {
+        alert("설문이 성공적으로 저장되었습니다.");
+        navigate("/survey");
+      } else {
+        alert("설문 저장에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("설문 저장 오류:", error);
+      alert("설문 저장 중 오류가 발생했습니다.");
+    }
   };
   // 취소
   const handleCancel = () => {
@@ -129,16 +181,48 @@ const SurveyWrite = () => {
       <div className="flex-shrink-0 p-8 pb-4">
         <div className="flex items-center gap-2 mb-4">
           <span className="bg-blue-500 text-white px-3 py-1 rounded text-sm font-medium">
-            웹/앱
+            전체
           </span>
-          <span className="text-gray-600">[웹/앱] 12주차 설문</span>
+          <input
+            type="text"
+            value={surveyData.title}
+            onChange={(e) =>
+              setSurveyData({ ...surveyData, title: e.target.value })
+            }
+            placeholder="설문 제목을 입력하세요"
+            className="text-gray-600 border-b border-gray-300 px-2 py-1 flex-1"
+          />
           <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs">
             작성중
           </span>
         </div>
 
-        <div className="text-gray-600 mb-2">2025-06-12</div>
-        <div className="text-gray-600">0/25</div>
+        <div className="mb-4">
+          <textarea
+            value={surveyData.description}
+            onChange={(e) =>
+              setSurveyData({ ...surveyData, description: e.target.value })
+            }
+            placeholder="설문 설명을 입력하세요"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm resize-none"
+            rows="2"
+          />
+        </div>
+
+        <div className="flex items-center gap-4 mb-2">
+          <div className="flex items-center gap-2">
+            <label className="text-gray-600 text-sm">마감일:</label>
+            <input
+              type="date"
+              value={surveyData.endDate}
+              onChange={(e) =>
+                setSurveyData({ ...surveyData, endDate: e.target.value })
+              }
+              className="border border-gray-300 rounded px-2 py-1 text-sm"
+            />
+          </div>
+          <div className="text-gray-600 text-sm">응답: 0/25</div>
+        </div>
       </div>
 
       {/* 설문 문항들 - 스크롤 가능 영역 */}
