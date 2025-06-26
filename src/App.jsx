@@ -71,7 +71,10 @@ function App() {
           <Route path="survey/:surveyId/submit" element={<SurveySubmit />} />
           <Route path="survey/write" element={<SurveyWrite />} />
           <Route path="organization" element={<Organization />} />
-          <Route path="organization/:classId" element={<OrganizationClass />} />
+          <Route
+            path="organization/class/:classId"
+            element={<OrganizationClass />}
+          />
         </Route>
       </Routes>
     </Router>
