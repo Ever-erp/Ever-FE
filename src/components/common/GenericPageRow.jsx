@@ -71,7 +71,7 @@ const GenericPageRow = ({ data, config }) => {
   };
 
   return (
-    <div className="flex flex-row" onClick={handleRowClick}>
+    <div className="flex flex-row items-center" onClick={handleRowClick}>
       {config.columns.map((column, index) => (
         <div
           key={index}

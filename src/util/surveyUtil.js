@@ -15,7 +15,7 @@ const surveyConfig = {
       render: "status",
     },
     {
-      key: "surveyTitle",
+      key: "title",
       label: "제목",
       width: "flex-1",
       align: "left",
@@ -33,11 +33,34 @@ const surveyConfig = {
   dataKeyMapping: {
     id: "surveyId",
     status: "status", // 설문 상태 (진행중, 완료)
-    surveyTitle: "surveyTitle",
+    title: "surveyTitle", // mock 데이터의 surveyTitle을 title로 매핑
     questionCount: "surveySize",
     dueDate: "dueDate",
     createdAt: "createdAt",
   },
+};
+
+// 데이터를 API 형식으로 변환하는 함수
+const transformDataForAPI = (surveyData) => {
+  const surveyQuestion = surveyData.questions.map((q) => q.question);
+  const surveyQuestionMeta = surveyData.questions.map((q) => {
+    if (q.type === "객관식") {
+      return q.options.filter((option) => option.trim() !== "");
+    } else {
+      return []; // 주관식은 빈 배열
+    }
+  });
+
+  return {
+    surveyId: crypto.randomUUID(), // UUID 생성
+    surveyTitle: surveyData.title,
+    surveyDesc: surveyData.description,
+    dueDate: surveyData.endDate,
+    status: "진행중",
+    surveySize: surveyData.questions.length,
+    surveyQuestion: surveyQuestion,
+    surveyQuestionMeta: surveyQuestionMeta,
+  };
 };
 
 // 상태에 따른 배지 색상
@@ -54,4 +77,13 @@ const getStatusBadgeColor = (status) => {
   }
 };
 
-export { surveyConfig, getStatusBadgeColor };
+const parsedDate = (date) => {
+  const dateObj = new Date(date);
+  return `${dateObj.getFullYear()}-${
+    dateObj.getMonth() + 1 < 10
+      ? `0${dateObj.getMonth() + 1}`
+      : dateObj.getMonth() + 1
+  }-${dateObj.getDate() < 10 ? `0${dateObj.getDate()}` : dateObj.getDate()}`;
+};
+
+export { surveyConfig, getStatusBadgeColor, transformDataForAPI, parsedDate };
