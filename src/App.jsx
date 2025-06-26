@@ -20,6 +20,7 @@ import LoginForm from "./components/specific/login/LoginForm";
 import PrivateRoute from "./components/specific/routes/PrivateRoute";
 import { useSelector } from "react-redux";
 import PublicRoute from "./components/specific/routes/PublicRoute";
+import CalendarLayout from "./pages/CalendarLayout";
 
 function App() {
   const user = useSelector((state) => state.user.user);
@@ -58,7 +59,7 @@ function App() {
             </PrivateRoute>
           }
         >
-          <Route path="calendar" element={<Calendar />} />
+          <Route path="calendar" element={<CalendarLayout />} />
           <Route path="reservation" element={<Reservation />} />
           <Route path="notice" element={<Notice />} />
           <Route path="notice/write" element={<WritePage />} />
