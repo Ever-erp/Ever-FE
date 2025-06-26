@@ -10,6 +10,7 @@ import { setUser } from "../../../store/userSlice";
 const LoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false); // 폼 제출 중일 때 중복막기
 
   const [member, setMember] = useState({
     email: "",
@@ -22,6 +23,9 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return; // 이미 요청 중이면 무시
+    setIsSubmitting(true);
+
     console.log("회원 정보:", member);
 
     try {
@@ -53,6 +57,8 @@ const LoginForm = () => {
     } catch (error) {
       console.error(error);
       alert("로그인 중 오류가 발생했습니다.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SurveyViewer from "../components/common/SurveyViewer";
 import { findSurveyBySurveyIdAndMemberIdFetch } from "../services/survey/surveyFetch";
-
+import { useAuthFetch } from "../hooks/useAuthFetch";
 const SurveySubmit = () => {
   const params = useParams();
   const navigate = useNavigate();
@@ -11,19 +11,23 @@ const SurveySubmit = () => {
   const [mode, setMode] = useState("submit"); // "submit" 또는 "edit"
   const [hasExistingAnswer, setHasExistingAnswer] = useState(false);
 
+  const { isAuthenticated } = useAuthFetch();
+
+  const token = localStorage.getItem("accessToken");
+
   // 기존 답변 불러오기
   const fetchExistingAnswers = async () => {
     try {
       const response = await findSurveyBySurveyIdAndMemberIdFetch(
         params.surveyId,
-        28 // TODO: 실제 로그인한 사용자 ID로 변경
+        token
       );
 
-      if (200 <= response.status && response.status < 300) {
+      if (response.survey.surveyAnswer.length > 0) {
         // 이미 답변한 경우 - 수정 모드
         setMode("edit");
         setHasExistingAnswer(true);
-        setExistingAnswers(response.data.answer);
+        setExistingAnswers(response.survey.surveyAnswer);
       } else {
         // 아직 답변하지 않은 경우 - 제출 모드
         setMode("submit");

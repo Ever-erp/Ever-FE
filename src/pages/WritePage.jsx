@@ -2,24 +2,21 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { noticeCreateFetch } from "../services/notice/noticeFetch";
 import NoticeEditor from "../components/specific/notice/NoticeEditor";
+import { useSelector } from "react-redux";
+import { useAuthFetch } from "../hooks/useAuthFetch";
 
 const WritePage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const user = useSelector((state) => state.user.user);
+
+  const { isAuthenticated } = useAuthFetch();
 
   const handleSave = async (data) => {
     setIsLoading(true);
+    const token = localStorage.getItem("accessToken");
     try {
-      await noticeCreateFetch(
-        data.type,
-        data.title,
-        data.content,
-        data.files,
-        null, // noticeImage
-        false, // noticePin
-        null, // noticeTargetRange
-        null // noticeTargetDate
-      );
+      await noticeCreateFetch(data, token);
 
       alert("게시글이 작성되었습니다.");
       navigate("/notice"); // 공지사항 목록으로 이동

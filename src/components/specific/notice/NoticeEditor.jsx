@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import FileUpload from "../../common/file/FileUpload";
 import FileDisplay from "../../common/file/FileDisplay";
 import CustomDropdown from "../../common/CustomDropdown";
+import { useAuthFetch } from "../../../hooks/useAuthFetch";
+import { useSelector } from "react-redux";
 
 const NoticeEditor = ({
   mode = "create", // create/edit
@@ -11,20 +13,51 @@ const NoticeEditor = ({
   isLoading = false,
 }) => {
   const [title, setTitle] = useState(initialData.title || "");
-  const [content, setContent] = useState(initialData.content || "");
+  const [contents, setContents] = useState(initialData.contents || "");
+  const [isPinned, setIsPinned] = useState(initialData.isPinned || false);
+  const [targetRange, setTargetRange] = useState(
+    initialData.targetRange || "ALL_TARGETRANGE"
+  );
+  const [targetDate, setTargetDate] = useState(initialData.targetDate || "");
   const [files, setFiles] = useState(initialData.files || []);
-  const [noticeType, setNoticeType] = useState(initialData.type || "일반");
+  const [noticeType, setNoticeType] = useState(initialData.type || "ALL_TYPE");
   const [existingFiles, setExistingFiles] = useState([]);
+
+  const { isAuthenticated } = useAuthFetch();
+  const user = useSelector((state) => state.user.user);
+
+  // 타입 옵션 정의
+  const typeOptions = [
+    { value: "ALL_TYPE", label: "전체" },
+    { value: "NOTICE", label: "공지" },
+    { value: "SURVEY", label: "설문" },
+  ];
+
+  // 대상 범위 옵션 정의
+  const targetRangeOptions = [
+    { value: "ALL_TARGETRANGE", label: "전체" },
+    { value: "WEB_APP", label: "웹/앱" },
+    { value: "SMART_FACTORY", label: "스마트 팩토리" },
+    { value: "SW_EMBEDDED", label: "SW 임베디드" },
+    { value: "IT_SECURITY", label: "IT 보안" },
+    { value: "CLOUD", label: "클라우드 서비스" },
+  ];
 
   useEffect(() => {
     setTitle(initialData.title || "");
-    setContent(initialData.content || "");
+    setContents(initialData.contents || "");
+    setIsPinned(initialData.isPinned || false);
+    setTargetRange(initialData.targetRange || "ALL_TARGETRANGE");
+    setTargetDate(initialData.targetDate || "");
     setFiles(initialData.files || []);
-    setNoticeType(initialData.type || "일반");
+    setNoticeType(initialData.type || "ALL_TYPE");
     setExistingFiles(initialData.files || []);
   }, [
     initialData.title,
-    initialData.content,
+    initialData.contents,
+    initialData.isPinned,
+    initialData.targetRange,
+    initialData.targetDate,
     initialData.files,
     initialData.type,
   ]);
@@ -51,16 +84,19 @@ const NoticeEditor = ({
       alert("제목을 입력해주세요.");
       return;
     }
-    if (!content.trim()) {
+    if (!contents.trim()) {
       alert("내용을 입력해주세요.");
       return;
     }
 
     const data = {
       title: title.trim(),
-      content: content.trim(),
-      files: [...existingFiles, ...files],
+      contents: contents.trim(),
+      isPinned: isPinned,
+      targetRange: targetRange,
+      targetDate: targetDate,
       type: noticeType,
+      // files: [...existingFiles, ...files],
     };
 
     onSave && onSave(data);
@@ -68,7 +104,7 @@ const NoticeEditor = ({
 
   const handleCancel = () => {
     if (mode === "create") {
-      if (title.trim() || content.trim() || files.length > 0) {
+      if (title.trim() || contents.trim() || files.length > 0) {
         if (
           window.confirm("작성 중인 내용이 있습니다. 정말 취소하시겠습니까?")
         ) {
@@ -86,23 +122,84 @@ const NoticeEditor = ({
     console.log("downloading file:", file);
   };
 
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
+  // 사용자 이름 표시 로직
+
   return (
     <div className="flex flex-col h-full w-full">
       <div className="flex flex-col w-full">
-        <div className="flex flex-row items-center justify-start w-full">
-          <CustomDropdown
-            options={[
-              { value: "일반", label: "일반" },
-              { value: "설문", label: "설문" },
-            ]}
-            value={noticeType}
-            onChange={(e) => setNoticeType(e.target.value)}
-            width="w-24"
-            placeholder="구분"
-          />
+        {/* 타입과 대상 범위 선택 영역 */}
+        <div className="flex flex-row items-center justify-start w-full gap-4">
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              구분
+            </label>
+            <CustomDropdown
+              options={typeOptions}
+              value={noticeType}
+              onChange={(value) => setNoticeType(value)}
+              width="w-32"
+              placeholder="구분"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              대상 범위
+            </label>
+            <CustomDropdown
+              options={targetRangeOptions}
+              value={targetRange}
+              onChange={(value) => setTargetRange(value)}
+              width="w-40"
+              placeholder="대상 범위"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              대상 날짜
+            </label>
+            <input
+              type="date"
+              value={targetDate}
+              onChange={(e) => setTargetDate(e.target.value)}
+              min={getTodayDate()}
+              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-brand w-40"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              최상단 고정
+            </label>
+            <div className="flex items-center h-10">
+              <input
+                type="checkbox"
+                id="isPinned"
+                checked={isPinned}
+                onChange={(e) => setIsPinned(e.target.checked)}
+                className="w-4 h-4 text-brand bg-gray-100 border-gray-300 rounded focus:ring-brand focus:ring-2"
+                disabled={isLoading}
+              />
+              <label
+                htmlFor="isPinned"
+                className="ml-2 text-sm text-gray-700 cursor-pointer"
+              >
+                상단 고정
+              </label>
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-row items-center justify-between w-full mt-4">
+        <div className="flex flex-row items-center justify-between w-full mt-6">
           <div className="flex-1 h-12 flex items-center">
             <div className="flex items-center w-full">
               <span className="text-2xl font-bold mr-2">제목 : </span>
@@ -121,7 +218,7 @@ const NoticeEditor = ({
         <div className="flex flex-row justify-between w-full border-b-2 border-gray-300 pb-4 mt-4">
           <div>
             <div>
-              <span className="text-lg">홍길동</span>
+              <span className="text-lg">{user.name}</span>
             </div>
             <div>
               <span className="text-sm text-gray-500">
@@ -176,9 +273,9 @@ const NoticeEditor = ({
       {/* 내용 영역 */}
       <div className="flex flex-col items-start justify-start flex-1 w-full p-4">
         <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="w-full h-full resize-none border border-gray-300 rounded-md p-4 focus:outline-none focus:border-brand text-base min-h-[400px]"
+          value={contents}
+          onChange={(e) => setContents(e.target.value)}
+          className="w-full h-[200px] resize-none border border-gray-300 rounded-md p-4 focus:outline-none focus:border-brand text-base min-h-[150px]"
           placeholder="내용을 입력하세요"
           disabled={isLoading}
         />

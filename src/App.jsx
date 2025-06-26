@@ -19,6 +19,7 @@ import SignUpForm from "./components/specific/signup/SignupForm";
 import LoginForm from "./components/specific/login/LoginForm";
 import PrivateRoute from "./components/specific/routes/PrivateRoute";
 import { useSelector } from "react-redux";
+import PublicRoute from "./components/specific/routes/PublicRoute";
 
 import SingleSurvey from "./pages/SingleSurvey";
 import SurveyWrite from "./pages/SurveyWrite";
@@ -33,17 +34,21 @@ function App() {
         <Route
           path="/login"
           element={
-            <AuthPageLayout>
-              <LoginForm />
-            </AuthPageLayout>
+            <PublicRoute>
+              <AuthPageLayout>
+                <LoginForm />
+              </AuthPageLayout>
+            </PublicRoute>
           }
         />
         <Route
           path="/signup"
           element={
-            <AuthPageLayout>
-              <SignUpForm />
-            </AuthPageLayout>
+            <PublicRoute>
+              <AuthPageLayout>
+                <SignUpForm />
+              </AuthPageLayout>
+            </PublicRoute>
           }
         />
 
@@ -66,7 +71,10 @@ function App() {
           <Route path="survey/:surveyId/submit" element={<SurveySubmit />} />
           <Route path="survey/write" element={<SurveyWrite />} />
           <Route path="organization" element={<Organization />} />
-          <Route path="organization/:classId" element={<OrganizationClass />} />
+          <Route
+            path="organization/class/:classId"
+            element={<OrganizationClass />}
+          />
         </Route>
       </Routes>
     </Router>

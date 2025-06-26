@@ -19,28 +19,72 @@
 //   }
 // };
 
-const singleSurveyFetch = async (surveyId) => {
-  return surveyMockData.surveyList.find(
-    (survey) => survey.surveyId === surveyId
-  );
-};
+const singleSurveyFetch = async (surveyId, token) => {
+  const url = `${import.meta.env.VITE_SURVEY_API_URL}/${surveyId}`;
 
-const surveyPageFetch = async (page, size) => {
-  return surveyListMockData;
-};
-
-const surveyCreateFetch = async (surveyData) => {
   try {
-    const response = await fetch(
-      `${import.meta.env.VITE_SURVEY_API_URL}/${surveyData.surveyId}`,
-      {
-        method: "POST",
-        body: JSON.stringify(surveyData),
-      }
-    );
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (200 <= response.status && response.status < 300) {
+      const responseJson = await response.json();
+      console.log(responseJson);
+      return responseJson.data;
+    } else {
+      const errorStatus = response.json().status;
+      const errorMessage = response.json().message;
+      throw new Error(`${errorStatus} : ${errorMessage}`);
+    }
+  } catch (error) {
+    console.error("Error fetching survey:", error);
+    throw error;
+  }
+};
+
+const surveyPageFetch = async (page, size, token) => {
+  const url = `${import.meta.env.VITE_SURVEY_API_URL}/page?page=${
+    page - 1
+  }&size=${size}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
     if (200 <= response.status && response.status < 300) {
       const responseJson = await response.json();
       return responseJson.data;
+    } else {
+      const errorStatus = response.json().status;
+      const errorMessage = response.json().message;
+      throw new Error(`${errorStatus} : ${errorMessage}`);
+    }
+  } catch (error) {
+    console.error("Error fetching survey:", error);
+    throw error;
+  }
+};
+
+const surveyCreateFetch = async (surveyData, token) => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_SURVEY_API_URL}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(surveyData),
+    });
+    if (200 <= response.status && response.status < 300) {
+      const responseJson = await response.json();
+      return responseJson;
     } else {
       const errorStatus = response.json().status;
       const errorMessage = response.json().message;
@@ -52,13 +96,17 @@ const surveyCreateFetch = async (surveyData) => {
   }
 };
 
-const surveyUpdateFetch = async (surveyId, surveyData) => {
+const surveyUpdateFetch = async (surveyId, surveyData, token) => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_SURVEY_API_URL}/${surveyId}`,
       {
         method: "PATCH",
         body: JSON.stringify(surveyData),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       }
     );
 
@@ -76,12 +124,16 @@ const surveyUpdateFetch = async (surveyId, surveyData) => {
   }
 };
 
-const surveyDeleteFetch = async (surveyId) => {
+const surveyDeleteFetch = async (surveyId, token) => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_SURVEY_API_URL}/${surveyId}`,
       {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       }
     );
 
@@ -123,60 +175,45 @@ const surveyDeleteMultipleFetch = async (surveyIds) => {
 };
 
 // 학생용
-const findSurveyBySurveyIdAndMemberIdFetch = async (surveyId, memberId) => {
+const findSurveyBySurveyIdAndMemberIdFetch = async (surveyId, token) => {
   try {
-    const mockSurvey = surveySubmitMultipleMockData.surveyList.find(
-      (survey) => survey.survey.surveyId == surveyId
-    );
-
-    if (!mockSurvey) {
-      return { status: 404, data: null };
-    }
-
-    const memberAnswer = mockSurvey.surveySubmit.find(
-      (submit) => submit.memberId == memberId
-    );
-
-    if (memberAnswer) {
-      return {
-        status: 200,
-        data: {
-          survey: mockSurvey.survey,
-          answer: memberAnswer.answer,
-          memberName: memberAnswer.memberName,
-          memberId: memberAnswer.memberId,
+    const response = await fetch(
+      `${import.meta.env.VITE_SURVEY_API_URL}/${surveyId}/user`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      };
+      }
+    );
+
+    if (200 <= response.status && response.status < 300) {
+      const responseJson = await response.json();
+      console.log(responseJson);
+      return responseJson.data;
     } else {
-      return {
-        status: 404,
-        data: {
-          survey: mockSurvey.survey,
-          answer: null,
-        },
-      };
+      const errorStatus = response.json().status;
+      const errorMessage = response.json().message;
+      throw new Error(`${errorStatus} : ${errorMessage}`);
     }
-
-    // 실제 API 사용 시 아래 코드 사용
-    // if (200 <= response.status && response.status < 300) {
-    //   const responseJson = await response.json();
-    //   return { status: response.status, data: responseJson.data };
-    // } else {
-    //   return { status: response.status, data: null };
-    // }
   } catch (error) {
-    console.error("Error finding survey by surveyId and memberId:", error);
-    return { status: 500, data: null };
+    console.error("Error fetching survey:", error);
+    throw error;
   }
 };
 
-const surveySubmitFetch = async (surveyId, surveyData) => {
+const surveySubmitFetch = async (surveyId, surveyData, token) => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_SURVEY_API_URL}/${surveyId}/submit`,
       {
         method: "POST",
         body: JSON.stringify(surveyData),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       }
     );
 
@@ -236,7 +273,7 @@ const surveyWithMemberAnswerFetch = async (surveyId) => {
     console.error("Error fetching survey with member answer:", error);
     throw error;
   }
-}
+};
 
 export {
   singleSurveyFetch,

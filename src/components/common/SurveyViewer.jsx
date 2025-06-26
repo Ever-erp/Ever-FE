@@ -5,9 +5,11 @@ import {
   surveyUpdateFetch,
   surveyDeleteFetch,
   surveySubmitFetch,
-  surveySubmitUpdateFetch,
 } from "../../services/survey/surveyFetch";
-import { getStatusBadgeColor } from "../../util/surveyUtil";
+import { getStatusBadgeColor, parsedDate } from "../../util/surveyUtil";
+import { useAuthFetch } from "../../hooks/useAuthFetch";
+import Loading from "../common/Loading";
+
 const SurveyViewer = ({
   surveyId,
   mode = "view", // "view", "admin", "submit", "edit"
@@ -20,48 +22,61 @@ const SurveyViewer = ({
     mode === "submit" || mode === "edit"
   );
   const [answers, setAnswers] = useState([]); // 답변 저장 상태관리
-
+  const [isLoading, setIsLoading] = useState(false);
   const [surveyData, setSurveyData] = useState({
     surveyId: "",
     surveyTitle: "",
     surveyDesc: "",
     dueDate: "",
     status: "",
-    surveySize: "",
+    surveySize: 0,
     createdAt: "",
     surveyQuestion: [],
     surveyQuestionMeta: [],
+    surveyAnswer: null,
   });
 
-  useEffect(() => {
-    singleSurveyFetch(surveyId).then((res) => {
-      setSurveyData(res);
-      if (mode === "submit" || mode === "edit") {
-        let initialAnswers = new Array(res.surveyQuestion?.length || 0).fill(
-          ""
-        );
+  const { isAuthenticated } = useAuthFetch();
+  const token = localStorage.getItem("accessToken");
 
-        if (existingAnswers) {
-          initialAnswers = existingAnswers.map((answer, index) => {
-            // 객관식 질문인지 확인
-            if (
-              res.surveyQuestionMeta &&
-              res.surveyQuestionMeta[index] &&
-              !res.surveyQuestionMeta[index].includes("주관식")
-            ) {
-              // 객관식인 경우 1부터를 0부터로 변환
-              const numAnswer = parseInt(answer);
-              if (!isNaN(numAnswer) && numAnswer > 0) {
-                return (numAnswer - 1).toString();
+  useEffect(() => {
+    setIsLoading(true);
+    singleSurveyFetch(surveyId, token)
+      .then((res) => {
+        console.log("SurveyViewer - API 응답 데이터:", res);
+        setSurveyData(res);
+        if (mode === "submit" || mode === "edit") {
+          let initialAnswers = new Array(res.surveyQuestion?.length || 0).fill(
+            ""
+          );
+
+          if (existingAnswers) {
+            initialAnswers = existingAnswers.map((answer, index) => {
+              // 객관식 질문인지 확인 - 빈 배열이 아니면 객관식
+              if (
+                res.surveyQuestionMeta &&
+                res.surveyQuestionMeta[index] &&
+                res.surveyQuestionMeta[index].length > 0
+              ) {
+                // 객관식인 경우 1부터를 0부터로 변환
+                const numAnswer = parseInt(answer);
+                if (!isNaN(numAnswer) && numAnswer > 0) {
+                  return (numAnswer - 1).toString();
+                }
               }
-            }
-            // 주관식일 경우 그대로 반환
-            return answer;
-          });
+              // 주관식일 경우 그대로 반환
+              return answer;
+            });
+          }
+          setAnswers(initialAnswers);
         }
-        setAnswers(initialAnswers);
-      }
-    });
+      })
+      .catch((error) => {
+        console.error("SurveyViewer - API 호출 오류:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [surveyId, mode, existingAnswers]);
 
   // 주관식 질문인지 확인
@@ -72,7 +87,8 @@ const SurveyViewer = ({
     ) {
       return false;
     }
-    return surveyData.surveyQuestionMeta[questionIndex].includes("주관식");
+    // 빈 배열이면 주관식
+    return surveyData.surveyQuestionMeta[questionIndex].length === 0;
   };
 
   // 답변 업데이트 (사용자 모드)
@@ -88,7 +104,7 @@ const SurveyViewer = ({
     const newQuestionMeta = [...surveyData.surveyQuestionMeta];
 
     newQuestions.splice(afterIndex + 1, 0, "");
-    newQuestionMeta.splice(afterIndex + 1, 0, ["옵션1", "옵션2"]);
+    newQuestionMeta.splice(afterIndex + 1, 0, ["옵션1", "옵션2"]); // 기본값은 객관식
 
     setSurveyData({
       ...surveyData,
@@ -130,9 +146,9 @@ const SurveyViewer = ({
     const newQuestionMeta = [...surveyData.surveyQuestionMeta];
 
     if (type === "주관식") {
-      newQuestionMeta[questionIndex] = ["주관식"];
+      newQuestionMeta[questionIndex] = []; // 빈 배열로 설정
     } else {
-      newQuestionMeta[questionIndex] = ["옵션1", "옵션2"];
+      newQuestionMeta[questionIndex] = ["옵션1", "옵션2"]; // 객관식 기본 옵션
     }
 
     setSurveyData({
@@ -183,7 +199,7 @@ const SurveyViewer = ({
   // 설문 저장/수정 (관리자 모드)
   const handleAdminSave = async () => {
     try {
-      await surveyUpdateFetch(surveyData.surveyId, surveyData);
+      await surveyUpdateFetch(surveyData.surveyId, surveyData, token);
       alert("설문이 성공적으로 저장되었습니다.");
       setIsEditing(false);
       if (onSave) onSave();
@@ -214,7 +230,7 @@ const SurveyViewer = ({
         if (
           surveyData.surveyQuestionMeta &&
           surveyData.surveyQuestionMeta[index] &&
-          !surveyData.surveyQuestionMeta[index].includes("주관식")
+          surveyData.surveyQuestionMeta[index].length > 0
         ) {
           // 객관식인 경우 0부터를 1부터로 변환
           const numAnswer = parseInt(answer);
@@ -233,7 +249,7 @@ const SurveyViewer = ({
 
       if (mode === "edit") {
         // 수정 모드
-        await surveySubmitUpdateFetch(surveyData.surveyId, submitData);
+        await surveyUpdateFetch(surveyData.surveyId, submitData);
         alert("설문 답변이 성공적으로 수정되었습니다.");
       } else {
         // 신규 제출 모드
@@ -252,8 +268,9 @@ const SurveyViewer = ({
   const handleDelete = async () => {
     if (window.confirm("정말로 이 설문을 삭제하시겠습니까?")) {
       try {
-        await surveyDeleteFetch(surveyData.surveyId);
+        await surveyDeleteFetch(surveyData.surveyId, token);
         alert("설문이 성공적으로 삭제되었습니다.");
+        navigate("/survey");
         if (onCancel) onCancel();
       } catch (error) {
         console.error("설문 삭제 중 오류:", error);
@@ -267,9 +284,17 @@ const SurveyViewer = ({
     if (mode === "admin" && isEditing) {
       setIsEditing(false);
       // 원래 데이터로 복원
-      singleSurveyFetch(surveyId).then((res) => {
-        setSurveyData(res);
-      });
+      setIsLoading(true);
+      singleSurveyFetch(surveyId, token)
+        .then((res) => {
+          setSurveyData(res);
+        })
+        .catch((error) => {
+          console.error("데이터 복원 중 오류:", error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     } else {
       if (onCancel) onCancel();
     }
@@ -278,6 +303,10 @@ const SurveyViewer = ({
   // 관리자 편집 모드 체크
   const isAdminEditing = mode === "admin" && isEditing;
   const isUserMode = mode === "submit" || mode === "edit";
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div
@@ -290,7 +319,9 @@ const SurveyViewer = ({
           <span className="bg-blue-500 text-white px-3 py-1 rounded text-sm font-medium">
             웹/앱
           </span>
-          <span className="text-gray-600">{surveyData.surveyTitle}</span>
+          <span className="text-gray-600 font-medium">
+            {surveyData.surveyTitle}
+          </span>
           <span
             className={`px-2 py-1 rounded text-xs ${getStatusBadgeColor(
               surveyData.status
@@ -300,11 +331,24 @@ const SurveyViewer = ({
           </span>
         </div>
 
-        <div className="text-gray-600 mb-2">{surveyData.dueDate}</div>
-        <div className="text-gray-600">
+        <div className="space-y-1 mb-4">
+          <div className="text-gray-600 text-sm">
+            <span className="font-medium">설명:</span>{" "}
+            {surveyData.surveyDesc || "설명 없음"}
+          </div>
+          <div className="text-gray-600 text-sm">
+            <span className="font-medium">마감일:</span> {surveyData.dueDate}
+          </div>
+          <div className="text-gray-600 text-sm">
+            <span className="font-medium">생성일:</span>{" "}
+            {parsedDate(surveyData.createdAt)}
+          </div>
+        </div>
+
+        <div className="text-gray-600 text-sm">
           {isUserMode
-            ? `${surveyData.surveySize}개 문항`
-            : `0/${surveyData.surveySize}`}
+            ? `총 ${surveyData.surveySize || 0}개 문항`
+            : `응답: 0/${surveyData.surveySize || 0}`}
         </div>
 
         {isUserMode && (
