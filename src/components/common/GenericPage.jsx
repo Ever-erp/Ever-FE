@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PageFooter from "../specific/notice/PageFooter";
 import GenericPageRow from "./GenericPageRow";
-
+import { useSelector } from "react-redux";
 const GenericPage = ({
   dataList,
   page,
@@ -11,6 +11,8 @@ const GenericPage = ({
   totalElements,
   onPageChange,
   onSizeChange,
+  onDelete,
+  onRowClick,
 
   config = {
     title: "게시글", // "게시글" or "설문"
@@ -18,6 +20,7 @@ const GenericPage = ({
     writeRoute: "/notice/write", // 작성 페이지 경로
     detailRoute: "/notice", // 상세 페이지 경로
     showWriteButton: true, // 작성버튼 표시 (true / false)
+    showDeleteButton: false,
     columns: [
       // 컬럼 관련설정
       { key: "id", label: "번호", width: "w-16", align: "center" },
@@ -56,6 +59,10 @@ const GenericPage = ({
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(page);
   const [currentSize, setCurrentSize] = useState(size);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+
+  const user = useSelector((state) => state.user.user);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -69,6 +76,49 @@ const GenericPage = ({
     navigate(config.writeRoute);
   };
 
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedItems([]);
+    } else {
+      const allIds = dataList.map((item) => item[config.dataKeyMapping.id]);
+      setSelectedItems(allIds);
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleSelectItem = (itemId) => {
+    if (selectedItems.includes(itemId)) {
+      setSelectedItems(selectedItems.filter((id) => id !== itemId));
+    } else {
+      setSelectedItems([...selectedItems, itemId]);
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedItems.length === 0) {
+      alert("삭제할 항목을 선택해주세요.");
+      return;
+    }
+
+    const confirmMessage = `선택된 ${selectedItems.length}개의 ${config.title}을(를) 삭제하시겠습니까?`;
+    if (window.confirm(confirmMessage)) {
+      onDelete && onDelete(selectedItems);
+      setSelectedItems([]);
+      setSelectAll(false);
+    }
+  };
+
+  useEffect(() => {
+    setSelectedItems([]);
+    setSelectAll(false);
+  }, [dataList]);
+
+  useEffect(() => {
+    if (dataList && dataList.length > 0) {
+      setSelectAll(selectedItems.length === dataList.length);
+    }
+  }, [selectedItems, dataList]);
+
   useEffect(() => {
     onPageChange(currentPage);
     onSizeChange(currentSize);
@@ -77,62 +127,113 @@ const GenericPage = ({
   }, [currentPage, currentSize]);
 
   return (
-    <div className="flex flex-col w-full h-auto mr-20 ml-20">
-      <div className="text-gray-500 pb-2">
-        총 <span className="text-brand font-semibold">{totalElements}</span>개의
-        {config.title}이 있습니다.
-      </div>
-      {/* 헤더 */}
-      <div className="flex w-full border-t-4 border-brand pt-5 border-b pb-5 pl-10 pr-10">
-        {config.columns.map((column, index) => (
-          <div
-            key={index}
-            className={`${column.width} text-${column.align} font-semibold ${
-              column.paddingLeft || ""
-            }`}
-          >
-            {column.label}
-          </div>
-        ))}
-      </div>
-      {/* Row */}
-      <div className="flex flex-col">
-        {dataList && dataList.length > 0 ? (
-          dataList.map((item, index) => (
-            <div
-              key={`${config.title}-${
-                item[config.dataKeyMapping.id] || item.id || index
-              }`}
-              className="border-b border-gray-300 pb-3 pt-3 pl-10 pr-10 hover:bg-gray-100"
-              style={{ cursor: "pointer" }}
-            >
-              <GenericPageRow data={item} config={config} />
-            </div>
-          ))
-        ) : (
-          <div className="text-center py-8 text-gray-500">
-            {config.title}이 없습니다.
-          </div>
-        )}
-      </div>
-      {/* 작성버튼 */}
-      {config.showWriteButton && (
-        <div className="flex justify-end gap-4 mt-5">
-          <button
-            className="bg-brand text-white px-10 py-2 rounded-md hover:bg-brand/80 transition-colors"
-            onClick={handleWriteClick}
-          >
-            {config.writeButtonText}
-          </button>
+    <div className="flex flex-col w-full h-full justify-center items-center ml-20 mr-20">
+      <div className="flex flex-col w-full h-full ">
+        <div className="text-gray-500 pb-2">
+          총 <span className="text-brand font-semibold">{totalElements}</span>
+          개의
+          {config.title}이 있습니다.
         </div>
-      )}
-      {/* 페이지네이션 */}
-      <div className="flex justify-center">
-        <PageFooter
-          currentPage={currentPage}
-          totalPageLength={totalPages}
-          onPageChange={onPageChange}
-        />
+        {/* 헤더 */}
+        <div className="flex w-full border-t-4 border-brand pt-5 border-b pb-5 pl-10 pr-10">
+          {config.showDeleteButton && user.position === "관리자" && (
+            <div className="w-12 text-center font-semibold">
+              <input
+                type="checkbox"
+                checked={selectAll}
+                onChange={handleSelectAll}
+                className="w-4 h-4"
+              />
+            </div>
+          )}
+          {config.columns.map((column, index) => (
+            <div
+              key={index}
+              className={`${column.width} text-${column.align} font-semibold ${
+                column.paddingLeft || ""
+              }`}
+            >
+              {column.label}
+            </div>
+          ))}
+        </div>
+        {/* Row */}
+        <div className="flex flex-col">
+          {dataList && dataList.length > 0 ? (
+            dataList.map((item, index) => (
+              <div
+                key={`${config.title}-${
+                  item[config.dataKeyMapping.id] || item.id || index
+                }`}
+                className="border-b border-gray-300 pb-3 pt-3 pl-10 pr-10 hover:bg-gray-100"
+              >
+                <div className="flex items-center">
+                  {config.showDeleteButton && user.position === "관리자" && (
+                    <div className="w-12 flex justify-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.includes(
+                          item[config.dataKeyMapping.id]
+                        )}
+                        onChange={() =>
+                          handleSelectItem(item[config.dataKeyMapping.id])
+                        }
+                        className="w-4 h-4"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1 cursor-pointer">
+                    <GenericPageRow
+                      data={item}
+                      config={config}
+                      onRowClick={onRowClick}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              {config.title}이 없습니다.
+            </div>
+          )}
+        </div>
+        {/* 버튼들 */}
+        <div className="flex justify-between items-center mt-5">
+          {user.position === "관리자" && (
+            <>
+              <div>
+                {config.showDeleteButton && selectedItems.length > 0 && (
+                  <button
+                    className="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition-colors"
+                    onClick={handleDeleteSelected}
+                  >
+                    선택 삭제 ({selectedItems.length})
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-4">
+                {config.showWriteButton && (
+                  <button
+                    className="bg-brand text-white px-10 py-2 rounded-md hover:bg-brand/80 transition-colors"
+                    onClick={handleWriteClick}
+                  >
+                    {config.writeButtonText}
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+        {/* 페이지네이션 */}
+        <div className="flex justify-center w-full h-full">
+          <PageFooter
+            currentPage={currentPage}
+            totalPageLength={totalPages}
+            onPageChange={onPageChange}
+          />
+        </div>
       </div>
     </div>
   );
