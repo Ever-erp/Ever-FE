@@ -5,10 +5,11 @@ import {
   surveyUpdateFetch,
   surveyDeleteFetch,
   surveySubmitFetch,
-} from "../../services/survey/surveyFetch";
-import { getStatusBadgeColor, parsedDate } from "../../util/surveyUtil";
-import { useAuthFetch } from "../../hooks/useAuthFetch";
-import Loading from "../common/Loading";
+  surveySubmitUpdateFetch,
+} from "../../../services/survey/surveyFetch";
+import { getStatusBadgeColor, parsedDate } from "../../../util/surveyUtil";
+import { useAuthFetch } from "../../../hooks/useAuthFetch";
+import Loading from "../../common/Loading";
 
 const SurveyViewer = ({
   surveyId,
@@ -43,14 +44,35 @@ const SurveyViewer = ({
     setIsLoading(true);
     singleSurveyFetch(surveyId, token)
       .then((res) => {
-        console.log("SurveyViewer - API 응답 데이터:", res);
         setSurveyData(res);
-        if (mode === "submit" || mode === "edit") {
+        if (mode === "submit" || mode === "edit" || mode === "user") {
           let initialAnswers = new Array(res.surveyQuestion?.length || 0).fill(
             ""
           );
 
-          if (existingAnswers) {
+          // mode가 "user"이고 surveyAnswer가 있는 경우 기존 답변 사용
+          if (
+            mode === "user" &&
+            res.surveyAnswer &&
+            res.surveyAnswer.length > 0
+          ) {
+            initialAnswers = res.surveyAnswer.map((answer, index) => {
+              // 객관식 질문인지 확인 - 빈 배열이 아니면 객관식
+              if (
+                res.surveyQuestionMeta &&
+                res.surveyQuestionMeta[index] &&
+                res.surveyQuestionMeta[index].length > 0
+              ) {
+                // 객관식인 경우 1부터를 0부터로 변환
+                const numAnswer = parseInt(answer);
+                if (!isNaN(numAnswer) && numAnswer > 0) {
+                  return (numAnswer - 1).toString();
+                }
+              }
+              // 주관식일 경우 그대로 반환
+              return answer;
+            });
+          } else if (existingAnswers) {
             initialAnswers = existingAnswers.map((answer, index) => {
               // 객관식 질문인지 확인 - 빈 배열이 아니면 객관식
               if (
@@ -249,11 +271,11 @@ const SurveyViewer = ({
 
       if (mode === "edit") {
         // 수정 모드
-        await surveyUpdateFetch(surveyData.surveyId, submitData);
+        await surveySubmitUpdateFetch(surveyData.surveyId, submitData, token);
         alert("설문 답변이 성공적으로 수정되었습니다.");
       } else {
         // 신규 제출 모드
-        await surveySubmitFetch(surveyData.surveyId, submitData);
+        await surveySubmitFetch(surveyData.surveyId, submitData, token);
         alert("설문이 성공적으로 제출되었습니다.");
       }
 
@@ -277,6 +299,10 @@ const SurveyViewer = ({
         alert("설문 삭제 중 오류가 발생했습니다.");
       }
     }
+  };
+
+  const handleModify = () => {
+    navigate(`/survey/${surveyId}/submit`);
   };
 
   // 취소
@@ -303,6 +329,7 @@ const SurveyViewer = ({
   // 관리자 편집 모드 체크
   const isAdminEditing = mode === "admin" && isEditing;
   const isUserMode = mode === "submit" || mode === "edit";
+  const isViewMode = mode === "view" || mode === "user"; // user 모드도 읽기 전용으로 처리
 
   if (isLoading) {
     return <Loading />;
@@ -348,6 +375,8 @@ const SurveyViewer = ({
         <div className="text-gray-600 text-sm">
           {isUserMode
             ? `총 ${surveyData.surveySize || 0}개 문항`
+            : mode === "user"
+            ? `내 답변 확인 - 총 ${surveyData.surveySize || 0}개 문항`
             : `응답: 0/${surveyData.surveySize || 0}`}
         </div>
 
@@ -359,6 +388,12 @@ const SurveyViewer = ({
                 * 기존 답변을 수정하고 있습니다.
               </span>
             )}
+          </div>
+        )}
+
+        {mode === "user" && (
+          <div className="mt-2 text-sm text-green-600">
+            * 제출한 답변을 확인하고 있습니다.
           </div>
         )}
       </div>
@@ -473,6 +508,31 @@ const SurveyViewer = ({
                                       />
                                       <span className="flex-1">{option}</span>
                                     </>
+                                  ) : mode === "user" ? (
+                                    // 사용자 답변 보기 모드 - 읽기 전용
+                                    <>
+                                      <input
+                                        type="radio"
+                                        name={`question_${questionIndex}`}
+                                        value={optionIndex}
+                                        checked={
+                                          answers[questionIndex] ===
+                                          optionIndex.toString()
+                                        }
+                                        disabled
+                                        className="w-4 h-4 text-blue-600"
+                                      />
+                                      <span
+                                        className={`flex-1 ${
+                                          answers[questionIndex] ===
+                                          optionIndex.toString()
+                                            ? "font-semibold text-blue-600"
+                                            : ""
+                                        }`}
+                                      >
+                                        {option}
+                                      </span>
+                                    </>
                                   ) : (
                                     // 관리자 모드
                                     <>
@@ -556,6 +616,13 @@ const SurveyViewer = ({
                           placeholder="답변을 입력해주세요..."
                           className="flex-1 border border-gray-300 rounded px-3 py-2 min-h-[100px] resize-none"
                         />
+                      ) : mode === "user" ? (
+                        // 사용자 답변 보기 모드 - 읽기 전용
+                        <div className="flex-1 border border-gray-300 rounded px-3 py-2 min-h-[100px] bg-gray-50">
+                          <div className="text-gray-700 whitespace-pre-wrap">
+                            {answers[questionIndex] || "답변 없음"}
+                          </div>
+                        </div>
                       ) : (
                         // 관리자 모드 - 주관식 표시
                         <div className="flex-1 text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded">
@@ -580,6 +647,14 @@ const SurveyViewer = ({
             {isAdminEditing ? "취소" : "목록으로"}
           </button>
         ) : null}
+        {mode === "user" && (
+          <button
+            onClick={handleModify}
+            className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            {"답변 수정"}
+          </button>
+        )}
         {mode === "admin" && !isEditing ? (
           <>
             <button
