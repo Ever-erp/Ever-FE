@@ -5,7 +5,7 @@ import CustomButton from "../../common/CustomButton";
 import { writeSchedule } from "../../../services/calendar/writeClassSchedule";
 import { formatDateToLocalString } from "../../../services/formatDateToLocalString";
 
-const ScheduleCreateModal = ({ onSubmit, onClose }) => {
+const ScheduleCreateModal = ({ onClose, classId, loadCalendarData }) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [title, setTitle] = useState("");
@@ -17,9 +17,16 @@ const ScheduleCreateModal = ({ onSubmit, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("서버와 통신");
 
     if (!title || !startDate || !endDate) {
       alert("제목과 날짜를 입력해주세요.");
+      return;
+    }
+
+    // 주말 체크
+    if (isWeekend(startDate) || isWeekend(endDate)) {
+      alert("주말에는 수업 일정을 추가할 수 없습니다.");
       return;
     }
 
@@ -27,36 +34,24 @@ const ScheduleCreateModal = ({ onSubmit, onClose }) => {
     const endDateInclusive = new Date(endDate);
     endDateInclusive.setDate(endDateInclusive.getDate() + 1);
 
-    // 일정 이벤트 객체 생성(이벤트 생성 시에는 완료 날짜 +1)
-    const newEvent = {
-      title: `${title}`,
-      start: formatDateToLocalString(startDate),
-      end: formatDateToLocalString(endDateInclusive),
-      color: "#A2D2DF", // 수업 일정 색상
-      display: "block",
-      customOrder: 2, // 수업 일정은 customOrder 2
-    };
-
     // 백엔드와 통신 시에는 원래 완료 날짜
     const scheduleJson = {
       subjectName: title,
-      startDate: newEvent.start,
+      startDate: formatDateToLocalString(startDate),
       endDate: formatDateToLocalString(endDate),
       classDesc: description,
       classUrl: material,
+      classId: classId, // 백엔드 요청으로 반 아이디 추가
     };
 
     try {
-      const success = onSubmit(newEvent); // 캘린더에만 추가
-      if (success) {
-        await writeSchedule(scheduleJson); // 서버 저장
+      await writeSchedule(scheduleJson); // 서버 저장
+      await loadCalendarData(); // 최신 캘린더 일정 불러오기
 
-        alert("수업 일정이 저장되었습니다.");
-        setTitle("");
-        setDescription("");
-        setMaterial("");
-        onClose();
-      }
+      setTitle("");
+      setDescription("");
+      setMaterial("");
+      onClose();
     } catch (err) {
       alert("수업 일정 작성 실패: " + err.message);
     }

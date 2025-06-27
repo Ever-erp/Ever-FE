@@ -3,8 +3,9 @@ import CustomButton from "../../common/CustomButton";
 import DatePicker from "react-datepicker";
 import { writeVacation } from "../../../services/calendar/writeVacation";
 import { formatDateToLocalString } from "../../../services/formatDateToLocalString";
+import { isWeekend } from "../../../services/calendar/calendarService";
 
-const VacationRequestModal = ({ onSubmit, onClose }) => {
+const VacationRequestModal = ({ onClose, loadCalendarData }) => {
   const [selectedType, setSelectedType] = useState("");
   const [reason, setReason] = useState(""); // 휴가 사유
   const [date, setDate] = useState(null); // 날짜 상태 추가
@@ -21,13 +22,11 @@ const VacationRequestModal = ({ onSubmit, onClose }) => {
 
     const formattedDate = formatDateToLocalString(date); // "YYYY-MM-DD"
 
-    const newEvent = {
-      title: `오창은 ${selectedType}`,
-      start: formattedDate,
-      color: "#F0C1E1",
-      display: "block",
-      customOrder: 3,
-    };
+    // 주말 체크
+    if (isWeekend(formattedDate)) {
+      alert("주말에는 수업 일정을 추가할 수 없습니다.");
+      return;
+    }
 
     // 실제 서버에 보낼 JSON 객체
     const vacationJson = {
@@ -37,16 +36,12 @@ const VacationRequestModal = ({ onSubmit, onClose }) => {
     };
 
     try {
-      const success = onSubmit(newEvent); // 이벤트 추가 (캘린더용)
-      if (success) {
-        await writeVacation(vacationJson); // 백엔드에 저장
+      await writeVacation(vacationJson); // 백엔드에 저장
+      await loadCalendarData(); // 최신 캘린더 일정 불러오기
 
-        alert("휴가 신청이 완료되었습니다!");
-        setSelectedType("");
-        setReason("");
-        setDate(null);
-        onClose();
-      }
+      setSelectedType("");
+      setReason("");
+      onClose();
     } catch (err) {
       alert("휴가 신청 실패: " + err.message);
     }

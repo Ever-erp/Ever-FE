@@ -38,6 +38,9 @@ const noticePageFetch = async (page, size, token) => {
     },
   };
 
+  console.log(
+    `${import.meta.env.VITE_NOTICE_API_URL}?page=${page}&size=${size}`
+  );
   try {
     const response = await fetch(
       `${import.meta.env.VITE_NOTICE_API_URL}?page=${page}&size=${size}`,

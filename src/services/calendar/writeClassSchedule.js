@@ -17,7 +17,7 @@ export const writeSchedule = async (scheduleData) => {
     }
 
     const data = await response.json();
-    alert("수업 일정이 성공적으로 저장되었습니다.");
+    alert("수업 일정이 저장되었습니다.");
 
     return data;
   } catch (error) {

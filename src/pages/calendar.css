@@ -1,12 +1,17 @@
 #calendar-container {
-  @apply w-[1000px] my-[20px] mx-auto box-border;
+  @apply w-[1200px] my-[20px] mx-auto box-border;
 }
 
 /* 달력부분 */
 
 /* 오늘 날짜 */
 .fc-day-today {
-  @apply rounded bg-positive !important;
+  background: transparent !important;
+}
+
+/* 오늘 날짜 숫자 스타일 변경 */
+.fc-day-today .fc-daygrid-day-number {
+  @apply bg-brand brightness-125 rounded-full w-6 h-6 flex justify-center items-center font-bold text-white;
 }
 
 /* 날짜 상단 글자 */
@@ -29,14 +34,14 @@
   @apply text-positive;
 }
 
-/* 제목 볼드 빼기 */
+/* 제목(월/년)*/
 .fc .fc-toolbar-title {
-  @apply font-bold;
+  @apply font-bold text-2xl;
 }
 
 /* 일정표 툴 바  */
 .fc .fc-toolbar.fc-header-toolbar {
-  @apply m-0 px-10 bg-brand bg-opacity-95 h-[60px] text-xs text-white rounded-t-xl justify-between;
+  @apply m-0 p-10 bg-brand bg-opacity-95 h-[60px] text-xs text-white rounded-t-xl justify-between;
 }
 
 /* 툴바의 버튼 */
@@ -79,7 +84,7 @@
 
 /* 날짜 Cell 프레임 */
 .fc .fc-daygrid-day-frame {
-  @apply pt-1 px-2.5;
+  @apply p-2 pt-2.5;
 }
 
 /* 월간,주간 view의 Cell이 시작하는 위치 */
@@ -113,4 +118,21 @@
 /* 이벤트에 마우스 hover */
 .fc-event {
   @apply cursor-pointer;
+}
+/* 이벤트 제목 */
+.fc-event-title {
+  @apply overflow-hidden whitespace-nowrap text-ellipsis w-4/5;
+}
+
+.fc-daygrid-day-events {
+  @apply min-h-24 mb-0;
+}
+
+.fc .fc-daygrid-body-natural .fc-daygrid-day-events {
+  @apply mb-0;
+}
+
+/* 한칸 최소 높이 */
+.fc .fc-daygrid-day-frame {
+  @apply min-h-32;
 }
