@@ -9,6 +9,7 @@ const CustomButton = ({
   onBlur,
   className = "",
   rounded = "rounded-md",
+  type = "button",
   ...props
 }) => {
   // variant별 스타일 맵
@@ -28,7 +29,7 @@ const CustomButton = ({
 
   return (
     <button
-      type="button"
+      type={type}
       onClick={onClick}
       onFocus={onFocus}
       onBlur={onBlur}

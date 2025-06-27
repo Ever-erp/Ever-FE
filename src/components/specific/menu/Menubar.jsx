@@ -10,7 +10,7 @@ const Menubar = () => {
   return (
     <nav className="flex flex-col">
       <MenuItem
-        to="/"
+        to="/calendar"
         label="일정 관리"
         icon={<FaRegCalendarCheck className="w-7 h-7" />}
       />

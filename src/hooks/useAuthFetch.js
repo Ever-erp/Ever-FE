@@ -26,7 +26,6 @@ export const useAuthFetch = () => {
     const checkAuth = async () => {
       try {
         let response = await ping();
-        console.log(response);
 
         if (response.status === 200) {
           setIsAuthenticated(true);
