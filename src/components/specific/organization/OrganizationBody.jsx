@@ -7,12 +7,10 @@ import {
   useReactFlow,
 } from "reactflow";
 import OrganizationNodeVertical from "./OrganizationNodeVertical";
-import OrganizationNodeHorizontal from "./OrganizationNodeHorizontal";
 
 const nodeTypes = {
   organizationNode: OrganizationNodeVertical,
   organizationNodeVertical: OrganizationNodeVertical,
-  organizationNodeHorizontal: OrganizationNodeHorizontal,
 };
 
 const OrganizationBody = ({
@@ -43,93 +41,64 @@ const OrganizationBody = ({
           minZoom: 0.1,
           maxZoom: 1.5,
         });
-      }, 10);
+      }, 100);
 
       return () => clearTimeout(timeoutId);
     }
   }, [nodes.length, fitView]);
 
   const calculateNodePositions = useMemo(() => {
-    return (
-      containerWidth,
-      containerHeight,
-      level2Count = 5,
-      level3Count = 5
-    ) => {
+    return (containerWidth, containerHeight) => {
       const centerX = containerWidth / 2;
       const topY = 50;
       const middleY = 200;
       const bottomY = 350;
+
+      const level2Count = 5;
+      const level3Count = 5;
 
       const minSpacing = 120;
       const maxSpacing = 180;
 
       // 각 레벨의 간격 계산 (화면 크기에 따라 조정)
       const availableWidth = Math.min(containerWidth - 200, 800); // 최대 폭 제한
-      const level2Spacing =
-        level2Count > 1
-          ? Math.max(
-              minSpacing,
-              Math.min(maxSpacing, availableWidth / (level2Count - 1))
-            )
-          : 0;
-      const level3Spacing =
-        level3Count > 1
-          ? Math.max(
-              minSpacing,
-              Math.min(maxSpacing, availableWidth / (level3Count - 1))
-            )
-          : 0;
+      const level2Spacing = Math.max(
+        minSpacing,
+        Math.min(maxSpacing, availableWidth / (level2Count - 1))
+      );
+      const level3Spacing = Math.max(
+        minSpacing,
+        Math.min(maxSpacing, availableWidth / (level3Count - 1))
+      );
 
-      const level2StartX =
-        level2Count > 1
-          ? centerX - ((level2Count - 1) * level2Spacing) / 2
-          : centerX;
-      const level3StartX =
-        level3Count > 1
-          ? centerX - ((level3Count - 1) * level3Spacing) / 2
-          : centerX - 80;
-
-      const level2Positions = [];
-      const level3Positions = [];
-
-      for (let i = 0; i < level2Count; i++) {
-        level2Positions.push({
-          x: level2Count > 1 ? level2StartX + i * level2Spacing : level2StartX,
-          y: middleY,
-        });
-      }
-
-      for (let i = 0; i < level3Count; i++) {
-        level3Positions.push({
-          x: level3Count > 1 ? level3StartX + i * level3Spacing : level3StartX,
-          y: bottomY,
-        });
-      }
+      const level2StartX = centerX - ((level2Count - 1) * level2Spacing) / 2;
+      const level3StartX = centerX - ((level3Count - 1) * level3Spacing) / 2;
 
       return {
-        root: { x: centerX, y: topY },
-        level2: level2Positions,
-        level3: level3Positions,
+        root: { x: centerX - 80, y: topY },
+        level2: [
+          { x: level2StartX, y: middleY },
+          { x: level2StartX + level2Spacing, y: middleY },
+          { x: level2StartX + level2Spacing * 2, y: middleY },
+          { x: level2StartX + level2Spacing * 3, y: middleY },
+          { x: level2StartX + level2Spacing * 4, y: middleY },
+        ],
+        level3: [
+          { x: level3StartX, y: bottomY },
+          { x: level3StartX + level3Spacing, y: bottomY },
+          { x: level3StartX + level3Spacing * 2, y: bottomY },
+          { x: level3StartX + level3Spacing * 3, y: bottomY },
+          { x: level3StartX + level3Spacing * 4, y: bottomY },
+        ],
       };
     };
   }, []);
 
   useEffect(() => {
     if (containerSize && containerSize.width && containerSize.height) {
-      // 실제 노드 개수 계산
-      const level2NodeCount = nodes.filter(
-        (node) => parseInt(node.id) >= 11 && parseInt(node.id) <= 20
-      ).length;
-      const level3NodeCount = nodes.filter((node) =>
-        node.id.startsWith("instructor-")
-      ).length;
-
       const positions = calculateNodePositions(
         containerSize.width,
-        containerSize.height,
-        level2NodeCount,
-        level3NodeCount
+        containerSize.height
       );
 
       setNodes((nds) =>
@@ -138,28 +107,17 @@ const OrganizationBody = ({
 
           if (node.id === "1") {
             newPosition = positions.root;
-          } else if (parseInt(node.id) >= 11 && parseInt(node.id) <= 20) {
-            // 레벨2 노드 (클래스) - 순서대로 배치
-            const level2Nodes = nds
-              .filter((n) => parseInt(n.id) >= 11 && parseInt(n.id) <= 20)
-              .sort((a, b) => parseInt(a.id) - parseInt(b.id));
-            const index = level2Nodes.findIndex((n) => n.id === node.id);
+          } else if (parseInt(node.id) >= 11 && parseInt(node.id) <= 15) {
+            // 레벨2 노드 (클래스)
+            const index = parseInt(node.id) - 11;
             if (positions.level2[index]) {
               newPosition = positions.level2[index];
             }
-          } else if (node.id.startsWith("instructor-")) {
-            // 레벨3 노드 (강사) - 담당 클래스와 같은 열에 배치
-            const instructorClassId = parseInt(
-              node.id.replace("instructor-", "")
-            );
-            const level2Nodes = nds
-              .filter((n) => parseInt(n.id) >= 11 && parseInt(n.id) <= 20)
-              .sort((a, b) => parseInt(a.id) - parseInt(b.id));
-            const classIndex = level2Nodes.findIndex(
-              (n) => parseInt(n.id) === instructorClassId + 10
-            );
-            if (positions.level3[classIndex]) {
-              newPosition = positions.level3[classIndex];
+          } else if (parseInt(node.id) >= 21 && parseInt(node.id) <= 25) {
+            // 레벨3 노드 (강사)
+            const index = parseInt(node.id) - 21;
+            if (positions.level3[index]) {
+              newPosition = positions.level3[index];
             }
           }
 
@@ -170,12 +128,7 @@ const OrganizationBody = ({
         })
       );
     }
-  }, [
-    containerSize?.width,
-    containerSize?.height,
-    calculateNodePositions,
-    nodes.length,
-  ]);
+  }, [containerSize?.width, containerSize?.height, calculateNodePositions]);
 
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
@@ -205,6 +158,9 @@ const OrganizationBody = ({
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
         fitView
+        minZoom={0.1}
+        maxZoom={2}
+        defaultZoom={0.8}
         proOptions={{ hideAttribution: true }}
       />
     </div>

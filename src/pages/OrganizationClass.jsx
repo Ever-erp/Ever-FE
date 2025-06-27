@@ -6,7 +6,6 @@ import OrganizationHeader from "../components/specific/organization/Organization
 import OrganizationBody from "../components/specific/organization/OrganizationBody";
 import { ReactFlowProvider } from "reactflow";
 import { calculateGridPositions } from "../util/organizationUtil";
-import Loading from "../components/common/Loading";
 
 const OrganizationClass = () => {
   const { classId } = useParams();
@@ -22,22 +21,18 @@ const OrganizationClass = () => {
   const [classMembers, setClassMembers] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
-  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const fetchClassData = async () => {
-      setLoading(true);
       try {
-        const token = localStorage.getItem("accessToken");
-        const data = await singleClassFetch(classId, token);
+        const data = await singleClassFetch(classId);
         setClassTitle(data.name + " " + data.cohort);
-        setClassDescription(data.schedules[0].classDesc);
-        setSetStartDate(data.schedules[0].startDate);
-        setSetEndDate(data.schedules[0].endDate);
+        setClassDescription(data.classDesc);
+        setSetStartDate(data.startDate);
+        setSetEndDate(data.endDate);
         setClassMembers(data.members);
       } catch (error) {
         console.error("Error fetching class data:", error);
-      } finally {
-        setLoading(false);
       }
     };
     fetchClassData();
@@ -62,7 +57,7 @@ const OrganizationClass = () => {
 
   const classNode = {
     id: "class-1",
-    type: "organizationNodeHorizontal",
+    type: "organizationNodeVertical",
     position: positions.classPosition,
     data: {
       id: 1,
@@ -74,24 +69,22 @@ const OrganizationClass = () => {
   };
 
   const memberNodes = classMembers.map((member, index) => ({
-    id: `member-${member.email}`,
-    type: "organizationNodeHorizontal",
+    id: `member-${member.id}`,
+    type: "organizationNodeVertical",
     position: positions.memberPositions[index] || {
       x: 600 + index * 200,
       y: 300,
     },
     data: {
-      id: member.email,
+      id: member.id,
       name: member.name,
       email: member.email,
-      phone: member.phone,
-      profile_image: member.profileImage,
+      phone_num: member.phone_num,
+      profile_image: member.profile_image,
       birth: member.birth,
       gender: member.gender,
       address: member.address,
-      position: member.position,
-      classId: member.classId,
-      is_active: true,
+      is_active: member.is_active,
     },
   }));
 
@@ -107,9 +100,9 @@ const OrganizationClass = () => {
     for (let i = 0; i < firstColMembers; i++) {
       const member = classMembers[i];
       edges.push({
-        id: `class-1-member-${member.email}`,
+        id: `class-1-member-${member.id}`,
         source: "class-1",
-        target: `member-${member.email}`,
+        target: `member-${member.id}`,
         sourceHandle: "right",
         targetHandle: "left",
         type: "smoothstep",
@@ -127,9 +120,9 @@ const OrganizationClass = () => {
           const nextMember = classMembers[nextIndex];
 
           edges.push({
-            id: `member-${currentMember.email}-member-${nextMember.email}`,
-            source: `member-${currentMember.email}`,
-            target: `member-${nextMember.email}`,
+            id: `member-${currentMember.id}-member-${nextMember.id}`,
+            source: `member-${currentMember.id}`,
+            target: `member-${nextMember.id}`,
             sourceHandle: "right",
             targetHandle: "left",
             type: "smoothstep",
@@ -143,12 +136,12 @@ const OrganizationClass = () => {
 
   const initialEdges = createEdges();
 
-  const findMemberById = (memberEmail) => {
-    return classMembers.find((member) => member.email === memberEmail);
+  const findMemberById = (memberId) => {
+    return classMembers.find((member) => member.id === memberId);
   };
 
-  const handleMemberClick = (memberEmail) => {
-    setSelectedMember(findMemberById(memberEmail));
+  const handleMemberClick = (memberId) => {
+    setSelectedMember(findMemberById(memberId));
     setModalOpen(true);
   };
 
@@ -239,7 +232,7 @@ const OrganizationClass = () => {
                         전화번호:
                       </span>
                       <span className="text-gray-800">
-                        {selectedMember?.phone}
+                        {selectedMember?.phone_num}
                       </span>
                     </div>
 
@@ -290,18 +283,14 @@ const OrganizationClass = () => {
         <OrganizationHeader />
       </div>
       <div className="flex-1 flex justify-center items-center p-4">
-        {loading ? (
-          <Loading text="데이터를 불러오고 있습니다..." />
-        ) : (
-          <ReactFlowProvider>
-            <OrganizationBody
-              initialNodes={initialNodes}
-              initialEdges={initialEdges}
-              handleMemberClick={handleMemberClick}
-              containerSize={containerSize}
-            />
-          </ReactFlowProvider>
-        )}
+        <ReactFlowProvider>
+          <OrganizationBody
+            initialNodes={initialNodes}
+            initialEdges={initialEdges}
+            handleMemberClick={handleMemberClick}
+            containerSize={containerSize}
+          />
+        </ReactFlowProvider>
       </div>
     </div>
   );

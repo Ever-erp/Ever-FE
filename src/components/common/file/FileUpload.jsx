@@ -83,7 +83,7 @@ const FileUpload = ({
     <div className={`w-full ${className}`}>
       {/* 파일 드롭 영역 */}
       <div
-        className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 text-center h-[100px] transition-colors duration-200 ${
+        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-200 ${
           dragOver
             ? "border-brand bg-blue-50"
             : "border-gray-300 hover:border-gray-400"
@@ -94,14 +94,12 @@ const FileUpload = ({
         onClick={() => !disabled && fileInputRef.current?.click()}
       >
         <FiUpload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-        <div className="flex flex-col items-center justify-center">
-          <p className="text-sm text-gray-600 mb-1">
-            파일을 드래그하여 업로드하거나 클릭하여 선택하세요
-          </p>
-          <p className="text-xs text-gray-400">
-            최대 {Math.round(maxSize / 1024 / 1024)}MB
-          </p>
-        </div>
+        <p className="text-sm text-gray-600 mb-1">
+          파일을 드래그하여 업로드하거나 클릭하여 선택하세요
+        </p>
+        <p className="text-xs text-gray-400">
+          최대 {Math.round(maxSize / 1024 / 1024)}MB
+        </p>
       </div>
 
       <input
