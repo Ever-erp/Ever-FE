@@ -5,7 +5,6 @@ import {
   Navigate,
 } from "react-router-dom";
 import DefaultLayout from "./layouts/DefaultLayout";
-import Calendar from "./pages/Calendar";
 import Reservation from "./pages/Reservation";
 import Notice from "./pages/Notice";
 import Survey from "./pages/Survey";
@@ -20,7 +19,7 @@ import LoginForm from "./components/specific/login/LoginForm";
 import PrivateRoute from "./components/specific/routes/PrivateRoute";
 import { useSelector } from "react-redux";
 import PublicRoute from "./components/specific/routes/PublicRoute";
-import CalendarLayout from "./pages/CalendarLayout";
+import Calendar from "./pages/Calendar";
 
 import SingleSurvey from "./pages/SingleSurvey";
 import SurveyWrite from "./pages/SurveyWrite";
@@ -62,7 +61,7 @@ function App() {
             </PrivateRoute>
           }
         >
-          <Route path="calendar" element={<CalendarLayout />} />
+          <Route path="calendar" element={<Calendar />} />
           <Route path="reservation" element={<Reservation />} />
           <Route path="notice" element={<Notice />} />
           <Route path="notice/write" element={<WritePage />} />
