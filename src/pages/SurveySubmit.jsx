@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import SurveyViewer from "../components/common/SurveyViewer";
+import SurveyViewer from "../components/specific/survey/SurveyViewer";
 import { findSurveyBySurveyIdAndMemberIdFetch } from "../services/survey/surveyFetch";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 const SurveySubmit = () => {
@@ -23,11 +23,11 @@ const SurveySubmit = () => {
         token
       );
 
-      if (response.survey.surveyAnswer.length > 0) {
+      if (response.member.answer) {
         // 이미 답변한 경우 - 수정 모드
         setMode("edit");
         setHasExistingAnswer(true);
-        setExistingAnswers(response.survey.surveyAnswer);
+        setExistingAnswers(response.member.answer);
       } else {
         // 아직 답변하지 않은 경우 - 제출 모드
         setMode("submit");
@@ -48,7 +48,7 @@ const SurveySubmit = () => {
   }, [params.surveyId]);
 
   const handleSubmitSuccess = () => {
-    navigate("/");
+    navigate("/survey");
   };
 
   if (loading) {

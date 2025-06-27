@@ -93,6 +93,7 @@ const NoticeEditor = ({
       title: title.trim(),
       contents: contents.trim(),
       isPinned: isPinned,
+      files: files,
       targetRange: targetRange,
       targetDate: targetDate,
       type: noticeType,

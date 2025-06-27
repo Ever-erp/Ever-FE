@@ -18,7 +18,7 @@ const Notice = () => {
   const [noticeList, setNoticeList] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [loading, setLoading] = useState(false);
 
@@ -65,8 +65,6 @@ const Notice = () => {
         token
       );
 
-      console.log("검색 결과:", res);
-
       // 검색 결과 데이터 구조 확인 후 상태 업데이트
       if (res && res.content) {
         setNoticeList(res.content);
@@ -102,6 +100,7 @@ const Notice = () => {
     noticePageFetch(page, size, token).then((res) => {
       // API 응답 구조에 맞게 데이터 추출
       if (res && res.content) {
+        console.log("검색 결과:", res.content);
         setNoticeList(res.content);
         setTotalPages(res.totalPages);
         setTotalElements(res.totalElements);
@@ -148,15 +147,15 @@ const Notice = () => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full h-full">
-      <div className="flex flex-row items-center w-full justify-center pb-10">
+    <div className="flex flex-col w-full h-full">
+      <div className="flex-shrink-0 flex flex-row items-center w-full justify-center pb-10">
         <CategorySelectBar
           onCategoryChange={handleCategoryChange}
           categoryOptions={categoryOptions}
         />
         <SearchBar onSearchChange={handleSearchChange} />
       </div>
-      <div className="flex flex-row items-center justify-center w-full">
+      <div className="flex-1 flex flex-row items-center justify-center w-full min-h-0">
         {loading ? (
           <div className="flex flex-row items-center justify-center w-full h-full">
             <Loading text="로딩중..." />

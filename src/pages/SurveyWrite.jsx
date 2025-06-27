@@ -3,16 +3,26 @@ import { useNavigate } from "react-router-dom";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import { transformDataForAPI } from "../util/surveyUtil";
 import { surveyCreateFetch } from "../services/survey/surveyFetch";
+import CustomDropdown from "../components/common/CustomDropdown";
 
 const SurveyWrite = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthFetch();
   const token = localStorage.getItem("accessToken");
 
+  const targetRangeOptions = [
+    { value: "웹앱", label: "웹/앱" },
+    { value: "임베디드", label: "임베디드" },
+    { value: "IT보안", label: "보안" },
+    { value: "스마트팩토리", label: "스마트팩토리" },
+    { value: "클라우드", label: "클라우드" },
+  ];
+
   const [surveyData, setSurveyData] = useState({
     title: "",
     description: "",
     endDate: "",
+    className: "웹앱",
     questions: [
       {
         id: 1,
@@ -180,9 +190,15 @@ const SurveyWrite = () => {
       {/* 헤더 - 고정 */}
       <div className="flex-shrink-0 p-8 pb-4">
         <div className="flex items-center gap-2 mb-4">
-          <span className="bg-blue-500 text-white px-3 py-1 rounded text-sm font-medium">
-            전체
-          </span>
+          <CustomDropdown
+            options={targetRangeOptions}
+            value={surveyData.targetRange}
+            onChange={(value) =>
+              setSurveyData({ ...surveyData, targetRange: value })
+            }
+            placeholder="대상 선택"
+            width="w-32"
+          />
           <input
             type="text"
             value={surveyData.title}

@@ -7,6 +7,7 @@ import storage from "redux-persist/lib/storage"; // localStorage 사용
 
 // 사용자 상태를 관리하는 슬라이스 import
 import userReducer from "./userSlice";
+import surveyReducer from "./surveySlice";
 
 // 여러 리듀서를 하나로 합치기 위한 함수
 import { combineReducers } from "redux";
@@ -20,6 +21,7 @@ const persistConfig = {
 // 여러 리듀서를 하나로 합친 루트 리듀서 생성
 const rootReducer = combineReducers({
   user: userReducer,
+  survey: surveyReducer,
 });
 
 // persist 설정을 적용한 리듀서 생성

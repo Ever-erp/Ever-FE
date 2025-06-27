@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import SurveyViewer from "../components/common/SurveyViewer";
-import { findSurveyBySurveyIdAndMemberIdFetch } from "../services/survey/surveyFetch";
+import SurveyViewer from "./SurveyViewer";
+import { findSurveyBySurveyIdAndMemberIdFetch } from "../../../services/survey/surveyFetch";
 
 const SurveyEdit = () => {
   const params = useParams();
