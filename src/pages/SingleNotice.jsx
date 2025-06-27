@@ -9,7 +9,7 @@ import FileDisplay from "../components/common/file/FileDisplay";
 import NoticeEditor from "../components/specific/notice/NoticeEditor";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import Loading from "../components/common/Loading";
-
+import { useSelector } from "react-redux";
 const SingleNotice = () => {
   const { noticeId } = useParams();
   const [noticeTitle, setNoticeTitle] = useState("");
@@ -25,6 +25,7 @@ const SingleNotice = () => {
   const [loading, setLoading] = useState(true);
 
   const { isAuthenticated } = useAuthFetch();
+  const user = useSelector((state) => state.user.user);
 
   // resFile은 배열이어야 함.
   const handleFile = (resFiles) => {
@@ -135,7 +136,7 @@ const SingleNotice = () => {
   return (
     <div className="flex flex-col items-center justify-center h-full w-full">
       {/* 삭제 확인 모달 */}
-      {isDeleteMode && (
+      {isDeleteMode && user.position === "관리자" && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
           <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 animate-modalSlideIn">
             <div className="text-center">
@@ -212,18 +213,22 @@ const SingleNotice = () => {
         </div>
       </div>
       <div className="flex flex-row items-center justify-end w-full py-4 gap-2">
-        <button
-          className="bg-white text-brand px-10 py-2 rounded-md border border-brand hover:bg-brand hover:text-white transition-colors"
-          onClick={handleEditClick}
-        >
-          글 수정
-        </button>
-        <button
-          className="bg-brand text-white px-10 py-2 rounded-md border border-brand hover:bg-red-600 hover:text-white transition-colors"
-          onClick={handleDeleteClick}
-        >
-          글 삭제
-        </button>
+        {user.position === "관리자" && (
+          <>
+            <button
+              className="bg-white text-brand px-10 py-2 rounded-md border border-brand hover:bg-brand hover:text-white transition-colors"
+              onClick={handleEditClick}
+            >
+              글 수정
+            </button>
+            <button
+              className="bg-brand text-white px-10 py-2 rounded-md border border-brand hover:bg-red-600 hover:text-white transition-colors"
+              onClick={handleDeleteClick}
+            >
+              글 삭제
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
