@@ -39,51 +39,67 @@ export const calculateGridPositions = (
 };
 
 // 반응형 노드 위치 계산 함수
-export const calculateNodePositions = (containerWidth, containerHeight) => {
+export const calculateNodePositions = (
+  containerWidth,
+  containerHeight,
+  level2Count = 5,
+  level3Count = 5
+) => {
   const centerX = containerWidth / 2;
   const topY = 80;
   const middleY = 280;
   const bottomY = 480;
-
-  // 각 레벨의 노드 개수
-  const level2Count = 5; // 레벨2 - 클래스
-  const level3Count = 5; // 레벨3 - 강사
 
   const minSpacing = 180;
   const maxSpacing = 250;
 
   // 각 레벨의 간격 계산 (화면 크기에 따라 조정)
   const availableWidth = containerWidth - 300;
-  const level2Spacing = Math.max(
-    minSpacing,
-    Math.min(maxSpacing, availableWidth / (level2Count - 1))
-  );
-  const level3Spacing = Math.max(
-    minSpacing,
-    Math.min(maxSpacing, availableWidth / (level3Count - 1))
-  );
+  const level2Spacing =
+    level2Count > 1
+      ? Math.max(
+          minSpacing,
+          Math.min(maxSpacing, availableWidth / (level2Count - 1))
+        )
+      : 0;
+  const level3Spacing =
+    level3Count > 1
+      ? Math.max(
+          minSpacing,
+          Math.min(maxSpacing, availableWidth / (level3Count - 1))
+        )
+      : 0;
 
   // 레벨 2, 3 시작 X 위치 계산 (중앙 정렬)
-  const level2StartX = centerX - ((level2Count - 1) * level2Spacing) / 2;
-  const level3StartX = centerX - ((level3Count - 1) * level3Spacing) / 2;
+  const level2StartX =
+    level2Count > 1
+      ? centerX - ((level2Count - 1) * level2Spacing) / 2
+      : centerX;
+  const level3StartX =
+    level3Count > 1
+      ? centerX - ((level3Count - 1) * level3Spacing) / 2
+      : centerX;
+
+  const level2Positions = [];
+  const level3Positions = [];
+
+  for (let i = 0; i < level2Count; i++) {
+    level2Positions.push({
+      x: level2Count > 1 ? level2StartX + i * level2Spacing : level2StartX,
+      y: middleY,
+    });
+  }
+
+  for (let i = 0; i < level3Count; i++) {
+    level3Positions.push({
+      x: level3Count > 1 ? level3StartX + i * level3Spacing : level3StartX,
+      y: bottomY,
+    });
+  }
 
   return {
     root: { x: centerX, y: topY },
-
-    level2: [
-      { x: level2StartX, y: middleY },
-      { x: level2StartX + level2Spacing, y: middleY },
-      { x: level2StartX + level2Spacing * 2, y: middleY },
-      { x: level2StartX + level2Spacing * 3, y: middleY },
-      { x: level2StartX + level2Spacing * 4, y: middleY },
-    ],
-
-    level3: [
-      { x: level3StartX, y: bottomY },
-      { x: level3StartX + level3Spacing, y: bottomY },
-      { x: level3StartX + level3Spacing * 2, y: bottomY },
-      { x: level3StartX + level3Spacing * 3, y: bottomY },
-      { x: level3StartX + level3Spacing * 4, y: bottomY },
-    ],
+    level2: level2Positions,
+    level3: level3Positions,
   };
 };

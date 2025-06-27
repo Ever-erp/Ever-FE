@@ -7,7 +7,9 @@ import {
 } from "../services/notice/noticeFetch";
 import FileDisplay from "../components/common/file/FileDisplay";
 import NoticeEditor from "../components/specific/notice/NoticeEditor";
-
+import { useAuthFetch } from "../hooks/useAuthFetch";
+import Loading from "../components/common/Loading";
+import { useSelector } from "react-redux";
 const SingleNotice = () => {
   const { noticeId } = useParams();
   const [noticeTitle, setNoticeTitle] = useState("");
@@ -20,7 +22,10 @@ const SingleNotice = () => {
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   // 수정 모드 관련 상태
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const { isAuthenticated } = useAuthFetch();
+  const user = useSelector((state) => state.user.user);
 
   // resFile은 배열이어야 함.
   const handleFile = (resFiles) => {
@@ -37,8 +42,9 @@ const SingleNotice = () => {
     setIsDeleteMode(true);
   };
 
-  const handleDeleteConfirm = () => {
-    noticeDeleteFetch(noticeId);
+  const handleDeleteConfirm = async () => {
+    const token = localStorage.getItem("accessToken");
+    await noticeDeleteFetch(noticeId, token);
     setIsDeleteMode(false);
   };
 
@@ -47,19 +53,10 @@ const SingleNotice = () => {
   };
 
   const handleSave = async (data) => {
-    setIsLoading(true);
+    setLoading(true);
     try {
-      await noticeUpdateFetch(
-        noticeId,
-        data.type,
-        data.title,
-        data.content,
-        data.files,
-        null, // noticeImage
-        noticePin,
-        null, // noticeTargetRange
-        null // noticeTargetDate
-      );
+      const token = localStorage.getItem("accessToken");
+      await noticeUpdateFetch(noticeId, data, token);
 
       setNoticeTitle(data.title);
       setNoticeContent(data.content);
@@ -71,7 +68,7 @@ const SingleNotice = () => {
       console.error("수정 중 오류 발생:", error);
       alert("수정 중 오류가 발생했습니다.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -80,15 +77,27 @@ const SingleNotice = () => {
   };
 
   useEffect(() => {
-    noticeSingleFetch(noticeId).then((res) => {
-      setNoticeTitle(res.title);
-      setNoticeContent(res.contents);
-      setNoticeWriter(res.writer);
-      setNoticeDate(res.createdAt);
-      setNoticeType(res.type);
-      setNoticePin(res.pin);
-      handleFile(res.files);
-    });
+    const fetchNoticeData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("accessToken");
+        const res = await noticeSingleFetch(noticeId, token);
+
+        setNoticeTitle(res.title);
+        setNoticeContent(res.contents);
+        setNoticeWriter(res.writer);
+        setNoticeDate(res.targetDate || res.createdAt || res.registedAt);
+        setNoticeType(res.type);
+        setNoticePin(res.pinned || res.pin);
+        handleFile(res.files || []);
+      } catch (error) {
+        console.error("공지사항 로딩 중 오류 발생:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNoticeData();
   }, [noticeId]);
 
   const copyUrl = () => {
@@ -99,6 +108,10 @@ const SingleNotice = () => {
   const handleFileDownload = (file) => {
     console.log("downloading file : ", file);
   };
+
+  if (loading) {
+    return <Loading text="공지사항을 불러오고 있습니다..." />;
+  }
 
   if (isEditMode) {
     const initialData = {
@@ -116,14 +129,14 @@ const SingleNotice = () => {
         initialData={initialData}
         onSave={handleSave}
         onCancel={handleCancel}
-        isLoading={isLoading}
+        isLoading={loading}
       />
     );
   }
   return (
     <div className="flex flex-col items-center justify-center h-full w-full">
       {/* 삭제 확인 모달 */}
-      {isDeleteMode && (
+      {isDeleteMode && user.position === "관리자" && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
           <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 animate-modalSlideIn">
             <div className="text-center">
@@ -200,18 +213,22 @@ const SingleNotice = () => {
         </div>
       </div>
       <div className="flex flex-row items-center justify-end w-full py-4 gap-2">
-        <button
-          className="bg-white text-brand px-10 py-2 rounded-md border border-brand hover:bg-brand hover:text-white transition-colors"
-          onClick={handleEditClick}
-        >
-          글 수정
-        </button>
-        <button
-          className="bg-brand text-white px-10 py-2 rounded-md border border-brand hover:bg-red-600 hover:text-white transition-colors"
-          onClick={handleDeleteClick}
-        >
-          글 삭제
-        </button>
+        {user.position === "관리자" && (
+          <>
+            <button
+              className="bg-white text-brand px-10 py-2 rounded-md border border-brand hover:bg-brand hover:text-white transition-colors"
+              onClick={handleEditClick}
+            >
+              글 수정
+            </button>
+            <button
+              className="bg-brand text-white px-10 py-2 rounded-md border border-brand hover:bg-red-600 hover:text-white transition-colors"
+              onClick={handleDeleteClick}
+            >
+              글 삭제
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

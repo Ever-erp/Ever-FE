@@ -16,6 +16,9 @@ const CustomButton = ({
     brand: "bg-brand text-white hover:bg-opacity-90",
     outline: "bg-white border border-brand text-brand hover:bg-gray-150",
     gray: "bg-white border border-gray-300 text-gray-500 hover:bg-gray-200 hover:text-gray-500",
+    brandDisabled: "bg-disabled text-white disabled",
+    outlineDisabled: "bg-white border border-disabled text-disabled disabled",
+    positive: "bg-positive text-brand hover:bg-opacity-90",
   };
 
   // 버튼이 선택되면 기본색 적용

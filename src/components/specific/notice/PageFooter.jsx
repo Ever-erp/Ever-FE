@@ -4,7 +4,7 @@ const PageFooter = ({ currentPage, totalPageLength, onPageChange }) => {
   const [page, setPage] = useState(currentPage);
 
   const handlePageChange = (pageNumber) => {
-    if (onPageChange && pageNumber > 0 && pageNumber <= totalPageLength) {
+    if (onPageChange && pageNumber >= 0 && pageNumber < totalPageLength) {
       setPage(pageNumber);
       onPageChange(pageNumber);
     }
@@ -12,12 +12,17 @@ const PageFooter = ({ currentPage, totalPageLength, onPageChange }) => {
 
   const getPageRange = () => {
     const pageGroupSize = 5;
-    const currentGroup = Math.ceil(page / pageGroupSize);
-    const startPage = (currentGroup - 1) * pageGroupSize + 1;
-    const endPage = Math.min(startPage + pageGroupSize - 1, totalPageLength);
+    const displayPage = page + 1; // 표시용 페이지 (1부터 시작)
+    const currentGroup = Math.ceil(displayPage / pageGroupSize);
+    const startDisplayPage = (currentGroup - 1) * pageGroupSize + 1;
+    const endDisplayPage = Math.min(
+      startDisplayPage + pageGroupSize - 1,
+      totalPageLength
+    );
+
     return Array.from(
-      { length: endPage - startPage + 1 },
-      (_, i) => startPage + i
+      { length: endDisplayPage - startDisplayPage + 1 },
+      (_, i) => startDisplayPage + i - 1
     );
   };
 
@@ -31,13 +36,13 @@ const PageFooter = ({ currentPage, totalPageLength, onPageChange }) => {
     <div className="flex flex-row gap-2">
       <button
         className="bg-white text-gray-500 w-12 h-12 py-2 rounded-md border border-gray-300 hover:bg-gray-200"
-        onClick={() => handlePageChange(page - 5 > 0 ? page - 5 : 1)}
+        onClick={() => handlePageChange(Math.max(0, page - 5))}
       >
         {"<<"}
       </button>
       <button
         className="bg-white text-gray-500 w-12 h-12 py-2 rounded-md border border-gray-300 hover:bg-gray-200"
-        onClick={() => handlePageChange(page - 1)}
+        onClick={() => handlePageChange(Math.max(0, page - 1))}
       >
         {"<"}
       </button>
@@ -49,7 +54,7 @@ const PageFooter = ({ currentPage, totalPageLength, onPageChange }) => {
               key={pageNumber}
               onClick={() => handlePageChange(pageNumber)}
             >
-              {pageNumber}
+              {pageNumber + 1}
             </button>
           ) : (
             <button
@@ -57,23 +62,23 @@ const PageFooter = ({ currentPage, totalPageLength, onPageChange }) => {
               key={pageNumber}
               onClick={() => handlePageChange(pageNumber)}
             >
-              {pageNumber}
+              {pageNumber + 1}
             </button>
           )
         )}
       </div>
       <button
         className="bg-white text-gray-500 w-12 h-12 py-2 rounded-md border border-gray-300 hover:bg-gray-200"
-        onClick={() => handlePageChange(page + 1)}
+        onClick={() =>
+          handlePageChange(Math.min(totalPageLength - 1, page + 1))
+        }
       >
         {">"}
       </button>
       <button
         className="bg-white text-gray-500 w-12 h-12 py-2 rounded-md border border-gray-300 hover:bg-gray-200"
         onClick={() =>
-          handlePageChange(
-            page + 5 <= totalPageLength ? page + 5 : totalPageLength
-          )
+          handlePageChange(Math.min(totalPageLength - 1, page + 5))
         }
       >
         {">>"}

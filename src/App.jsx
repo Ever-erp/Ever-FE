@@ -22,6 +22,9 @@ import { useSelector } from "react-redux";
 import PublicRoute from "./components/specific/routes/PublicRoute";
 import CalendarLayout from "./pages/CalendarLayout";
 
+import SingleSurvey from "./pages/SingleSurvey";
+import SurveyWrite from "./pages/SurveyWrite";
+import SurveySubmit from "./pages/SurveySubmit";
 function App() {
   const user = useSelector((state) => state.user.user);
 
@@ -65,8 +68,14 @@ function App() {
           <Route path="notice/write" element={<WritePage />} />
           <Route path="notice/:noticeId" element={<SingleNotice />} />
           <Route path="survey" element={<Survey />} />
+          <Route path="survey/:surveyId" element={<SingleSurvey />} />
+          <Route path="survey/:surveyId/submit" element={<SurveySubmit />} />
+          <Route path="survey/write" element={<SurveyWrite />} />
           <Route path="organization" element={<Organization />} />
-          <Route path="organization/:classId" element={<OrganizationClass />} />
+          <Route
+            path="organization/class/:classId"
+            element={<OrganizationClass />}
+          />
         </Route>
       </Routes>
     </Router>
