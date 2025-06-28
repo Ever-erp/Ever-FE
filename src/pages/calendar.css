@@ -1,8 +1,52 @@
 #calendar-container {
-  @apply w-[1200px] my-[20px] mx-auto box-border;
+  @apply w-[1200px] my-[20px] mx-auto box-border max-h-[80vh];
 }
 
 /* 달력부분 */
+
+/* 일정표 툴 바  */
+.fc .fc-toolbar.fc-header-toolbar {
+  @apply m-0 p-10 bg-brand bg-opacity-95 h-[60px] text-white rounded-t-xl justify-between;
+}
+
+/* 툴바의 버튼 */
+.fc .fc-toolbar-chunk .fc-button {
+  @apply bg-transparent text-white border-none px-1 py-2;
+}
+
+.fc .fc-toolbar-chunk .fc-button:focus,
+.fc .fc-toolbar-chunk .fc-button:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 툴바 사용 불가 버튼 스타일 */
+.fc .fc-toolbar-chunk .fc-button:disabled {
+  @apply bg-brand;
+}
+/* 툴바 사용 불가 버튼 hover 시 스타일 주지 않기 */
+.fc .fc-toolbar-chunk .fc-button:disabled:hover {
+  @apply bg-transparent;
+}
+
+/* 툴바 버튼 포커스 시 그림자 제거 */
+.fc .fc-toolbar-chunk .fc-button:focus {
+  @apply shadow-none;
+}
+
+/* 툴바 버튼 hover 시 배경색 변경 */
+.fc .fc-toolbar-chunk .fc-button:hover {
+  @apply bg-brand brightness-125;
+}
+
+/* 날짜변경 화살표 아이콘 */
+.fc .fc-button-primary span {
+  @apply font-bold w-8;
+}
+
+.fc-direction-ltr .fc-toolbar > * > :not(:first-child) {
+  @apply m-0;
+}
 
 /* 오늘 날짜 */
 .fc-day-today {
@@ -11,12 +55,12 @@
 
 /* 오늘 날짜 숫자 스타일 변경 */
 .fc-day-today .fc-daygrid-day-number {
-  @apply bg-brand brightness-125 rounded-full w-6 h-6 flex justify-center items-center font-bold text-white;
+  @apply bg-brand rounded-full w-7 h-7 flex justify-center items-center font-bold text-white !important;
 }
 
 /* 날짜 상단 글자 */
 .fc-daygrid-day-top a {
-  @apply text-sm;
+  @apply text-base;
 }
 
 /* 날짜 상단 높이 */
@@ -37,44 +81,6 @@
 /* 제목(월/년)*/
 .fc .fc-toolbar-title {
   @apply font-bold text-2xl;
-}
-
-/* 일정표 툴 바  */
-.fc .fc-toolbar.fc-header-toolbar {
-  @apply m-0 p-10 bg-brand bg-opacity-95 h-[60px] text-xs text-white rounded-t-xl justify-between;
-}
-
-/* 툴바의 버튼 */
-.fc .fc-toolbar-chunk .fc-button {
-  @apply bg-transparent border-none px-1 py-2;
-}
-
-/* 툴바 사용 불가 버튼 스타일 */
-.fc .fc-toolbar-chunk .fc-button:disabled {
-  color: #e8e8e8;
-}
-/* 툴바 사용 불가 버튼 hover 시 스타일 주지 않기 */
-.fc .fc-toolbar-chunk .fc-button:disabled:hover {
-  @apply bg-transparent;
-}
-
-/* 툴바 버튼 포커스 시 그림자 제거 */
-.fc .fc-toolbar-chunk .fc-button:focus {
-  @apply shadow-none;
-}
-
-/* 툴바 버튼 hover 시 배경색 변경 */
-.fc .fc-toolbar-chunk .fc-button:hover {
-  @apply bg-subBrand;
-}
-
-/* 날짜변경 화살표 아이콘 */
-.fc .fc-button-primary span {
-  @apply font-bold w-8;
-}
-
-.fc-direction-ltr .fc-toolbar > * > :not(:first-child) {
-  @apply m-0;
 }
 
 /* 요일의 높이 */
@@ -99,7 +105,7 @@
 
 /* 이벤트 막대 스타일 */
 .fc-event {
-  @apply px-5 py-10 mb-1 rounded-md font-medium text-sm;
+  @apply px-5 py-10 mb-1 rounded-md font-medium;
 }
 
 .selected-day-border .fc-daygrid-day-frame {
@@ -121,7 +127,7 @@
 }
 /* 이벤트 제목 */
 .fc-event-title {
-  @apply overflow-hidden whitespace-nowrap text-ellipsis w-4/5;
+  @apply text-sm overflow-hidden whitespace-nowrap text-ellipsis w-4/5;
 }
 
 .fc-daygrid-day-events {
@@ -134,5 +140,5 @@
 
 /* 한칸 최소 높이 */
 .fc .fc-daygrid-day-frame {
-  @apply min-h-32;
+  @apply max-h-36;
 }

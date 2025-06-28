@@ -35,7 +35,7 @@ const VideoLoop = () => {
   }, [currentIndex]);
 
   return (
-    <div className="flex-1 relative rounded-xl overflow-hidden">
+    <div className="flex-1 relative overflow-hidden">
       <video
         ref={videoRef}
         src={videos[currentIndex]}

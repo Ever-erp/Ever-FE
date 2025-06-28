@@ -21,7 +21,7 @@ export const fetchAllCalendar = async (year, month) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("휴가 작성 실패:", err);
-    throw err;
+    console.error("휴가 작성 실패:", error);
+    throw error;
   }
 };

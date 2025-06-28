@@ -23,7 +23,7 @@ export const deleteVacation = async (id) => {
 
     return data;
   } catch (error) {
-    console.error("휴가 일정 삭제 실패:", err);
-    throw err;
+    console.error("휴가 일정 삭제 실패:", error);
+    throw error;
   }
 };

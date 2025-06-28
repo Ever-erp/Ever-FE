@@ -17,8 +17,8 @@ export const fetchNotice = async () => {
 
     const data = await response.json();
     return data;
-  } catch (err) {
-    console.error("예약 시간 조회 실패:", err);
-    throw err;
+  } catch (error) {
+    console.error("예약 시간 조회 실패:", error);
+    throw error;
   }
 };

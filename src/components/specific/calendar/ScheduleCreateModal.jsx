@@ -4,6 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import CustomButton from "../../common/CustomButton";
 import { writeSchedule } from "../../../services/calendar/writeClassSchedule";
 import { formatDateToLocalString } from "../../../services/formatDateToLocalString";
+import { isWeekend } from "../../../services/calendar/calendarService";
 
 const ScheduleCreateModal = ({ onClose, classId, loadCalendarData }) => {
   const [startDate, setStartDate] = useState(null);

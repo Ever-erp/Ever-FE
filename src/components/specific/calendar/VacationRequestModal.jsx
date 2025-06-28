@@ -24,7 +24,7 @@ const VacationRequestModal = ({ onClose, loadCalendarData }) => {
 
     // 주말 체크
     if (isWeekend(formattedDate)) {
-      alert("주말에는 수업 일정을 추가할 수 없습니다.");
+      alert("주말에는 휴가를 신청할 수 없습니다.");
       return;
     }
 
@@ -36,7 +36,7 @@ const VacationRequestModal = ({ onClose, loadCalendarData }) => {
     };
 
     try {
-      await writeVacation(vacationJson); // 백엔드에 저장
+      await writeVacation(vacationJson); // 서버 저장
       await loadCalendarData(); // 최신 캘린더 일정 불러오기
 
       setSelectedType("");

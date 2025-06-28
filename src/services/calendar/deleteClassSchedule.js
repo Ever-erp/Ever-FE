@@ -23,7 +23,7 @@ export const deleteSchedule = async (id) => {
 
     return data;
   } catch (error) {
-    console.error("수업 일정 삭제 실패:", err);
-    throw err;
+    console.error("수업 일정 삭제 실패:", error);
+    throw error;
   }
 };

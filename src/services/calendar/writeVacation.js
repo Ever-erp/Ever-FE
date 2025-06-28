@@ -23,7 +23,7 @@ export const writeVacation = async (vacationData) => {
     alert("휴가를 등록하였습니다.");
     return data;
   } catch (error) {
-    console.error("휴가 작성 실패:", err);
-    throw err;
+    console.error("휴가 작성 실패:", error);
+    throw error;
   }
 };

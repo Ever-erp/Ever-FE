@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -15,17 +15,31 @@ import { formatDatePlusOne } from "../services/formatDateToLocalString";
 import { useNavigate } from "react-router-dom";
 import { deleteSchedule } from "../services/calendar/deleteClassSchedule";
 import { deleteVacation } from "../services/calendar/deleteVacationSchedule";
+import NoticePopover from "../components/specific/calendar/NoticePopover";
+import VacationPopover from "../components/specific/calendar/VacationPopover";
+import ScheduleViewModal from "../components/specific/calendar/ScheduleViewModal";
 
-const Calander = () => {
+const Calender = () => {
   const user = useSelector((state) => state.user.user); // 전역 상태에서 사용자 정보 가져오기
-
-  const [currentYM, setCurrentYM] = useState({ year: null, month: null }); // 현재 날짜
+  const today = new Date();
+  const todayStr = today.toISOString().split("T")[0]; // 오늘 날짜(년-월-일) 문자열
+  const [currentYM, setCurrentYM] = useState({
+    year: today.getFullYear(),
+    month: today.getMonth() + 1, // JS는 0~11로 반환하므로 +1 필요 // 현재 날짜
+  });
   const [showModal, setShowModal] = useState(false);
   const [events, setEvents] = useState([]);
   const { isAuthenticated } = useAuthFetch();
   const navigate = useNavigate();
+  const hideTimeout = useRef(null); //
 
   const [selectedEvent, setSelectedEvent] = useState(null); // 클릭된 이벤트 저장
+
+  const [hoveredNotices, setHoveredNotices] = useState([]);
+  const [hoveredVacations, setHoveredVacations] = useState([]);
+
+  const [popoverPosition, setPopoverPosition] = useState(null);
+  const [viewClassSchedule, setViewClassSchedule] = useState(null);
 
   const loadCalendarData = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -36,6 +50,7 @@ const Calander = () => {
       const res = await fetchAllCalendar(year, month);
       const data = res.data;
 
+      // [1] 공지사항
       const notices = data.notices || [];
       const groupedByDate = notices.reduce((acc, notice) => {
         const date = notice.targetDate;
@@ -43,12 +58,13 @@ const Calander = () => {
         acc[date].push(notice);
         return acc;
       }, {});
-      // [1-2] 날짜별 이벤트 생성
+
+      // 공지사항 날짜별 그룹핑
       const eventsFromNotices = Object.entries(groupedByDate).map(
         ([date, noticeList]) => {
-          const firstNotice = noticeList[0];
-          const title = "공지) " + firstNotice.title;
-          // noticeList.length
+          const count = noticeList.length;
+          const title =
+            count === 1 ? `${noticeList[0].title}` : `총 ${count}건의 공지`;
 
           return {
             title,
@@ -58,7 +74,8 @@ const Calander = () => {
             customOrder: 1,
             type: "notice",
             extendedProps: {
-              id: 1, // 해당 날짜 공지 ID 리스트
+              id: noticeList[0].id,
+              noticeList, // ✅ 전체 리스트 추가
             },
           };
         }
@@ -74,10 +91,9 @@ const Calander = () => {
         for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
           const day = d.getDay(); // 0 = 일, 6 = 토
           if (day !== 0 && day !== 6) {
-            dateList.push(new Date(d)); // 복사해서 넣어야 함
+            dateList.push(new Date(d.getTime())); // ✅ 안전한 복사
           }
         }
-
         // 2. 연속된 구간 묶기
         const ranges = [];
         let rangeStart = null;
@@ -98,35 +114,59 @@ const Calander = () => {
         if (rangeStart && prevDate) {
           ranges.push({ start: rangeStart, end: prevDate });
         }
-
         // 3. FullCalendar 이벤트로 변환
         return ranges.map((range) => ({
           title: cls.subjectName,
           start: range.start.toISOString().split("T")[0],
-          end: formatDatePlusOne(range.end.toISOString().split("T")[0]), // end는 exclusive
+          end: formatDatePlusOne(range.end),
           color: "#A2D2DF",
           display: "block",
           customOrder: 2,
           type: "classSchedule",
           extendedProps: {
             id: cls.id,
+            subjectName: cls.subjectName,
+            classDesc: cls.classDesc,
+            classUrl: cls.classUrl,
+            startDate: cls.startDate,
+            endDate: cls.endDate,
           },
         }));
       });
 
-      // [3] 휴가 일정
-      const eventsFromVacations = (data.vacations || []).map((vac) => ({
-        title: `${vac.memberName} ${vac.vacationType}`,
-        start: vac.vacationDate,
-        color: "#F0C1E1",
-        display: "block",
-        customOrder: 3,
-        type: "vacation",
-        extendedProps: {
-          id: vac.id,
-        },
-      }));
+      // [3] 휴가
+      const vacations = data.vacations || [];
+      const groupedVacationsByDate = vacations.reduce((acc, vac) => {
+        const date = vac.vacationDate;
+        if (!acc[date]) acc[date] = [];
+        acc[date].push(vac);
+        return acc;
+      }, {});
 
+      // 휴가 이벤트 생성
+      const eventsFromVacations = Object.entries(groupedVacationsByDate).map(
+        ([date, vacationList]) => {
+          const count = vacationList.length;
+          const title =
+            count === 1
+              ? `${vacationList[0].memberName} ${vacationList[0].vacationType}`
+              : `총 ${count}건의 휴가`;
+
+          return {
+            title,
+            start: date,
+            color: "#F0C1E1",
+            display: "block",
+            customOrder: 3,
+            type: "vacation",
+            extendedProps: {
+              id: vacationList[0].id,
+              vacationList, // 전체 휴가 리스트 추가
+              memberName: vacationList[0].memberName, // 현재는 이름으로 함
+            },
+          };
+        }
+      );
       const allEvents = [
         ...eventsFromNotices,
         ...eventsFromClasses,
@@ -147,23 +187,56 @@ const Calander = () => {
 
   const handleEventClick = (info) => {
     const event = info.event.extendedProps;
+    const clickedId = info.event.extendedProps.id;
+    const clickedType = info.event.extendedProps.type;
+
+    // events 전체 순회하여 색상 변경
+    setEvents((prevEvents) =>
+      prevEvents.map((ev) => {
+        if (ev.extendedProps.id === clickedId && ev.type === clickedType) {
+          return {
+            ...ev,
+            color: "#60A5FA", // 강조 색상 (파란색)
+          };
+        } else {
+          // 나머지는 기본 색상 복원
+          return {
+            ...ev,
+            color:
+              ev.type === "notice"
+                ? "#A594F9"
+                : ev.type === "classSchedule"
+                ? "#A2D2DF"
+                : "#F0C1E1",
+          };
+        }
+      })
+    );
+
+    // 선택된 이벤트 저장
+    setSelectedEvent({
+      id: clickedId,
+      type: clickedType,
+      customOrder: info.event.extendedProps.customOrder,
+    });
+
+    setSelectedEvent({
+      id: event.id,
+      type: event.type,
+      customOrder: event.customOrder ?? info.event.customOrder,
+    });
+    // 4) 나머지 원래 로직
     console.log(event);
+    // 실제 로직 수행
     if (event.type === "notice") {
       navigate(`/notice/${event.id}`);
     } else if (event.type === "classSchedule") {
-      setSelectedEvent({
-        id: event.id,
-        type: event.type,
-        customOrder: event.customOrder ?? event.event.customOrder, // 필요하면
-        // start: event.startStr,
-        // end: event.endStr,
-        // title: event.title,
-      });
+      setViewClassSchedule(event); // 수업 일정 보기용 모달 열기
     } else if (event.type === "vacation") {
       setSelectedEvent({
         id: event.id,
         type: event.type,
-        customOrder: event.customOrder ?? event.event.customOrder, // 필요하면
+        customOrder: event.customOrder ?? info.event.customOrder,
       });
     }
   };
@@ -186,6 +259,24 @@ const Calander = () => {
       console.error("삭제 실패:", err);
     }
   };
+
+  // 휴가 신청 버튼 클릭 핸들러
+  const handleVacationApplyClick = () => {
+    // 오늘 휴가가 이미 있나 검사
+    const todayVacationExists = events.some(
+      (ev) =>
+        ev.type === "vacation" &&
+        ev.start === todayStr &&
+        ev.extendedProps?.memberName === user.name // 휴가자 아이디가 로그인 사용자 아이디와 일치하는지 확인
+    );
+
+    if (todayVacationExists) {
+      alert("당일 휴가는 이미 신청되어 있습니다.");
+      return;
+    }
+
+    setShowModal(true);
+  };
   return (
     <div className="relative">
       {/* 캘린더 영역 */}
@@ -203,27 +294,50 @@ const Calander = () => {
           fixedWeekCount={false} // 필요 없는 주 생략
           events={events} // 이벤트 추가
           eventOrder="customOrder" // customOrder 작동을 위해 추가
+          eventClick={handleEventClick} // 이벤트 클릭 이벤트
           eventDidMount={(info) => {
             const el = info.el;
+            const { type, noticeList, vacationList } = info.event.extendedProps;
 
-            // hover 시 밝기 조정
             el.addEventListener("mouseenter", () => {
-              el.style.filter = "brightness(105%)"; // 살짝 어둡게
+              el.style.filter = "brightness(105%)";
+
+              if (type === "notice" && noticeList?.length > 1) {
+                clearTimeout(hideTimeout.current);
+
+                const rect = el.getBoundingClientRect();
+                setHoveredNotices(noticeList);
+                setPopoverPosition({
+                  top: rect.top,
+                  left: rect.left + rect.width + 8, // 우측으로 8px 띄움
+                });
+              } else if (type === "vacation" && vacationList?.length > 1) {
+                clearTimeout(hideTimeout.current);
+
+                const rect = el.getBoundingClientRect();
+                setHoveredVacations(vacationList);
+                setPopoverPosition({
+                  top: rect.top,
+                  left: rect.left + rect.width + 8,
+                });
+              }
             });
+
             el.addEventListener("mouseleave", () => {
-              el.style.filter = "brightness(100%)"; // 원래대로
+              el.style.filter = "brightness(100%)";
+
+              if (type === "notice" && noticeList?.length > 1) {
+                hideTimeout.current = setTimeout(() => {
+                  setHoveredNotices([]);
+                  setPopoverPosition(null);
+                }, 100);
+              } else if (type === "vacation" && vacationList?.length > 1) {
+                hideTimeout.current = setTimeout(() => {
+                  setHoveredVacations([]);
+                  setPopoverPosition(null);
+                }, 100);
+              }
             });
-          }}
-          eventClick={handleEventClick} // 클릭 핸들러 연결
-          // 현재 년, 월
-          datesSet={(arg) => {
-            const date = new Date(arg.view.currentStart);
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
-            console.log(year);
-            console.log(month);
-            setCurrentYM({ year, month });
-            setSelectedEvent(null); // 화면 이동 시 선택 초기화
           }}
         />
       </div>
@@ -231,10 +345,13 @@ const Calander = () => {
       {/* 버튼 */}
       <div className="mt-3 flex justify-end">
         <div className="w-1/3 flex gap-4">
+          {/* 취소 버튼 */}
           <CustomButton
             label={user?.position === "관리자" ? "수업 일정 삭제" : "휴가 취소"}
             className={`py-[1vh] rounded-lg w-full ${
-              selectedEvent ? "" : "invisible"
+              selectedEvent && selectedEvent.type === "classSchedule"
+                ? ""
+                : "invisible"
             }`}
             variant="outline"
             size="md"
@@ -242,13 +359,16 @@ const Calander = () => {
           />
           {/* 저장 버튼 */}
           <CustomButton
-            label={user?.position !== "관리자" ? "수업 일정 추가" : "휴가 신청"}
+            label={user?.position === "관리자" ? "수업 일정 추가" : "휴가 신청"}
             className="py-[1vh] rounded-lg"
             variant="brand"
             size="md"
             onClick={() => {
-              console.log(user.position);
-              setShowModal(true);
+              if (user?.position === "관리자") {
+                handleVacationApplyClick();
+              } else {
+                setShowModal(true);
+              }
             }}
           />
         </div>
@@ -257,7 +377,7 @@ const Calander = () => {
       {/* 휴가 입력 모달창 */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          {user?.position !== "관리자" ? (
+          {user?.position === "관리자" ? (
             <ScheduleCreateModal
               onClose={() => setShowModal(false)}
               classId={user.classId}
@@ -271,8 +391,43 @@ const Calander = () => {
           )}
         </div>
       )}
+
+      {/* 공지사항 popover */}
+      {hoveredNotices.length > 1 && popoverPosition && (
+        <NoticePopover
+          notices={hoveredNotices}
+          position={popoverPosition}
+          onClose={() => {
+            setHoveredNotices([]);
+            setPopoverPosition(null);
+          }}
+          hideTimeout={hideTimeout}
+        />
+      )}
+
+      {/* 휴가 popover */}
+      {hoveredVacations.length > 1 && popoverPosition && (
+        <VacationPopover
+          vacations={hoveredVacations}
+          position={popoverPosition}
+          onClose={() => {
+            setHoveredVacations([]);
+            setPopoverPosition(null);
+          }}
+          hideTimeout={hideTimeout}
+        />
+      )}
+
+      {viewClassSchedule && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+          <ScheduleViewModal
+            onClose={() => setViewClassSchedule(null)}
+            eventData={viewClassSchedule}
+          />
+        </div>
+      )}
     </div>
   );
 };
 
-export default Calander;
+export default Calender;

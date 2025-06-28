@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useDispatch } from "react-redux";
 import { clearUser } from "../../../store/userSlice";
 import { useNavigate } from "react-router-dom";
+import persistStore from "redux-persist/es/persistStore";
 
 const dropdownVariants = {
   hidden: { opacity: 0, scale: 0.95, y: -10 },
@@ -17,7 +18,7 @@ const UserDropdown = () => {
 
   const handleLogout = () => {
     dispatch(clearUser()); // Redux 상태 초기화
-    persistor.purge(); // Redux Persist가 저장한 상태 초기화
+    persistStore.purge(); // Redux Persist가 저장한 상태 초기화
     localStorage.removeItem("accessToken"); // 토큰 삭제
     localStorage.removeItem("refreshToken"); // 토큰 삭제
     navigate("/login"); // 로그인 페이지 이동
