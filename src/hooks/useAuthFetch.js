@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { reissueToken } from "../services/auth/authService";
+import { useDispatch } from "react-redux";
 
 export const useAuthFetch = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const ping = async () => {
     const accessToken = localStorage.getItem("accessToken");
@@ -24,14 +26,13 @@ export const useAuthFetch = () => {
     const checkAuth = async () => {
       try {
         let response = await ping();
-        console.log(response);
 
         if (response.status === 200) {
           setIsAuthenticated(true);
         } else if (response.status === 401) {
           // 401 → 토큰 재발급 시도
           try {
-            const newAccessToken = await reissueToken(navigate);
+            const newAccessToken = await reissueToken(navigate, dispatch);
             const retry = await fetch("http://localhost:8080/auth/validate", {
               method: "GET",
               headers: {

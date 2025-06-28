@@ -1,4 +1,4 @@
-export const reissueToken = async (navigate) => {
+export const reissueToken = async (navigate, dispatch) => {
   const refreshToken = localStorage.getItem("refreshToken");
   const accessToken = localStorage.getItem("accessToken");
 
@@ -24,6 +24,7 @@ export const reissueToken = async (navigate) => {
     return newAccessToken;
   } catch (error) {
     console.error("토큰 재발급 오류:", error);
+    dispatch(clearUser()); // Redux 상태 초기화
     navigate("/login");
     throw error;
   }
