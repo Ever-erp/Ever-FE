@@ -1,17 +1,19 @@
 #calendar-container {
-  @apply w-[1200px] my-[20px] mx-auto box-border max-h-[80vh];
+  @apply self-start w-full max-w-[95%] mx-auto my-4 box-border
+         md:max-w-[768px] 
+         2xl:max-w-[1200px];
 }
 
 /* 달력부분 */
 
 /* 일정표 툴 바  */
 .fc .fc-toolbar.fc-header-toolbar {
-  @apply m-0 p-10 bg-brand bg-opacity-95 h-[60px] text-white rounded-t-xl justify-between;
+  @apply m-0 p-5 pl-8 2xl:py-8 2xl:px-12 bg-brand bg-opacity-95 h-7 2xl:h-[60px] text-white rounded-t-xl justify-between;
 }
 
 /* 툴바의 버튼 */
 .fc .fc-toolbar-chunk .fc-button {
-  @apply bg-transparent text-white border-none px-1 py-2;
+  @apply bg-transparent 2xl:text-xl text-white border-none 2xl:px-1 2xl:py-2;
 }
 
 .fc .fc-toolbar-chunk .fc-button:focus,
@@ -24,6 +26,7 @@
 .fc .fc-toolbar-chunk .fc-button:disabled {
   @apply bg-brand;
 }
+
 /* 툴바 사용 불가 버튼 hover 시 스타일 주지 않기 */
 .fc .fc-toolbar-chunk .fc-button:disabled:hover {
   @apply bg-transparent;
@@ -44,6 +47,11 @@
   @apply font-bold w-8;
 }
 
+/* 요일 헤더 */
+.fc-theme-standard th {
+  @apply h-8 2xl:h-10 !important;
+}
+
 .fc-direction-ltr .fc-toolbar > * > :not(:first-child) {
   @apply m-0;
 }
@@ -60,7 +68,7 @@
 
 /* 날짜 상단 글자 */
 .fc-daygrid-day-top a {
-  @apply text-base;
+  @apply text-sm 2xl:text-base;
 }
 
 /* 날짜 상단 높이 */
@@ -80,7 +88,7 @@
 
 /* 제목(월/년)*/
 .fc .fc-toolbar-title {
-  @apply font-bold text-2xl;
+  @apply font-bold text-base 2xl:text-2xl;
 }
 
 /* 요일의 높이 */
@@ -90,7 +98,7 @@
 
 /* 날짜 Cell 프레임 */
 .fc .fc-daygrid-day-frame {
-  @apply p-2 pt-2.5;
+  @apply p-1 2xl:p-2 2xl:pt-2.5;
 }
 
 /* 월간,주간 view의 Cell이 시작하는 위치 */
@@ -127,7 +135,7 @@
 }
 /* 이벤트 제목 */
 .fc-event-title {
-  @apply text-sm overflow-hidden whitespace-nowrap text-ellipsis w-4/5;
+  @apply 2xl:text-sm overflow-hidden whitespace-nowrap text-ellipsis w-4/5;
 }
 
 .fc-daygrid-day-events {
