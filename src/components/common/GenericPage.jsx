@@ -127,30 +127,39 @@ const GenericPage = ({
   }, [currentPage, currentSize]);
 
   return (
-    <div className="flex flex-col w-full h-full justify-center items-center ml-20 mr-20">
-      <div className="flex flex-col w-full h-full ">
-        <div className="text-gray-500 pb-2">
+    <div className="flex flex-col w-full h-full justify-center items-center px-4 md:px-8 lg:px-12 xl:px-20">
+      <div className="flex flex-col w-full h-full">
+        <div className="text-gray-500 pb-2 text-sm md:text-base">
           총 <span className="text-brand font-semibold">{totalElements}</span>
           개의
           {config.title}이 있습니다.
         </div>
         {/* 헤더 */}
-        <div className="flex w-full border-t-4 border-brand pt-5 border-b pb-5 pl-10 pr-10">
+        <div className="flex w-full border-t-4 border-brand pt-3 md:pt-5 border-b pb-3 md:pb-5 px-2 md:px-6 lg:px-10">
           {config.showDeleteButton && user.position === "관리자" && (
-            <div className="w-12 text-center font-semibold">
+            <div className="w-8 md:w-12 text-center font-semibold text-sm md:text-base flex-shrink-0">
               <input
                 type="checkbox"
                 checked={selectAll}
                 onChange={handleSelectAll}
-                className="w-4 h-4"
+                className="w-3 h-3 md:w-4 md:h-4"
               />
             </div>
           )}
           {config.columns.map((column, index) => (
             <div
               key={index}
-              className={`${column.width} text-${column.align} font-semibold ${
-                column.paddingLeft || ""
+              className={`${column.width} text-${
+                column.align
+              } font-semibold text-xs md:text-sm lg:text-base ${
+                column.paddingLeft
+                  ? column.paddingLeft.replace(
+                      "pl-40",
+                      "pl-4 md:pl-20 lg:pl-40"
+                    )
+                  : ""
+              } ${
+                column.key === "title" ? "flex-shrink min-w-0" : "flex-shrink-0"
               }`}
             >
               {column.label}
@@ -165,11 +174,13 @@ const GenericPage = ({
                 key={`${config.title}-${
                   item[config.dataKeyMapping.id] || item.id || index
                 }`}
-                className="border-b border-gray-300 pb-3 pt-3 pl-10 pr-10 hover:bg-gray-100"
+                className={`border-b border-gray-300 pb-2 md:pb-3 pt-2 md:pt-3 px-2 md:px-6 lg:px-10 hover:bg-gray-100 cursor-pointer ${
+                  item.pinned ? "bg-blue-50 hover:bg-blue-100" : ""
+                }`}
               >
                 <div className="flex items-center">
                   {config.showDeleteButton && user.position === "관리자" && (
-                    <div className="w-12 flex justify-center">
+                    <div className="w-8 md:w-12 flex justify-center flex-shrink-0">
                       <input
                         type="checkbox"
                         checked={selectedItems.includes(
@@ -178,12 +189,12 @@ const GenericPage = ({
                         onChange={() =>
                           handleSelectItem(item[config.dataKeyMapping.id])
                         }
-                        className="w-4 h-4"
+                        className="w-3 h-3 md:w-4 md:h-4"
                         onClick={(e) => e.stopPropagation()}
                       />
                     </div>
                   )}
-                  <div className="flex-1 cursor-pointer">
+                  <div className="flex-1 min-w-0">
                     <GenericPageRow
                       data={item}
                       config={config}
@@ -194,19 +205,19 @@ const GenericPage = ({
               </div>
             ))
           ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 text-sm md:text-base">
               {config.title}이 없습니다.
             </div>
           )}
         </div>
         {/* 버튼들 */}
-        <div className="flex justify-between items-center mt-5">
+        <div className="flex flex-col md:flex-row justify-between items-center mt-5 gap-4 md:gap-0">
           {user.position === "관리자" && (
             <>
               <div>
                 {config.showDeleteButton && selectedItems.length > 0 && (
                   <button
-                    className="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition-colors"
+                    className="bg-red-500 text-white px-4 md:px-6 py-2 rounded-md hover:bg-red-600 transition-colors text-sm md:text-base"
                     onClick={handleDeleteSelected}
                   >
                     선택 삭제 ({selectedItems.length})
@@ -216,7 +227,7 @@ const GenericPage = ({
               <div className="flex gap-4">
                 {config.showWriteButton && (
                   <button
-                    className="bg-brand text-white px-10 py-2 rounded-md hover:bg-brand/80 transition-colors"
+                    className="bg-brand text-white px-6 md:px-10 py-2 rounded-md hover:bg-brand/80 transition-colors text-sm md:text-base"
                     onClick={handleWriteClick}
                   >
                     {config.writeButtonText}
