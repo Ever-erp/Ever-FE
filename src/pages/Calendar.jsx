@@ -16,6 +16,7 @@ import { deleteVacation } from "../services/calendar/deleteVacationSchedule";
 import NoticePopover from "../components/specific/calendar/NoticePopover";
 import VacationPopover from "../components/specific/calendar/VacationPopover";
 import ScheduleViewModal from "../components/specific/calendar/ScheduleViewModal";
+import Loading from "../components/common/Loading";
 
 const Calender = () => {
   const user = useSelector((state) => state.user.user); // 전역 상태에서 사용자 정보 가져오기
@@ -25,11 +26,13 @@ const Calender = () => {
     year: today.getFullYear(),
     month: today.getMonth() + 1, // JS는 0~11로 반환하므로 +1 필요 // 현재 날짜
   });
+  const [isLoading, setIsLoading] = useState(false);
+
   const [showModal, setShowModal] = useState(false);
   const [events, setEvents] = useState([]);
   const { isAuthenticated } = useAuthFetch();
   const navigate = useNavigate();
-  const hideTimeout = useRef(null); //
+  const hideTimeout = useRef(null);
 
   const [selectedEvent, setSelectedEvent] = useState(null); // 클릭된 이벤트 저장
 
@@ -38,11 +41,14 @@ const Calender = () => {
 
   const [popoverPosition, setPopoverPosition] = useState(null);
   const [viewClassSchedule, setViewClassSchedule] = useState(null);
+  const [activePopover, setActivePopover] = useState(null);
 
   const loadCalendarData = useCallback(async () => {
     if (!isAuthenticated) return;
     const { year, month } = currentYM;
     if (!year || !month) return;
+
+    setIsLoading(true); // 시작 전 로딩창 설정
 
     try {
       const res = await fetchAllCalendar(year, month);
@@ -175,6 +181,8 @@ const Calender = () => {
       setEvents(allEvents);
     } catch (err) {
       console.error("캘린더 데이터 불러오기 실패:", err);
+    } finally {
+      setIsLoading(false); // ⬅️ 항상 종료 시 false
     }
   }, [currentYM, isAuthenticated]);
 
@@ -277,6 +285,10 @@ const Calender = () => {
   };
   return (
     <div className="relative md:self-start 3xl:self-auto">
+      {isLoading && (
+        <Loading fullscreen text="캘린더 데이터를 불러오는 중입니다..." />
+      )}
+
       {/* 캘린더 영역 */}
       <div id="calendar-container">
         <FullCalendar
@@ -299,42 +311,36 @@ const Calender = () => {
 
             el.addEventListener("mouseenter", () => {
               el.style.filter = "brightness(105%)";
+              const rect = el.getBoundingClientRect();
 
               if (type === "notice" && noticeList?.length > 1) {
                 clearTimeout(hideTimeout.current);
-
-                const rect = el.getBoundingClientRect();
-                setHoveredNotices(noticeList);
-                setPopoverPosition({
-                  top: rect.top,
-                  left: rect.left + rect.width + 8, // 우측으로 8px 띄움
+                setActivePopover({
+                  type: "notice",
+                  list: noticeList,
+                  position: {
+                    top: rect.top,
+                    left: rect.left + rect.width + 8,
+                  },
                 });
               } else if (type === "vacation" && vacationList?.length > 1) {
                 clearTimeout(hideTimeout.current);
-
-                const rect = el.getBoundingClientRect();
-                setHoveredVacations(vacationList);
-                setPopoverPosition({
-                  top: rect.top,
-                  left: rect.left + rect.width + 8,
+                setActivePopover({
+                  type: "vacation",
+                  list: vacationList,
+                  position: {
+                    top: rect.top,
+                    left: rect.left + rect.width + 8,
+                  },
                 });
               }
             });
 
             el.addEventListener("mouseleave", () => {
               el.style.filter = "brightness(100%)";
-
-              if (type === "notice" && noticeList?.length > 1) {
-                hideTimeout.current = setTimeout(() => {
-                  setHoveredNotices([]);
-                  setPopoverPosition(null);
-                }, 100);
-              } else if (type === "vacation" && vacationList?.length > 1) {
-                hideTimeout.current = setTimeout(() => {
-                  setHoveredVacations([]);
-                  setPopoverPosition(null);
-                }, 100);
-              }
+              hideTimeout.current = setTimeout(() => {
+                setActivePopover(null);
+              }, 100);
             });
           }}
         />
@@ -393,27 +399,21 @@ const Calender = () => {
       )}
 
       {/* 공지사항 popover */}
-      {hoveredNotices.length > 1 && popoverPosition && (
+      {activePopover?.type === "notice" && (
         <NoticePopover
-          notices={hoveredNotices}
-          position={popoverPosition}
-          onClose={() => {
-            setHoveredNotices([]);
-            setPopoverPosition(null);
-          }}
+          notices={activePopover.list}
+          position={activePopover.position}
+          onClose={() => setActivePopover(null)}
           hideTimeout={hideTimeout}
         />
       )}
 
       {/* 휴가 popover */}
-      {hoveredVacations.length > 1 && popoverPosition && (
+      {activePopover?.type === "vacation" && (
         <VacationPopover
-          vacations={hoveredVacations}
-          position={popoverPosition}
-          onClose={() => {
-            setHoveredVacations([]);
-            setPopoverPosition(null);
-          }}
+          vacations={activePopover.list}
+          position={activePopover.position}
+          onClose={() => setActivePopover(null)}
           hideTimeout={hideTimeout}
         />
       )}

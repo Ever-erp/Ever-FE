@@ -175,7 +175,6 @@ const findSurveyBySurveyIdAndMemberIdFetch = async (surveyId, token) => {
 
     if (200 <= response.status && response.status < 300) {
       const responseJson = await response.json();
-      console.log(responseJson);
       return responseJson.data;
     } else {
       const errorStatus = response.json().status;
@@ -220,7 +219,6 @@ const surveySubmitFetch = async (surveyId, surveyData, token) => {
 };
 
 const surveySubmitUpdateFetch = async (surveyId, surveyData, token) => {
-  console.log("surveyData : ", surveyData);
   const answerList = surveyData.answers;
   try {
     const response = await fetch(

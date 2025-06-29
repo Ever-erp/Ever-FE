@@ -106,7 +106,7 @@ const SingleNotice = () => {
   };
 
   const handleFileDownload = (file) => {
-    console.log("downloading file : ", file);
+    //console.log("downloading file : ", file);
   };
 
   if (loading) {
