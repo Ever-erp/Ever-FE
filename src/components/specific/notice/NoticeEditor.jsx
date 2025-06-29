@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import FileUpload from "../../common/file/FileUpload";
+// import FileUpload from "../../common/file/FileUpload";
 import FileDisplay from "../../common/file/FileDisplay";
 import CustomDropdown from "../../common/CustomDropdown";
 import { useAuthFetch } from "../../../hooks/useAuthFetch";
@@ -62,22 +62,22 @@ const NoticeEditor = ({
     initialData.type,
   ]);
 
-  const handleFileChange = (uploadedFiles) => {
-    if (Array.isArray(uploadedFiles)) {
-      setFiles(uploadedFiles);
-    } else if (uploadedFiles) {
-      setFiles([uploadedFiles]);
-    } else {
-      setFiles([]);
-    }
-  };
+  // const handleFileChange = (uploadedFiles) => {
+  //   if (Array.isArray(uploadedFiles)) {
+  //     setFiles(uploadedFiles);
+  //   } else if (uploadedFiles) {
+  //     setFiles([uploadedFiles]);
+  //   } else {
+  //     setFiles([]);
+  //   }
+  // };
 
-  const handleRemoveExistingFile = (fileIndex) => {
-    const updatedFiles = existingFiles.filter(
-      (_, index) => index !== fileIndex
-    );
-    setExistingFiles(updatedFiles);
-  };
+  // const handleRemoveExistingFile = (fileIndex) => {
+  //   const updatedFiles = existingFiles.filter(
+  //     (_, index) => index !== fileIndex
+  //   );
+  //   setExistingFiles(updatedFiles);
+  // };
 
   const handleSave = () => {
     if (!title.trim()) {
@@ -119,9 +119,7 @@ const NoticeEditor = ({
     }
   };
 
-  const handleFileDownload = (file) => {
-    console.log("downloading file:", file);
-  };
+  const handleFileDownload = (file) => {};
 
   const getTodayDate = () => {
     const today = new Date();
@@ -230,46 +228,7 @@ const NoticeEditor = ({
         </div>
       </div>
 
-      {/* 첨부파일 영역 */}
-      <div className="w-full py-4 border-b-2 border-gray-300">
-        <div className="w-full">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">첨부파일</h4>
-          {mode === "edit" && existingFiles && existingFiles.length > 0 && (
-            <div className="mb-4">
-              <h5 className="text-xs text-gray-600 mb-2">기존 파일</h5>
-              <div className="space-y-2">
-                {existingFiles.map((file, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-2 bg-gray-50 rounded-md"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-gray-700">
-                        {file.name || `파일 ${index + 1}`}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveExistingFile(index)}
-                      className="text-red-500 hover:text-red-700 text-sm font-bold w-6 h-6 flex items-center justify-center rounded-full hover:bg-red-100 transition-colors"
-                      disabled={isLoading}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          <FileUpload
-            onFileChange={handleFileChange}
-            multiple={true}
-            accept="*/*"
-            disabled={isLoading}
-            className=""
-          />
-        </div>
-      </div>
+      {/* 파일 업로드 기능 비활성화로 인해 첨부파일 영역 제거 */}
 
       {/* 내용 영역 */}
       <div className="flex flex-col items-start justify-start flex-1 w-full p-4">
