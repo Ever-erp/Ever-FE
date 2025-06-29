@@ -19,7 +19,6 @@ const TimeSelector = ({
 
   const handleTimeClick = (hour) => {
     updateReservation("reservationTime", hour);
-    console.log("선택된 시간 (정수):", hour);
   };
 
   return (

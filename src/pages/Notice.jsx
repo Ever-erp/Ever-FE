@@ -128,7 +128,6 @@ const Notice = () => {
         setNoticeList(res.content);
         setTotalPages(res.totalPages);
         setTotalElements(res.totalElements);
-        console.log(res.content);
       }
       setLoading(false);
     });

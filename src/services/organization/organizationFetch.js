@@ -35,7 +35,6 @@ const allClassFetch = async (token) => {
       Authorization: `Bearer ${token}`,
     },
   };
-  console.log(import.meta.env.VITE_ORGANIZATION_API_URL);
   const url = new URL(`${import.meta.env.VITE_ORGANIZATION_API_URL}/init`);
 
   const response = await fetch(url, requestInit);

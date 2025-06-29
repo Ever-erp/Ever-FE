@@ -36,8 +36,6 @@ const LoginForm = () => {
     if (isSubmitting) return; // 이미 요청 중이면 무시
     setIsSubmitting(true);
 
-    console.log("회원 정보:", member);
-
     try {
       const response = await fetch("http://localhost:8080/auth/login", {
         method: "POST",
@@ -52,14 +50,11 @@ const LoginForm = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.log(errorData);
         alert("로그인 실패: " + errorData.message);
         return;
       }
 
       const res = await response.json();
-      console.log("로그인 후 데이터: ", res);
-      console.log(res.data);
       alert(
         "로그인 성공! 환영합니다, " + res.data.memberResponseDto.name + "님"
       );
