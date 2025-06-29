@@ -29,7 +29,7 @@ const CustomInput = ({
       </CustomInputContainer>
       {/* 에러 메시지 출력 */}
       {value && error && (
-        <p className="mt-1 ml-2 text-sm text-red-500">{error}</p>
+        <p className="mt-1 ml-2 text-sm text-warning">{error}</p>
       )}
     </div>
   );

@@ -47,7 +47,7 @@ const GenderInput = ({ gender, setGender, error }) => {
       </CustomInputContainer>
       {/* 에러 메시지 출력 */}
       {!gender && error && (
-        <p className="mt-1 ml-2 text-sm text-red-500">{error}</p>
+        <p className="mt-1 ml-2 text-sm text-warning">{error}</p>
       )}
     </>
   );
