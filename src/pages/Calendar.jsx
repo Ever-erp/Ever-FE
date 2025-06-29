@@ -343,11 +343,13 @@ const Calender = () => {
       {/* 버튼 */}
       <div className="mt-3 flex justify-end">
         <div className="w-2/5 2xl:w-1/3 flex gap-2">
-          {/* 취소 버튼 */}
+          {/* 휴가 취소 버튼 */}
           <CustomButton
-            label={user?.position === "관리자" ? "수업 일정 삭제" : "휴가 취소"}
+            label="휴가 취소"
             className={`py-[1vh] rounded-lg w-full ${
-              selectedEvent && selectedEvent.type === "classSchedule"
+              selectedEvent &&
+              selectedEvent.type === "vacation" &&
+              user?.position !== "관리자"
                 ? ""
                 : "invisible"
             }`}
@@ -421,6 +423,11 @@ const Calender = () => {
           <ScheduleViewModal
             onClose={() => setViewClassSchedule(null)}
             eventData={viewClassSchedule}
+            onCancel={async () => {
+              await handleCancelEvent(); // ✅ 삭제 후 모달 닫기
+              setViewClassSchedule(null);
+            }}
+            user={user}
           />
         </div>
       )}
