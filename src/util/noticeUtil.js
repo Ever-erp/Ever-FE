@@ -21,7 +21,8 @@ const noticeConfig = {
       paddingLeft: "pl-40",
     },
     { key: "writer", label: "작성자", width: "flex-1", align: "center" },
-    { key: "createdAt", label: "게시일", width: "w-28", align: "center" },
+    // { key: "targetDate", label: "공지 게시일", width: "w-28", align: "center" },
+    { key: "registedAt", label: "작성일", width: "w-28", align: "center" },
   ],
   dataKeyMapping: {
     id: "id",
@@ -29,7 +30,7 @@ const noticeConfig = {
     title: "title",
     writer: "writer",
     targetDate: "targetDate",
-    createdAt: "createdAt",
+    registedAt: "registedAt",
   },
 };
 
