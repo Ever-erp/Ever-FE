@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthFetch } from "../hooks/useAuthFetch";
-import { transformDataForAPI } from "../util/surveyUtil";
+import { transformDataForAPI, getTodayString } from "../util/surveyUtil";
 import { surveyCreateFetch } from "../services/survey/surveyFetch";
 import CustomDropdown from "../components/common/CustomDropdown";
 
@@ -9,6 +9,8 @@ const SurveyWrite = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthFetch();
   const token = localStorage.getItem("accessToken");
+
+  const [isSaving, setIsSaving] = useState(false);
 
   const targetRangeOptions = [
     { value: "웹앱", label: "웹/앱" },
@@ -127,7 +129,10 @@ const SurveyWrite = () => {
   };
   // 설문 저장
   const handleSave = async () => {
-    // 유효성 검사
+    if (isSaving) {
+      return;
+    }
+
     if (!surveyData.title.trim()) {
       alert("설문 제목을 입력해주세요.");
       return;
@@ -143,7 +148,6 @@ const SurveyWrite = () => {
       return;
     }
 
-    // 질문 유효성 검사
     for (let i = 0; i < surveyData.questions.length; i++) {
       const question = surveyData.questions[i];
       if (!question.question.trim()) {
@@ -163,7 +167,9 @@ const SurveyWrite = () => {
     }
 
     const apiData = transformDataForAPI(surveyData);
+
     try {
+      setIsSaving(true);
       const response = await surveyCreateFetch(apiData, token);
 
       if (response.status === 201) {
@@ -175,10 +181,15 @@ const SurveyWrite = () => {
     } catch (error) {
       console.error("설문 저장 오류:", error);
       alert("설문 저장 중 오류가 발생했습니다.");
+    } finally {
+      setIsSaving(false);
     }
   };
   // 취소
   const handleCancel = () => {
+    if (isSaving) {
+      return;
+    }
     navigate("/survey");
   };
 
@@ -231,6 +242,7 @@ const SurveyWrite = () => {
             <input
               type="date"
               value={surveyData.endDate}
+              min={getTodayString()}
               onChange={(e) =>
                 setSurveyData({ ...surveyData, endDate: e.target.value })
               }
@@ -380,15 +392,21 @@ const SurveyWrite = () => {
       <div className="flex-shrink-0 flex justify-end gap-4 p-8 pt-4 bg-gray-50 border-t border-gray-200">
         <button
           onClick={handleCancel}
-          className="px-6 py-2 border border-gray-300 rounded text-gray-600 hover:bg-gray-50"
+          disabled={isSaving}
+          className={`px-6 py-2 border border-gray-300 rounded text-gray-600 hover:bg-gray-50 ${
+            isSaving ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
           작성 취소
         </button>
         <button
           onClick={handleSave}
-          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          disabled={isSaving}
+          className={`px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ${
+            isSaving ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          설문 저장
+          {isSaving ? "저장 중..." : "설문 저장"}
         </button>
       </div>
     </div>
