@@ -1,9 +1,8 @@
-import SearchBar from "../components/specific/notice/SearchBar";
-import CategorySelectBar from "../components/specific/notice/CategorySelectBar";
+// import SearchBar from "../components/specific/notice/SearchBar";
+// import CategorySelectBar from "../components/specific/notice/CategorySelectBar";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import GenericPage from "../components/common/GenericPage";
-import SurveyViewer from "../components/specific/survey/SurveyViewer";
-import SurveyResponseViewer from "../components/specific/survey/SurveyResponseViewer";
 import {
   surveyPageFetch,
   surveyDeleteMultipleFetch,
@@ -11,41 +10,116 @@ import {
 import { surveyConfig } from "../util/surveyUtil";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import Loading from "../components/common/Loading";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  setAdminSurveyClick,
+  getAdminSurveyClick,
+  resetSurveyState,
+} from "../store/surveySlice";
 
 const Survey = () => {
-  const [category, setCategory] = useState("all");
-  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  // const [category, setCategory] = useState("all");
+  // const [search, setSearch] = useState("");
   const [surveyList, setSurveyList] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [page, setPage] = useState(1);
-  const [size, setSize] = useState(10);
+
+  // 화면 크기에 따른 페이징 사이즈 계산
+  const getResponsiveSize = () => {
+    const width = window.innerWidth;
+    if (width >= 2560) return 20; // 2560px 이상 데스크탑
+    if (width >= 1920) return 14; // 1920px 이상 데스크탑
+    if (width >= 1600) return 10; // 1440px 이상 데스크탑
+    if (width >= 1024) return 8; // 1024px 이상 랩탑
+    if (width >= 768) return 6; // 768px 이상 아이패드
+    return 6; // 768px 미만
+  };
+
+  const [size, setSize] = useState(() => getResponsiveSize());
   const [loading, setLoading] = useState(false);
-  const [viewMode, setViewMode] = useState("list"); // "list", "survey", "response"
-  const [selectedSurveyId, setSelectedSurveyId] = useState(null);
-  const [currentMode, setCurrentMode] = useState("survey"); // "survey" 또는 "response"
 
   const user = useSelector((state) => state.user.user);
+  const surveyState = useSelector((state) => state.survey); // 전체 survey 상태를 가져옴
+  const currentMode = useSelector(getAdminSurveyClick) || "survey"; // 기본값 보장
   const { isAuthenticated } = useAuthFetch();
   const token = localStorage.getItem("accessToken");
 
-  const handleCategoryChange = (selectedCategory) => {
-    setCategory(selectedCategory);
-  };
+  // 디버깅을 위한 로그 추가
+  useEffect(() => {}, [currentMode, surveyState]);
 
-  const categoryOptions = [
-    [
-      { value: "all", label: "제목 전체" },
-      { value: "title", label: "제목" },
-    ],
-  ];
+  // 컴포넌트 마운트 시 Redux 상태 확인 및 초기화
+  useEffect(() => {
+    try {
+      // 상태가 문자열이거나 올바르지 않은 형태라면 초기화
+      if (
+        typeof surveyState === "string" ||
+        !surveyState ||
+        typeof surveyState !== "object"
+      ) {
+        console.warn("Survey state is corrupted, resetting...");
+        dispatch(resetSurveyState());
 
-  const handleSearchChange = (searchChange) => {
-    setSearch(searchChange);
-    // TODO: 설문 검색 API 호출
-    console.log("설문 검색:", searchChange);
-  };
+        // localStorage도 정리 (필요시)
+        const persistedState = localStorage.getItem("persist:root");
+        if (persistedState) {
+          try {
+            const parsed = JSON.parse(persistedState);
+            if (
+              typeof parsed.survey === "string" &&
+              parsed.survey !== '"survey"'
+            ) {
+              console.warn("Cleaning up corrupted localStorage");
+              // localStorage의 survey 부분만 초기화
+              parsed.survey = JSON.stringify({
+                surveyRedirect: null,
+                adminSurveyClick: "survey",
+              });
+              localStorage.setItem("persist:root", JSON.stringify(parsed));
+            }
+          } catch (e) {
+            console.error("Error parsing localStorage:", e);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error checking survey state:", error);
+      dispatch(resetSurveyState());
+    }
+  }, [dispatch, surveyState]);
+
+  // 화면 크기 변경 감지
+  useEffect(() => {
+    const handleResize = () => {
+      const newSize = getResponsiveSize();
+      if (newSize !== size) {
+        setSize(newSize);
+        setPage(1); // 사이즈 변경 시 첫 페이지로 이동
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [size]);
+
+  // const handleCategoryChange = (selectedCategory) => {
+  //   setCategory(selectedCategory);
+  // };
+
+  // const categoryOptions = [
+  //   [
+  //     { value: "all", label: "제목 전체" },
+  //     { value: "title", label: "제목" },
+  //   ],
+  // ];
+
+  // const handleSearchChange = (searchChange) => {
+  //   setSearch(searchChange);
+  //   // TODO: 설문 검색 API 호출
+
+  // };
 
   const handlePageChange = (page) => {
     setPage(page);
@@ -56,23 +130,22 @@ const Survey = () => {
   };
 
   const handleSurveyStatusClick = () => {
-    setCurrentMode("survey");
+    dispatch(setAdminSurveyClick("survey"));
   };
 
   const handleResponseStatusClick = () => {
-    setCurrentMode("response");
+    dispatch(setAdminSurveyClick("response"));
   };
 
-  // 행 클릭 핸들러
+  // 행 클릭 핸들러 - 라우팅으로 변경
   const handleRowClick = (item) => {
-    setSelectedSurveyId(item.surveyId);
-    setViewMode(currentMode); // "survey" 또는 "response"
-  };
-
-  // 뷰어에서 목록으로 돌아가기
-  const handleBackToList = () => {
-    setViewMode("list");
-    setSelectedSurveyId(null);
+    if (currentMode === "survey") {
+      // 설문 현황 보기
+      navigate(`/survey/${item.surveyId}`);
+    } else {
+      // 응답 현황 보기 - 쿼리 파라미터로 모드 전달
+      navigate(`/survey/${item.surveyId}?mode=response`);
+    }
   };
 
   const handleDeleteSurveys = async (surveyIds) => {
@@ -138,101 +211,64 @@ const Survey = () => {
       });
   }, [page, size]);
 
-  // 리스트 뷰
-  if (viewMode === "list") {
-    return (
+  return (
+    <div className="flex flex-col items-center w-full h-full px-4 md:px-6 lg:px-8 xl:px-12">
       <div className="flex flex-col items-center w-full h-full">
-        <div className="flex flex-col items-center w-full h-full">
-          <div className="flex flex-col items-center justify-center w-full">
-            <div className="flex flex-row items-center w-full h-full justify-center pb-5">
-              <CategorySelectBar
-                onCategoryChange={handleCategoryChange}
-                categoryOptions={categoryOptions}
-              />
-              <SearchBar onSearchChange={handleSearchChange} />
-            </div>
-            {user.position === "관리자" && (
-              <div className="flex flex-row items-center justify-start w-full gap-2 ml-40 pb-3">
-                <button
-                  className={`w-[80px] h-[30px] rounded-xl text-white ${
-                    currentMode === "survey"
-                      ? "bg-blue-700"
-                      : "bg-brand hover:bg-blue-600"
-                  }`}
-                  onClick={handleSurveyStatusClick}
-                >
-                  설문 현황
-                </button>
-                <button
-                  className={`w-[80px] h-[30px] rounded-xl text-white ${
-                    currentMode === "response"
-                      ? "bg-blue-700"
-                      : "bg-brand hover:bg-blue-600"
-                  }`}
-                  onClick={handleResponseStatusClick}
-                >
-                  응답 현황
-                </button>
-              </div>
-            )}
+        <div className="flex flex-col items-center justify-center w-full">
+          <div className="flex flex-col md:flex-row items-center w-full h-full justify-center pb-5 gap-4 md:gap-0">
+            {/* <CategorySelectBar
+              onCategoryChange={handleCategoryChange}
+              categoryOptions={categoryOptions}
+            />
+            <SearchBar onSearchChange={handleSearchChange} /> */}
           </div>
-
-          {loading ? (
-            <Loading text="데이터를 불러오고 있습니다..." />
-          ) : (
-            <div className="flex flex-row items-center justify-center w-full h-full">
-              <GenericPage
-                dataList={surveyList}
-                page={page}
-                size={size}
-                totalPages={totalPages}
-                totalElements={totalElements}
-                onPageChange={handlePageChange}
-                onSizeChange={handleSizeChange}
-                onDelete={handleDeleteSurveys}
-                onRowClick={handleRowClick}
-                config={surveyConfig}
-              />
+          {user.position === "관리자" && (
+            <div className="flex flex-row items-center justify-start w-full gap-2 pb-3 md:ml-40">
+              <button
+                className={`w-[80px] h-[30px] rounded-xl text-white text-sm md:text-base ${
+                  currentMode === "survey"
+                    ? "bg-blue-700"
+                    : "bg-brand hover:bg-blue-600"
+                }`}
+                onClick={handleSurveyStatusClick}
+              >
+                설문 현황
+              </button>
+              <button
+                className={`w-[80px] h-[30px] rounded-xl text-white text-sm md:text-base ${
+                  currentMode === "response"
+                    ? "bg-blue-700"
+                    : "bg-brand hover:bg-blue-600"
+                }`}
+                onClick={handleResponseStatusClick}
+              >
+                응답 현황
+              </button>
             </div>
           )}
         </div>
-      </div>
-    );
-  }
 
-  if (user.position === "학생") {
-    return (
-      <div className="h-full w-full">
-        <SurveyViewer surveyId={selectedSurveyId} mode="user" />
+        {loading ? (
+          <Loading text="데이터를 불러오고 있습니다..." />
+        ) : (
+          <div className="flex flex-row items-center justify-center w-full h-full">
+            <GenericPage
+              dataList={surveyList}
+              page={page}
+              size={size}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              onPageChange={handlePageChange}
+              onSizeChange={handleSizeChange}
+              onDelete={handleDeleteSurveys}
+              onRowClick={handleRowClick}
+              config={surveyConfig}
+            />
+          </div>
+        )}
       </div>
-    );
-  }
-  // 설문 현황 뷰 (기존 SurveyViewer)
-  if (user.position === "관리자" && viewMode === "survey") {
-    return (
-      <div className="h-full w-full">
-        <SurveyViewer
-          surveyId={selectedSurveyId}
-          mode="admin"
-          onCancel={handleBackToList}
-        />
-      </div>
-    );
-  }
-
-  // 응답 현황 뷰 (새로운 SurveyResponseViewer)
-  if (user.position === "관리자" && viewMode === "response") {
-    return (
-      <div className="h-full w-full">
-        <SurveyResponseViewer
-          surveyId={selectedSurveyId}
-          onCancel={handleBackToList}
-        />
-      </div>
-    );
-  }
-
-  return null;
+    </div>
+  );
 };
 
 export default Survey;
