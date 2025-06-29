@@ -185,9 +185,9 @@ const OrganizationClass = () => {
               <div className="flex items-start space-x-4">
                 <div className="flex-shrink-0">
                   <div className="w-24 h-24 bg-gray-200 rounded-lg overflow-hidden border-2 border-gray-300">
-                    {selectedMember?.profile_image ? (
+                    {selectedMember?.profileImage ? (
                       <img
-                        src={selectedMember.profile_image}
+                        src={selectedMember.profileImage}
                         alt={selectedMember.name}
                         className="w-full h-full object-cover"
                       />
@@ -213,15 +213,6 @@ const OrganizationClass = () => {
                     <h3 className="text-xl font-bold text-gray-800 mb-1">
                       {selectedMember?.name}
                     </h3>
-                    <div
-                      className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                        selectedMember?.is_active
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {selectedMember?.is_active ? "활성" : "비활성"}
-                    </div>
                   </div>
 
                   <div className="space-y-2 text-sm">
@@ -266,7 +257,9 @@ const OrganizationClass = () => {
                         주소:
                       </span>
                       <span className="text-gray-800">
-                        {selectedMember?.address}
+                        {selectedMember?.address
+                          ? selectedMember?.address
+                          : "등록된 주소가 없습니다"}
                       </span>
                     </div>
                   </div>

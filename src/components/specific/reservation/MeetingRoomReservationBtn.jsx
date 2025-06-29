@@ -38,7 +38,6 @@ const MeetingRoomReservationBtn = ({
       }
 
       const data = await response.json();
-      console.log("취소 응답:", data);
       alert("회의실을 취소하였습니다.");
 
       await onComplete(); // ✅ 콜백 실행

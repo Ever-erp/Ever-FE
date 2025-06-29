@@ -228,7 +228,6 @@ const Calender = () => {
       customOrder: event.customOrder ?? info.event.customOrder,
     });
     // 4) 나머지 원래 로직
-    console.log(event);
     // 실제 로직 수행
     if (event.type === "notice") {
       navigate(`/notice/${event.id}`);

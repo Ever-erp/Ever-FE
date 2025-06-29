@@ -81,8 +81,8 @@ const SurveySubmit = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="container mx-auto py-8">
+    <div className="min-h-screen w-full bg-white">
+      <div className="py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
             {isExpired

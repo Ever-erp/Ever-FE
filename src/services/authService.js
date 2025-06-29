@@ -17,7 +17,6 @@ export const reissueToken = async (navigate) => {
     const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
       result.data;
 
-    console.log("재발급된 토큰: ", newAccessToken);
     localStorage.setItem("accessToken", newAccessToken);
     localStorage.setItem("refreshToken", newRefreshToken);
 

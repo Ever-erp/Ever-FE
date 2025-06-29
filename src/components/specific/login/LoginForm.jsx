@@ -50,14 +50,11 @@ const LoginForm = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.log(errorData);
         alert("로그인 실패: " + errorData.message);
         return;
       }
 
       const res = await response.json();
-      console.log("로그인 후 데이터: ", res);
-      console.log(res.data);
       alert(
         "로그인 성공! 환영합니다, " + res.data.memberResponseDto.name + "님"
       );

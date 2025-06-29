@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   noticeSingleFetch,
   noticeUpdateFetch,
   noticeDeleteFetch,
 } from "../services/notice/noticeFetch";
-import FileDisplay from "../components/common/file/FileDisplay";
+// import FileDisplay from "../components/common/file/FileDisplay";
 import NoticeEditor from "../components/specific/notice/NoticeEditor";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import Loading from "../components/common/Loading";
@@ -24,15 +24,17 @@ const SingleNotice = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const navigate = useNavigate();
+
   const { isAuthenticated } = useAuthFetch();
   const user = useSelector((state) => state.user.user);
 
   // resFile은 배열이어야 함.
-  const handleFile = (resFiles) => {
-    if (resFiles && resFiles.length > 0 && Array.isArray(resFiles)) {
-      setNoticeFiles(resFiles);
-    }
-  };
+  // const handleFile = (resFiles) => {
+  //   if (resFiles && resFiles.length > 0 && Array.isArray(resFiles)) {
+  //     setNoticeFiles(resFiles);
+  //   }
+  // };
 
   const handleEditClick = () => {
     setIsEditMode(true);
@@ -46,6 +48,8 @@ const SingleNotice = () => {
     const token = localStorage.getItem("accessToken");
     await noticeDeleteFetch(noticeId, token);
     setIsDeleteMode(false);
+    alert("삭제가 완료되었습니다.");
+    navigate("/notice");
   };
 
   const handleDeleteCancel = () => {
@@ -60,7 +64,7 @@ const SingleNotice = () => {
 
       setNoticeTitle(data.title);
       setNoticeContent(data.content);
-      setNoticeFiles(data.files);
+      // setNoticeFiles(data.files);
       setNoticeType(data.type);
       setIsEditMode(false);
       alert("수정이 완료되었습니다.");
@@ -89,7 +93,7 @@ const SingleNotice = () => {
         setNoticeDate(res.targetDate || res.createdAt || res.registedAt);
         setNoticeType(res.type);
         setNoticePin(res.pinned || res.pin);
-        handleFile(res.files || []);
+        // handleFile(res.files || []);
       } catch (error) {
         console.error("공지사항 로딩 중 오류 발생:", error);
       } finally {
@@ -195,6 +199,8 @@ const SingleNotice = () => {
           </div>
         </div>
       </div>
+      {/* 파일 업로드 기능 비활성화로 인해 파일 표시 영역 제거 */}
+      {/* 
       {noticeFiles.length > 0 && (
         <div className="w-full py-4 border-b-2 border-gray-300">
           <div className="w-full">
@@ -206,6 +212,7 @@ const SingleNotice = () => {
           </div>
         </div>
       )}
+      */}
 
       <div className="flex flex-col items-start justify-start flex-1 w-full p-4">
         <div className="w-full h-full overflow-auto">

@@ -13,13 +13,11 @@ export const writeSchedule = async (scheduleData) => {
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.log(response);
 
       throw new Error(errorData.message || "수업 일정 작성 실패");
     }
 
     const data = await response.json();
-    console.log(data);
     alert("수업 일정이 저장되었습니다.");
 
     return data;

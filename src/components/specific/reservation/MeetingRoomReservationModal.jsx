@@ -73,13 +73,11 @@ const MeetingRoomReservationModal = ({
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.log(errorData);
         alert("회의실 예약 실패: " + errorData.message);
         return;
       }
 
       const res = await response.json();
-      console.log(res.data);
 
       alert("회의실 예약이 저장되었습니다!");
 
