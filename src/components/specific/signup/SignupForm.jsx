@@ -74,6 +74,11 @@ const SignUpForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!member.className || !member.classCohort) {
+      alert("반을 선택해주세요.");
+      return;
+    }
     console.log("회원 정보:", member);
     try {
       // 1. 회원 정보 서버에 저장 (이미지 URL 없이)
@@ -103,9 +108,9 @@ const SignUpForm = () => {
         return;
       }
 
-      const data = await response.json();
-      console.log(data);
-      alert("회원가입 성공! 환영합니다, " + data.name);
+      const res = await response.json();
+      console.log(res);
+      alert("회원가입 성공! 환영합니다, " + res.data.name + "님");
 
       // 2. 이미지가 있다면 이미지 업로드
       if (member.email && member.image) {

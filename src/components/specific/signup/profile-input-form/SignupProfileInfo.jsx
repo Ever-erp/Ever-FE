@@ -9,9 +9,29 @@ import { HiArrowLeft } from "react-icons/hi";
 
 const SignupProfileInfo = ({ member, updateMember, onNext, onPrev }) => {
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const newErrors = {};
+
+    if (!member.birth) {
+      newErrors.birth = "생년월일을 선택해주세요.";
+    }
+
+    if (!member.gender) {
+      newErrors.gender = "성별을 선택해주세요.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleNext = () => {
-    onNext?.(); // 이후 화면을 이동
+    if (validate()) {
+      onNext?.();
+    } else {
+      alert("입력값을 확인해주세요.");
+    }
   };
 
   const handlePrev = () => {
@@ -23,10 +43,12 @@ const SignupProfileInfo = ({ member, updateMember, onNext, onPrev }) => {
       <BirthInput
         birth={member.birth}
         setBirth={(val) => updateMember("birth", val)}
+        error={errors.birth}
       />
       <GenderInput
         gender={member.gender}
         setGender={(val) => updateMember("gender", val)}
+        error={errors.gender}
       />
       <ImageInput
         image={member.image}

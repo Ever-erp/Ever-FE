@@ -9,6 +9,19 @@ const SignupClassInfo = ({ member, classList, updateMember, onPrev }) => {
   const [isFocus, setIsFocus] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
 
+  // 초기 렌더 시 className을 바탕으로 selectedClass 복구
+  useEffect(() => {
+    if (member.className && classList.length > 0) {
+      const found = classList.find(
+        (item) => item.full.name === member.className
+      );
+      if (found) {
+        setSelectedClass(found.value);
+      }
+    }
+  }, [member.className, classList]);
+
+  // 선택된 반이 변경될 때 member 값 업데이트
   useEffect(() => {
     if (selectedClass !== null && classList[selectedClass] !== undefined) {
       updateMember("className", classList[selectedClass].full.name);
@@ -19,6 +32,7 @@ const SignupClassInfo = ({ member, classList, updateMember, onPrev }) => {
   const handlePrev = (e) => {
     onPrev?.(); // 유저 프로필 정보 입력으로 이동
   };
+
   return (
     <div className="w-full mt-10">
       <SignupClassDropdown
@@ -56,6 +70,7 @@ const SignupClassInfo = ({ member, classList, updateMember, onPrev }) => {
           className="py-3 rounded-lg"
           variant="brand"
           size="md"
+          // onClick={handleSubmit}
           type="submit"
         />
       </div>

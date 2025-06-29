@@ -16,9 +16,9 @@ const UserProfile = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="h-full p-4 flex items-center gap-4 rounded-xl hover:bg-gray-100 cursor-pointer">
+      <div className="h-full 2xl:p-2 flex items-center gap-4 rounded-xl hover:bg-gray-100 cursor-pointer">
         {/* 프로필 이미지 */}
-        <div className="w-14 h-14 rounded-full border border-gray-300 flex justify-center items-center overflow-hidden">
+        <div className="w-12 h-12 2xl:w-14 2xl:h-14 rounded-full border border-gray-300 flex justify-center items-center overflow-hidden">
           <img
             src={user?.profileImage ? user.profileImage : dogImage}
             alt="User Profile"
@@ -28,10 +28,12 @@ const UserProfile = () => {
 
         {/* 이름과 이메일 */}
         <div className="flex flex-col">
-          <span className="text-xl font-semibold text-gray-800">
+          <span className="2xl:text-xl font-semibold text-gray-800">
             {user.name}
           </span>
-          <span className="text-sm text-gray-400">{user.email}</span>
+          <span className="text-xs 2xl:text-sm text-gray-400">
+            {user.email}
+          </span>
         </div>
 
         {/* 드롭다운 메뉴 */}

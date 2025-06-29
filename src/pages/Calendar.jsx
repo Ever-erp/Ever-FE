@@ -1,14 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import "./calendar.css";
+import "../assets/styles/calendar.css";
 import CustomButton from "../components/common/CustomButton";
 import ScheduleCreateModal from "../components/specific/calendar/ScheduleCreateModal";
 import VacationRequestModal from "../components/specific/calendar/VacationRequestModal";
 import { useSelector } from "react-redux";
-import { isOverlap, isWeekend } from "../services/calendar/calendarService";
 import { fetchAllCalendar } from "../services/calendar/fetchAllCalendar";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import { formatDatePlusOne } from "../services/formatDateToLocalString";
@@ -278,7 +276,7 @@ const Calender = () => {
     setShowModal(true);
   };
   return (
-    <div className="relative">
+    <div className="relative md:self-start 3xl:self-auto">
       {/* 캘린더 영역 */}
       <div id="calendar-container">
         <FullCalendar
@@ -344,12 +342,14 @@ const Calender = () => {
 
       {/* 버튼 */}
       <div className="mt-3 flex justify-end">
-        <div className="w-1/3 flex gap-4">
-          {/* 취소 버튼 */}
+        <div className="w-2/5 2xl:w-1/3 flex gap-2">
+          {/* 휴가 취소 버튼 */}
           <CustomButton
-            label={user?.position === "관리자" ? "수업 일정 삭제" : "휴가 취소"}
+            label="휴가 취소"
             className={`py-[1vh] rounded-lg w-full ${
-              selectedEvent && selectedEvent.type === "classSchedule"
+              selectedEvent &&
+              selectedEvent.type === "vacation" &&
+              user?.position !== "관리자"
                 ? ""
                 : "invisible"
             }`}
@@ -423,6 +423,11 @@ const Calender = () => {
           <ScheduleViewModal
             onClose={() => setViewClassSchedule(null)}
             eventData={viewClassSchedule}
+            onCancel={async () => {
+              await handleCancelEvent(); // ✅ 삭제 후 모달 닫기
+              setViewClassSchedule(null);
+            }}
+            user={user}
           />
         </div>
       )}

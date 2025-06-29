@@ -1,8 +1,10 @@
 import DatePicker from "react-datepicker";
 import CustomButton from "../../common/CustomButton";
 
-const ScheduleViewModal = ({ onClose, eventData }) => {
-  const { subjectName, classDesc, classUrl, startDate, endDate } = eventData;
+const ScheduleViewModal = ({ onClose, eventData, onCancel, user }) => {
+  const { subjectName, classDesc, classUrl, startDate, endDate, type } =
+    eventData;
+  console.log(user);
 
   return (
     <div className="relative p-8 bg-white rounded-lg shadow-lg w-[500px]">
@@ -77,14 +79,15 @@ const ScheduleViewModal = ({ onClose, eventData }) => {
           />
         </div>
 
-        {/* 닫기 버튼 */}
-        <CustomButton
-          label="닫기"
-          className="py-[1vh] rounded-lg"
-          variant="brand"
-          size="md"
-          onClick={onClose}
-        />
+        {user?.position === "관리자" && (
+          <CustomButton
+            label="수업 일정 삭제"
+            className="py-[1vh] rounded-lg"
+            variant="outline"
+            size="md"
+            onClick={onCancel}
+          />
+        )}
       </div>
     </div>
   );
