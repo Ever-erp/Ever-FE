@@ -28,7 +28,6 @@ export const useAuthFetch = () => {
         if (response.status === 200) {
           setIsAuthenticated(true);
         } else if (response.status === 401) {
-          console.log("토큰 재발급 시도...?");
           // 401 → 토큰 재발급 시도
           try {
             const newAccessToken = await reissueToken(navigate);

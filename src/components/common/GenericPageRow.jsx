@@ -118,7 +118,15 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
     }
   };
 
-  const handleSurveyStatus = (status) => {
+  const handleSurveyStatus = (status, dueDate) => {
+    if (dueDate && isDateExpired(dueDate)) {
+      return (
+        <div className="text-brand border border-brand rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          마감
+        </div>
+      );
+    }
+
     switch (status) {
       case "진행중":
         return (
@@ -129,7 +137,7 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
       case "완료":
         return (
           <div className="text-brand border border-brand rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
-            완료
+            마감
           </div>
         );
       case "작성중":

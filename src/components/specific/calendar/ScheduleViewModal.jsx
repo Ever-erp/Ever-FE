@@ -4,7 +4,6 @@ import CustomButton from "../../common/CustomButton";
 const ScheduleViewModal = ({ onClose, eventData, onCancel, user }) => {
   const { subjectName, classDesc, classUrl, startDate, endDate, type } =
     eventData;
-  console.log(user);
 
   return (
     <div className="relative p-8 bg-white rounded-lg shadow-lg w-[500px]">

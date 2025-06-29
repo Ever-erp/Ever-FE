@@ -37,7 +37,6 @@ const MeetingRoomReservationBtn = ({
       }
 
       const data = await response.json();
-      console.log("취소 응답:", data);
       alert("회의실을 취소하였습니다.");
 
       // 필요하면 상태 갱신 로직도 여기에 추가 (예: 예약 목록 다시 불러오기)
@@ -48,13 +47,6 @@ const MeetingRoomReservationBtn = ({
   };
 
   const isMyReservation = myReservations.some((my) => {
-    console.log("비교중: ", {
-      myRoomNum: my.roomNum,
-      myStartTime: my.startTime,
-      selectedRoomNum: reservation.roomNum,
-      selectedTime: reservation.reservationTime,
-    });
-
     return (
       my.roomNum === Number(reservation.roomNum) &&
       my.startTime === reservation.reservationTime

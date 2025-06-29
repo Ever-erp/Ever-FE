@@ -79,7 +79,6 @@ const noticeSearchFetch = async (
   const url = `${
     import.meta.env.VITE_NOTICE_API_URL
   }/search?targetRange=${targetRange}&type=${type}&input=${input}&page=${page}&size=${size}`;
-  console.log(url);
   try {
     const response = await fetch(url, requestInit);
     if (200 <= response.status && response.status < 300) {
@@ -127,21 +126,22 @@ const noticeCreateFetch = async (data, token) => {
     body: JSON.stringify(noticeBody),
   };
 
-  const formData = new FormData();
+  // 파일 업로드 기능 비활성화
+  // const formData = new FormData();
 
-  const fileRequestInit = {
-    credentials: "include",
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
+  // const fileRequestInit = {
+  //   credentials: "include",
+  //   method: "POST",
+  //   headers: {
+  //     Authorization: `Bearer ${token}`,
+  //   },
+  // };
 
-  if (data.files && data.files.length > 0) {
-    data.files.forEach((file, index) => {
-      formData.append("files", file);
-    });
-  }
+  // if (data.files && data.files.length > 0) {
+  //   data.files.forEach((file, index) => {
+  //     formData.append("files", file);
+  //   });
+  // }
 
   try {
     const noticeResponse = await fetch(
@@ -234,7 +234,6 @@ const noticeDeleteFetch = async (id, token) => {
       `${import.meta.env.VITE_NOTICE_API_URL}/${id}`,
       requestInit
     );
-    console.log(response);
     if (200 <= response.status && response.status < 300) {
       const responseJson = await response.json();
       if (200 <= responseJson.status && responseJson.status < 300) {
