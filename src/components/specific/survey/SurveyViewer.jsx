@@ -7,7 +7,11 @@ import {
   surveySubmitFetch,
   surveySubmitUpdateFetch,
 } from "../../../services/survey/surveyFetch";
-import { getStatusBadgeColor, parsedDate } from "../../../util/surveyUtil";
+import {
+  getStatusBadgeColor,
+  parsedDate,
+  isDateExpired,
+} from "../../../util/surveyUtil";
 import { useAuthFetch } from "../../../hooks/useAuthFetch";
 import Loading from "../../common/Loading";
 
@@ -330,6 +334,7 @@ const SurveyViewer = ({
   const isAdminEditing = mode === "admin" && isEditing;
   const isUserMode = mode === "submit" || mode === "edit";
   const isViewMode = mode === "view" || mode === "user"; // user 모드도 읽기 전용으로 처리
+  const isExpired = isDateExpired(surveyData.dueDate); // 마감일 확인
 
   if (isLoading) {
     return <Loading />;
@@ -647,7 +652,7 @@ const SurveyViewer = ({
             {isAdminEditing ? "취소" : "목록으로"}
           </button>
         ) : null}
-        {mode === "user" && (
+        {mode === "user" && !isExpired && (
           <button
             onClick={handleModify}
             className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700"
@@ -657,12 +662,14 @@ const SurveyViewer = ({
         )}
         {mode === "admin" && !isEditing ? (
           <>
-            <button
-              onClick={() => setIsEditing(true)}
-              className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              수정
-            </button>
+            {!isExpired && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                수정
+              </button>
+            )}
             <button
               onClick={handleDelete}
               className="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700"
@@ -677,7 +684,7 @@ const SurveyViewer = ({
           >
             저장
           </button>
-        ) : mode === "submit" || mode === "edit" ? (
+        ) : (mode === "submit" || mode === "edit") && !isExpired ? (
           <button
             onClick={handleSubmit}
             className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700"
@@ -685,6 +692,11 @@ const SurveyViewer = ({
             {mode === "edit" ? "답변 수정" : "설문 제출"}
           </button>
         ) : null}
+        {isExpired && (isUserMode || mode === "user") && (
+          <div className="px-6 py-2 bg-gray-400 text-white rounded cursor-not-allowed">
+            마감된 설문입니다
+          </div>
+        )}
       </div>
     </div>
   );
