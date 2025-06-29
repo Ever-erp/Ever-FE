@@ -40,7 +40,13 @@ const GenericPage = ({
       },
       { key: "writer", label: "작성자", width: "flex-1", align: "center" },
       { key: "memberCount", label: "참여자", width: "w-28", align: "center" },
-      { key: "createdAt", label: "게시일", width: "w-28", align: "center" },
+      {
+        key: "targetDate",
+        label: "공지 게시일",
+        width: "w-28",
+        align: "center",
+      },
+      { key: "registedAt", label: "게시일", width: "w-28", align: "center" },
     ],
     dataKeyMapping: {
       // 데이터 필드 매핑
@@ -51,8 +57,8 @@ const GenericPage = ({
       memberCount: "memberCount", // 설문의 경우 memberCount를 설정하지않음.
       questionCount: "questionCount", // 공지의 경우 questionCount를 설정하지않음.
       writer: "writer", // 설문의 경우 writer를 설정하지않음.
-      dueDate: "dueDate",
-      createdAt: "createdAt",
+      targetDate: "targetDate",
+      createdAt: "registedAt",
     },
   },
 }) => {
@@ -174,8 +180,10 @@ const GenericPage = ({
                 key={`${config.title}-${
                   item[config.dataKeyMapping.id] || item.id || index
                 }`}
-                className={`border-b border-gray-300 pb-2 md:pb-3 pt-2 md:pt-3 px-2 md:px-6 lg:px-10 hover:bg-gray-100 cursor-pointer ${
-                  item.pinned ? "bg-blue-50 hover:bg-blue-100" : ""
+                className={`border-b border-gray-300 pb-2 md:pb-3 pt-2 md:pt-3 px-2 md:px-6 lg:px-10 cursor-pointer ${
+                  item.pinned
+                    ? "bg-blue-50 hover:bg-blue-100"
+                    : "hover:bg-gray-100"
                 }`}
               >
                 <div className="flex items-center">

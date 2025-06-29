@@ -11,11 +11,11 @@ import Loading from "../components/common/Loading";
 import { noticeConfig } from "../util/noticeUtil";
 
 const Notice = () => {
-  const [category, setCategory] = useState({
-    targetRange: "ALL_TARGETRANGE",
-    type: "ALL_TYPE",
-  });
-  const [search, setSearch] = useState("");
+  // const [category, setCategory] = useState({
+  //   targetRange: "ALL_TARGETRANGE",
+  //   type: "ALL_TYPE",
+  // });
+  // const [search, setSearch] = useState("");
   const [noticeList, setNoticeList] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
@@ -128,6 +128,7 @@ const Notice = () => {
         setNoticeList(res.content);
         setTotalPages(res.totalPages);
         setTotalElements(res.totalElements);
+        console.log(res.content);
       }
       setLoading(false);
     });
