@@ -28,7 +28,8 @@ const noticeConfig = {
     type: "type",
     title: "title",
     writer: "writer",
-    createdAt: "targetDate",
+    targetDate: "targetDate",
+    createdAt: "createdAt",
   },
 };
 

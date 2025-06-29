@@ -1,13 +1,14 @@
-import SearchBar from "../components/specific/notice/SearchBar";
-import CategorySelectBar from "../components/specific/notice/CategorySelectBar";
+// import SearchBar from "../components/specific/notice/SearchBar";
+// import CategorySelectBar from "../components/specific/notice/CategorySelectBar";
 import { useState, useEffect } from "react";
 import {
   noticePageFetch,
-  noticeSearchFetch,
+  // noticeSearchFetch,
 } from "../services/notice/noticeFetch";
 import GenericPage from "../components/common/GenericPage";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import Loading from "../components/common/Loading";
+import { noticeConfig } from "../util/noticeUtil";
 
 const Notice = () => {
   const [category, setCategory] = useState({
@@ -19,70 +20,95 @@ const Notice = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10);
+
+  // 화면 크기에 따른 페이징 사이즈 계산
+  const getResponsiveSize = () => {
+    const width = window.innerWidth;
+    if (width >= 2560) return 20; // 2560px 이상 데스크탑
+    if (width >= 1920) return 14; // 1920px 이상 데스크탑
+    if (width >= 1600) return 10; // 1440px 이상 데스크탑
+    if (width >= 1024) return 8; // 1024px 이상 랩탑
+    if (width >= 768) return 6; // 768px 이상 아이패드
+    return 6; // 768px 미만
+  };
+
+  const [size, setSize] = useState(() => getResponsiveSize());
   const [loading, setLoading] = useState(false);
 
   const { isAuthenticated } = useAuthFetch();
 
-  const handleCategoryChange = (selectedCategory) => {
-    setCategory(selectedCategory);
-    console.log("선택된 카테고리:", selectedCategory);
-  };
-
-  const categoryOptions = [
-    [
-      { value: "ALL_TARGETRANGE", label: "반 전체" },
-      { value: "WEB_APP", label: "웹/앱" },
-      { value: "SW_EMBEDDED", label: "임베디드" },
-      { value: "IT_SECURITY", label: "보안" },
-      { value: "SMART_FACTORY", label: "스마트팩토리" },
-      { value: "CLOUD_SECURITY", label: "클라우드" },
-    ],
-    [
-      { value: "ALL_TYPE", label: "타입 전체" },
-      { value: "NOTICE", label: "공지" },
-      { value: "SURVEY", label: "설문" },
-    ],
-  ];
-
-  // SearchBar컴포넌트에서 검색버튼을 눌렀을 때 setSearch 변경
-  const handleSearchChange = async (searchChange) => {
-    setSearch(searchChange);
-
-    const targetRangeAndType = {
-      targetRange: category?.targetRange || "ALL_TARGETRANGE",
-      type: category?.type || "ALL_TYPE",
+  // 화면 크기 변경 감지
+  useEffect(() => {
+    const handleResize = () => {
+      const newSize = getResponsiveSize();
+      if (newSize !== size) {
+        setSize(newSize);
+        setPage(0); // 사이즈 변경 시 첫 페이지로 이동 (Notice는 0부터 시작)
+      }
     };
 
-    const token = localStorage.getItem("accessToken");
-    try {
-      const res = await noticeSearchFetch(
-        targetRangeAndType.targetRange,
-        targetRangeAndType.type,
-        searchChange,
-        page,
-        size,
-        token
-      );
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [size]);
 
-      // 검색 결과 데이터 구조 확인 후 상태 업데이트
-      if (res && res.content) {
-        setNoticeList(res.content);
-        setTotalPages(res.totalPages);
-        setTotalElements(res.totalElements);
-      } else if (res) {
-        // res가 직접 배열인 경우
-        setNoticeList(res);
-        setTotalPages(1);
-        setTotalElements(res.length);
-      }
-    } catch (error) {
-      console.error("검색 오류:", error);
-      setNoticeList([]);
-      setTotalPages(0);
-      setTotalElements(0);
-    }
-  };
+  // const handleCategoryChange = (selectedCategory) => {
+  //   setCategory(selectedCategory);
+  // };
+
+  // const categoryOptions = [
+  //   [
+  //     { value: "ALL_TARGETRANGE", label: "반 전체" },
+  //     { value: "WEB_APP", label: "웹/앱" },
+  //     { value: "SW_EMBEDDED", label: "임베디드" },
+  //     { value: "IT_SECURITY", label: "보안" },
+  //     { value: "SMART_FACTORY", label: "스마트팩토리" },
+  //     { value: "CLOUD_SECURITY", label: "클라우드" },
+  //   ],
+  //   [
+  //     { value: "ALL_TYPE", label: "타입 전체" },
+  //     { value: "NOTICE", label: "공지" },
+  //     { value: "SURVEY", label: "설문" },
+  //   ],
+  // ];
+
+  // // SearchBar컴포넌트에서 검색버튼을 눌렀을 때 setSearch 변경
+  // const handleSearchChange = async (searchChange) => {
+  //   setSearch(searchChange);
+
+  //   const targetRangeAndType = {
+  //     targetRange: category?.targetRange || "ALL_TARGETRANGE",
+  //     type: category?.type || "ALL_TYPE",
+  //   };
+
+  //   const token = localStorage.getItem("accessToken");
+  //   try {
+  //     const res = await noticeSearchFetch(
+  //       targetRangeAndType.targetRange,
+  //       targetRangeAndType.type,
+  //       searchChange,
+  //       page,
+  //       size,
+  //       token
+  //     );
+
+  //     // 검색 결과 데이터 구조 확인 후 상태 업데이트
+  //     if (res && res.content) {
+  //       setNoticeList(res.content);
+  //       setTotalPages(res.totalPages);
+  //       setTotalElements(res.totalElements);
+  //     } else if (res) {
+  //       // res가 직접 배열인 경우
+  //       setNoticeList(res);
+  //       setTotalPages(1);
+  //       setTotalElements(res.length);
+  //     }
+  //   } catch (error) {
+  //     console.error("검색 오류:", error);
+  //     setNoticeList([]);
+  //     setTotalPages(0);
+  //     setTotalElements(0);
+  //   }
+  // };
 
   const handlePageChange = (page) => {
     setPage(page);
@@ -98,9 +124,7 @@ const Notice = () => {
     setLoading(true);
     const token = localStorage.getItem("accessToken");
     noticePageFetch(page, size, token).then((res) => {
-      // API 응답 구조에 맞게 데이터 추출
       if (res && res.content) {
-        console.log("검색 결과:", res.content);
         setNoticeList(res.content);
         setTotalPages(res.totalPages);
         setTotalElements(res.totalElements);
@@ -111,49 +135,14 @@ const Notice = () => {
     handleSizeChange(size);
   }, [page, size]);
 
-  // 공지사항 설정
-  const noticeConfig = {
-    title: "게시글",
-    writeButtonText: "글 쓰기",
-    writeRoute: "/notice/write",
-    detailRoute: "/notice",
-    showWriteButton: true,
-    columns: [
-      { key: "id", label: "번호", width: "w-16", align: "center" },
-      {
-        key: "type",
-        label: "구분",
-        width: "w-24",
-        align: "center",
-        render: "badge",
-      },
-      {
-        key: "title",
-        label: "제목",
-        width: "flex-1",
-        align: "left",
-        paddingLeft: "pl-40",
-      },
-      { key: "writer", label: "작성자", width: "flex-1", align: "center" },
-      { key: "createdAt", label: "게시일", width: "w-28", align: "center" },
-    ],
-    dataKeyMapping: {
-      id: "id",
-      type: "type",
-      title: "title",
-      writer: "writer",
-      createdAt: "targetDate", // API 응답에서는 targetDate 필드 사용
-    },
-  };
-
   return (
-    <div className="flex flex-col w-full h-full">
-      <div className="flex-shrink-0 flex flex-row items-center w-full justify-center pb-10">
-        <CategorySelectBar
+    <div className="flex flex-col w-full h-full px-4 md:px-6 lg:px-8 xl:px-12">
+      <div className="flex-shrink-0 flex flex-col md:flex-row items-center w-full justify-center pb-10 gap-4 md:gap-0">
+        {/* <CategorySelectBar
           onCategoryChange={handleCategoryChange}
           categoryOptions={categoryOptions}
         />
-        <SearchBar onSearchChange={handleSearchChange} />
+        <SearchBar onSearchChange={handleSearchChange} /> */}
       </div>
       <div className="flex-1 flex flex-row items-center justify-center w-full min-h-0">
         {loading ? (

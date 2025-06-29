@@ -141,10 +141,34 @@ const parsedDateTime = (date) => {
   }
 };
 
+// 날짜 관련 유틸리티 함수들
+const getTodayString = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const isDateExpired = (dueDate) => {
+  if (!dueDate) return false;
+  const today = getTodayString();
+  return dueDate < today;
+};
+
+const isDateBeforeToday = (date) => {
+  if (!date) return false;
+  const today = getTodayString();
+  return date < today;
+};
+
 export {
   surveyConfig,
   getStatusBadgeColor,
   transformDataForAPI,
   parsedDate,
   parsedDateTime,
+  getTodayString,
+  isDateExpired,
+  isDateBeforeToday,
 };
