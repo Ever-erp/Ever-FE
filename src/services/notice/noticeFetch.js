@@ -38,9 +38,6 @@ const noticePageFetch = async (page, size, token) => {
     },
   };
 
-  console.log(
-    `${import.meta.env.VITE_NOTICE_API_URL}?page=${page}&size=${size}`
-  );
   try {
     const response = await fetch(
       `${import.meta.env.VITE_NOTICE_API_URL}?page=${page}&size=${size}`,
@@ -115,8 +112,6 @@ const noticeCreateFetch = async (data, token) => {
     type: data.type,
     title: data.title,
     contents: data.contents,
-    // noticeFile: data.files,
-    // noticeImage: data.image,
     isPinned: data.isPinned !== undefined ? data.isPinned : false,
     targetRange: data.targetRange,
     targetDate: data.targetDate,
@@ -132,21 +127,37 @@ const noticeCreateFetch = async (data, token) => {
     body: JSON.stringify(noticeBody),
   };
 
+  const formData = new FormData();
+
+  const fileRequestInit = {
+    credentials: "include",
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  if (data.files && data.files.length > 0) {
+    data.files.forEach((file, index) => {
+      formData.append("files", file);
+    });
+  }
+
   try {
-    const response = await fetch(
+    const noticeResponse = await fetch(
       `${import.meta.env.VITE_NOTICE_API_URL}`,
       requestInit
     );
 
-    if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+    if (200 <= noticeResponse.status && noticeResponse.status < 300) {
+      const responseJson = await noticeResponse.json();
       return responseJson.data;
     } else {
-      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      let errorMessage = `HTTP ${noticeResponse.status}: ${noticeResponse.statusText}`;
       try {
-        const errorJson = await response.json();
-        errorMessage = `${errorJson.status || response.status} : ${
-          errorJson.message || response.statusText
+        const errorJson = await noticeResponse.json();
+        errorMessage = `${errorJson.status || noticeResponse.status} : ${
+          errorJson.message || noticeResponse.statusText
         }`;
       } catch (jsonError) {
         console.error(jsonError);
