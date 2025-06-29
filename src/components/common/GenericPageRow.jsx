@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { parsedDate } from "../../util/surveyUtil";
 const GenericPageRow = ({ data, config, onRowClick }) => {
   const navigate = useNavigate();
 
@@ -12,7 +13,6 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
     CLOUD  
   */
   const handleType = (type) => {
-    console.log(type);
     switch (type) {
       case "ALL_TYPE":
         return (
@@ -178,6 +178,7 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
             {value || "0% (0/0)"}
           </div>
         );
+
       default:
         // 제목 컬럼인 경우 텍스트 오버플로우 처리
         if (column.key === "title") {
@@ -186,6 +187,9 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
               {value || "-"}
             </div>
           );
+        }
+        if (column.key === "registedAt") {
+          return parsedDate(value);
         }
         return value || "-";
     }
