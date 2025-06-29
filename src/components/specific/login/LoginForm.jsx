@@ -36,8 +36,6 @@ const LoginForm = () => {
     if (isSubmitting) return; // 이미 요청 중이면 무시
     setIsSubmitting(true);
 
-    console.log("회원 정보:", member);
-
     try {
       const response = await fetch("http://localhost:8080/auth/login", {
         method: "POST",

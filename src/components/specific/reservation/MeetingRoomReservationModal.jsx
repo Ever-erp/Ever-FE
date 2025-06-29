@@ -2,7 +2,6 @@ import { useState } from "react";
 import CustomInput from "../../common/CustomInput";
 import CustomButton from "../../common/CustomButton";
 import { fetchWithAuth } from "../../../services/apiClient";
-import { Navigate, useNavigate } from "react-router-dom";
 import { formatHour } from "../../../services/formatHour";
 
 const MeetingRoomReservationModal = ({
@@ -10,9 +9,8 @@ const MeetingRoomReservationModal = ({
   updateReservation,
   reservedTimes = [],
   onClose,
+  onComplete,
 }) => {
-  const navigate = useNavigate();
-
   const handleChange = (field, value) => {
     updateReservation(field, value);
   };
@@ -25,6 +23,12 @@ const MeetingRoomReservationModal = ({
     // 1. 기본 입력값 확인
     if (!headCount.trim() || !reservationDesc.trim()) {
       alert("예약 인원과 사유를 모두 입력하세요.");
+      return;
+    }
+
+    const headCountNum = Number(headCount);
+    if (isNaN(headCountNum) || headCountNum < 1 || headCountNum > 10) {
+      alert("예약 인원은 1명 이상 10명 이하로 입력해주세요.");
       return;
     }
 
@@ -50,7 +54,7 @@ const MeetingRoomReservationModal = ({
     }
     const token = localStorage.getItem("accessToken");
     try {
-      const response = await fetchWithAuth(
+      const response = await fetch(
         "http://localhost:8080/reservation/reserve",
         {
           method: "POST",
@@ -64,8 +68,7 @@ const MeetingRoomReservationModal = ({
             headCount: headCount,
             reservationDesc: reservationDesc,
           }),
-        },
-        navigate
+        }
       );
 
       if (!response.ok) {
@@ -79,6 +82,10 @@ const MeetingRoomReservationModal = ({
       console.log(res.data);
 
       alert("회의실 예약이 저장되었습니다!");
+
+      if (onComplete) {
+        await onComplete(); // ✅ 예약 완료 후 콜백 호출
+      }
     } catch (error) {
       console.error(error);
       alert("회의실 예약 중 오류가 발생했습니다.");
@@ -145,6 +152,9 @@ const MeetingRoomReservationModal = ({
                 label="예약 인원"
                 placeholder="예) 3"
                 value={reservation.headCount}
+                type="number" // ✅ 숫자만 입력되도록 설정
+                min={1} // 최소값
+                max={10} // 최대값
                 onChange={(val) => handleChange("headCount", val)}
               />
 

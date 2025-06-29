@@ -32,8 +32,8 @@ const UserDropdown = () => {
       variants={dropdownVariants}
       transition={{ duration: 0.2 }}
     >
-      <UserDropdownItem icon={FiUser} text="나의 프로필" />
-      <UserDropdownItem icon={FiBell} text="공지 알림" />
+      {/* <UserDropdownItem icon={FiUser} text="나의 프로필" />
+      <UserDropdownItem icon={FiBell} text="공지 알림" /> */}
       <div className="border-t border-gray-150" />
       <UserDropdownItem
         icon={FiLogOut}

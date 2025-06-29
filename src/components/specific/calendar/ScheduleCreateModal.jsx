@@ -18,7 +18,6 @@ const ScheduleCreateModal = ({ onClose, classId, loadCalendarData }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("서버와 통신");
 
     if (!title || !startDate || !endDate) {
       alert("제목과 날짜를 입력해주세요.");

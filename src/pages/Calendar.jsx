@@ -36,10 +36,6 @@ const Calender = () => {
 
   const [selectedEvent, setSelectedEvent] = useState(null); // 클릭된 이벤트 저장
 
-  const [hoveredNotices, setHoveredNotices] = useState([]);
-  const [hoveredVacations, setHoveredVacations] = useState([]);
-
-  const [popoverPosition, setPopoverPosition] = useState(null);
   const [viewClassSchedule, setViewClassSchedule] = useState(null);
   const [activePopover, setActivePopover] = useState(null);
 
@@ -393,6 +389,7 @@ const Calender = () => {
             <VacationRequestModal
               onClose={() => setShowModal(false)}
               loadCalendarData={loadCalendarData}
+              user={user}
             />
           )}
         </div>

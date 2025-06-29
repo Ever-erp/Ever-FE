@@ -115,6 +115,28 @@ const Reservation = () => {
     });
   }, [isRoomSelected, myReservations, fullyBookedRooms]);
 
+  // 예약 완료 후 실행될 콜백 함수
+  const handleReservationComplete = async () => {
+    try {
+      // 전체 예약 정보 다시 불러오기
+      const res = await fetchReservation();
+      setMyReservations(res.data.myReservations || []); // 내 예약 데이터 저장
+      setFullyBookedRooms(res.data.fullyBookedRooms || []); // 꽉 찬 방 목록 저장
+
+      const times = await fetchReservedTimes(reservation.roomNum);
+      setReservedTimes(times);
+
+      // 선택했던 시간 초기화 (selected 해제)
+      updateReservation("reservationTime", null);
+
+      // 모달 닫기
+      setShowModal(false);
+    } catch (error) {
+      console.error("예약 완료 후 데이터 갱신 실패:", error);
+      alert("예약 후 정보 갱신 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <div className="flex w-[70vw] gap-[5vw] items-center">
       {/* 왼쪽: 오토에버 교육장 구조도 */}
@@ -143,6 +165,7 @@ const Reservation = () => {
               setShowModal={setShowModal}
               myReservations={myReservations}
               reservation={reservation}
+              onComplete={handleReservationComplete}
             />
           )}
         </div>
@@ -156,6 +179,7 @@ const Reservation = () => {
             updateReservation={updateReservation}
             reservedTimes={reservedTimes}
             onClose={() => setShowModal(false)}
+            onComplete={handleReservationComplete}
           />
         </div>
       )}

@@ -5,7 +5,7 @@ import { writeVacation } from "../../../services/calendar/writeVacation";
 import { formatDateToLocalString } from "../../../services/formatDateToLocalString";
 import { isWeekend } from "../../../services/calendar/calendarService";
 
-const VacationRequestModal = ({ onClose, loadCalendarData }) => {
+const VacationRequestModal = ({ onClose, loadCalendarData, user }) => {
   const [selectedType, setSelectedType] = useState("");
   const [reason, setReason] = useState(""); // 휴가 사유
   const [date, setDate] = useState(null); // 날짜 상태 추가
@@ -70,7 +70,7 @@ const VacationRequestModal = ({ onClose, loadCalendarData }) => {
               휴가자
             </div>
             <div className="bg-gray-100 rounded-lg p-2 text-sm text-gray-700 shadow-sm w-fit">
-              <span className="text-gray-700 font-semibold">오창은</span>
+              <span className="text-gray-700 font-semibold">{user.name}</span>
             </div>
           </div>
 
