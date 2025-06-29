@@ -31,6 +31,9 @@ module.exports = {
       fontFamily: {
         sans: ['"Noto Sans KR"', "Arial", "sans-serif"],
       },
+      screens: {
+        "3xl": "2560px", // 예: 1920px 이상부터 3xl
+      },
     },
   },
   plugins: [],

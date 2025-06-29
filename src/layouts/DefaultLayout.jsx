@@ -7,11 +7,11 @@ import FullScreenContainer from "./FullScreenContainer";
 
 const DefaultLayout = () => {
   return (
-    <FullScreenContainer className="flex w-full p-5 gap-4 flex-row">
+    <FullScreenContainer className="flex flex-row w-full p-4 2xl:p-5 gap-3 2xl:gap-4">
       <div className="w-[10%] min-w-[150px] h-full">
         <Sidebar />
       </div>
-      <div className="flex flex-col gap-4 flex-1 min-w-0 h-full">
+      <div className="flex flex-col gap-3 2xl:gap-4 flex-1 min-w-0 h-full">
         <div className="flex-shrink-0">
           <Header />
         </div>
