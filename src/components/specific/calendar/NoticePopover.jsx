@@ -40,7 +40,7 @@ const NoticePopover = ({ notices, position, onClose, hideTimeout }) => {
         <span> 공지사항 바로가기</span>
       </div>
 
-      <div className="flex flex-col divide-y divide-gray-150">
+      <div className="flex flex-col divide-y divide-gray-150 max-h-[200px] overflow-y-auto">
         {notices.map((notice) => (
           <div
             key={notice.id}
