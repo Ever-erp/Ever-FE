@@ -3,7 +3,7 @@ import CustomInputContainer from "../../../common/CustomInputContainer";
 import GenderButton from "../../../common/CustomButton";
 import CustomButton from "../../../common/CustomButton";
 
-const GenderInput = ({ gender, setGender }) => {
+const GenderInput = ({ gender, setGender, error }) => {
   const [isFocused, setIsFocused] = useState(false);
 
   // 포커스/블러 처리 함수
@@ -45,6 +45,10 @@ const GenderInput = ({ gender, setGender }) => {
           />
         </div>
       </CustomInputContainer>
+      {/* 에러 메시지 출력 */}
+      {!gender && error && (
+        <p className="mt-1 ml-2 text-sm text-red-500">{error}</p>
+      )}
     </>
   );
 };
