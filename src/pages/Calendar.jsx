@@ -246,6 +246,14 @@ const Calender = () => {
   const handleCancelEvent = async () => {
     if (!selectedEvent) return;
 
+    // 확인창 추가: 휴가일 때만
+    if (
+      selectedEvent.type === "vacation" &&
+      !window.confirm("정말 휴가를 취소하시겠습니까?")
+    ) {
+      return;
+    }
+
     try {
       // 서버에서 삭제 요청 (수업 일정일 경우에만 삭제)
       if (selectedEvent.type === "classSchedule") {
@@ -295,7 +303,12 @@ const Calender = () => {
             center: "",
             end: "prev next",
           }}
-          // dateClick={handleDateClick}
+          datesSet={(arg) => {
+            const date = arg.start; // 현재 보이는 달의 시작 날짜
+            const newYear = date.getFullYear();
+            const newMonth = date.getMonth() + 1;
+            setCurrentYM({ year: newYear, month: newMonth });
+          }}
           fixedWeekCount={false} // 필요 없는 주 생략
           events={events} // 이벤트 추가
           eventOrder="customOrder" // customOrder 작동을 위해 추가

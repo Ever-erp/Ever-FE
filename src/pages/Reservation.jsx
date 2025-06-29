@@ -48,7 +48,6 @@ const Reservation = () => {
         setReservedTimes(times); // 시간 지정
 
         const res = await fetchReservation(); // 회의실 정보 다시 불러오기
-        console.log(res);
 
         setMyReservations(res.data.myReservations || []); // 내 예약 데이터 저장
         setFullyBookedRooms(res.data.fullyBookedRooms || []); // 꽉 찬 방 목록 저장
@@ -66,7 +65,6 @@ const Reservation = () => {
     const fetchData = async () => {
       try {
         const res = await fetchReservation();
-        console.log(res);
 
         setMyReservations(res.data.myReservations || []); // 내 예약 데이터 저장
         setFullyBookedRooms(res.data.fullyBookedRooms || []); // 꽉 찬 방 목록 저장

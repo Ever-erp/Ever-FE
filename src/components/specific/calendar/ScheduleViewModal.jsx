@@ -39,8 +39,13 @@ const ScheduleViewModal = ({ onClose, eventData, onCancel, user }) => {
             type="text"
             value={classUrl}
             readOnly
-            onClick={() => window.open(classUrl, "_blank")}
-            className=" cursor-pointer w-full border border-gray-300 rounded-md p-2 text-sm bg-gray-100"
+            onClick={() => {
+              const url = classUrl.startsWith("http")
+                ? classUrl
+                : `https://${classUrl}`;
+              window.open(url, "_blank");
+            }}
+            className="cursor-pointer w-full border border-gray-300 rounded-md p-2 text-sm bg-gray-100"
           />
         </div>
 
@@ -84,7 +89,12 @@ const ScheduleViewModal = ({ onClose, eventData, onCancel, user }) => {
             className="py-[1vh] rounded-lg"
             variant="outline"
             size="md"
-            onClick={onCancel}
+            onClick={() => {
+              const confirmDelete = window.confirm("정말로 삭제하시겠습니까?");
+              if (confirmDelete) {
+                onCancel();
+              }
+            }}
           />
         )}
       </div>

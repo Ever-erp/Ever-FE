@@ -15,10 +15,10 @@ g.clickable.selected path {
   @apply fill-white;
 }
 
-.g.clickable:hover rect {
+g.clickable:hover rect {
   @apply fill-subBrand;
 }
-.g.clickable.selected:hover path {
+g.clickable.selected:hover path {
   @apply fill-white;
 }
 

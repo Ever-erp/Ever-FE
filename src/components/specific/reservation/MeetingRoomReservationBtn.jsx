@@ -20,6 +20,9 @@ const MeetingRoomReservationBtn = ({
         return;
       }
 
+      const confirm = window.confirm("정말 회의실 예약을 취소하시겠습니까?");
+      if (!confirm) return;
+
       const response = await fetch(
         `http://localhost:8080/reservation/cancel/${roomNum}/${startTime}`,
         {
@@ -40,7 +43,7 @@ const MeetingRoomReservationBtn = ({
       const data = await response.json();
       alert("회의실을 취소하였습니다.");
 
-      await onComplete(); // ✅ 콜백 실행
+      await onComplete(); // 버튼 클릭 상태 초기화 및 db 로드
     } catch (error) {
       console.error("회의실 취소 중 오류 발생:", error);
       alert("회의실 취소 중 오류가 발생했습니다.");
