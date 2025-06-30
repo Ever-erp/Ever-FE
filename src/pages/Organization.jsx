@@ -78,9 +78,6 @@ const Organization = () => {
       data: {
         id: classItem.classId,
         name: classItem.name + " " + classItem.cohort,
-        classDesc: classSchedules.classDesc,
-        startDate: classSchedules.startDate,
-        endDate: classSchedules.endDate,
       },
     };
   });
