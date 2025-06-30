@@ -304,10 +304,19 @@ const Calender = () => {
             end: "prev next",
           }}
           datesSet={(arg) => {
-            const date = arg.start; // 현재 보이는 달의 시작 날짜
-            const newYear = date.getFullYear();
-            const newMonth = date.getMonth() + 1;
-            setCurrentYM({ year: newYear, month: newMonth });
+            const middleDate = new Date(
+              (arg.view.currentStart.getTime() +
+                arg.view.currentEnd.getTime()) /
+                2
+            );
+
+            const newYear = middleDate.getFullYear();
+            const newMonth = middleDate.getMonth() + 1;
+
+            setCurrentYM((prev) => {
+              if (prev.year === newYear && prev.month === newMonth) return prev;
+              return { year: newYear, month: newMonth };
+            });
           }}
           fixedWeekCount={false} // 필요 없는 주 생략
           events={events} // 이벤트 추가
