@@ -16,9 +16,9 @@ const OrganizationClass = () => {
   });
 
   const [classTitle, setClassTitle] = useState("");
-  const [classDescription, setClassDescription] = useState("");
-  const [setStartDate, setSetStartDate] = useState("");
-  const [setEndDate, setSetEndDate] = useState("");
+  //   const [classDescription, setClassDescription] = useState("");
+  //   const [setStartDate, setSetStartDate] = useState("");
+  //   const [setEndDate, setSetEndDate] = useState("");
   const [classMembers, setClassMembers] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
@@ -30,9 +30,9 @@ const OrganizationClass = () => {
         const token = localStorage.getItem("accessToken");
         const data = await singleClassFetch(classId, token);
         setClassTitle(data.name + " " + data.cohort);
-        setClassDescription(data.schedules[0].classDesc);
-        setSetStartDate(data.schedules[0].startDate);
-        setSetEndDate(data.schedules[0].endDate);
+        // setClassDescription(data.schedules[0].classDesc);
+        // setSetStartDate(data.schedules[0].startDate);
+        // setSetEndDate(data.schedules[0].endDate);
         setClassMembers(data.members);
       } catch (error) {
         console.error("Error fetching class data:", error);
@@ -67,9 +67,6 @@ const OrganizationClass = () => {
     data: {
       id: 1,
       name: classTitle,
-      classDesc: classDescription,
-      startDate: setStartDate,
-      endDate: setEndDate,
     },
   };
 
