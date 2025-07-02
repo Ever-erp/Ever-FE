@@ -3,7 +3,7 @@ import CustomInputContainer from "../../../common/CustomInputContainer";
 import DatePicker from "react-datepicker";
 import { FaRegCalendarAlt } from "react-icons/fa";
 
-const BirthInput = ({ birth, setBirth }) => {
+const BirthInput = ({ birth, setBirth, error }) => {
   const [isCalendarOpen, setCalendarOpen] = useState(false);
 
   // DatePicker ref
@@ -45,6 +45,9 @@ const BirthInput = ({ birth, setBirth }) => {
           className="outline-none"
         />
       </CustomInputContainer>
+      {birth === "" && error && (
+        <p className="mt-1 ml-2 text-sm text-warning">{error}</p>
+      )}
     </>
   );
 };

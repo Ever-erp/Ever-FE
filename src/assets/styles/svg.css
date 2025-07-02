@@ -1,0 +1,41 @@
+.clickable {
+  cursor: pointer;
+}
+
+rect {
+  transition: fill 0.3s;
+}
+
+/* 내가 선택한 방 배경 색*/
+g.clickable.selected rect {
+  @apply fill-brand;
+}
+/* 내가 선택한 방 글자 색*/
+g.clickable.selected path {
+  @apply fill-white;
+}
+
+g.clickable:hover rect {
+  @apply fill-subBrand;
+}
+g.clickable.selected:hover path {
+  @apply fill-white;
+}
+
+/* 내가 예약한 방 */
+g.clickable.reserved rect {
+  @apply fill-positive;
+}
+g.clickable.reserved:hover rect {
+  @apply brightness-95;
+}
+.g.clickable.selected.full rect {
+  @apply fill-positive;
+}
+/* 전부 만석인 방 */
+g.clickable.full rect {
+  @apply fill-negative;
+}
+g.clickable.full:hover rect {
+  @apply brightness-95;
+}

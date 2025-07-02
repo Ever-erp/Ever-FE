@@ -1,0 +1,152 @@
+#calendar-container {
+  @apply self-start w-full max-w-[95%] mx-auto my-4 box-border
+         md:max-w-[768px] 
+         2xl:max-w-[1200px];
+}
+
+/* 달력부분 */
+
+/* 일정표 툴 바  */
+.fc .fc-toolbar.fc-header-toolbar {
+  @apply m-0 p-5 pl-8 2xl:py-8 2xl:px-12 bg-brand bg-opacity-95 h-7 2xl:h-[60px] text-white rounded-t-xl justify-between;
+}
+
+/* 툴바의 버튼 */
+.fc .fc-toolbar-chunk .fc-button {
+  @apply bg-transparent 2xl:text-xl text-white border-none 2xl:px-1 2xl:py-2;
+}
+
+.fc .fc-toolbar-chunk .fc-button:focus,
+.fc .fc-toolbar-chunk .fc-button:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 툴바 사용 불가 버튼 스타일 */
+.fc .fc-toolbar-chunk .fc-button:disabled {
+  @apply bg-brand;
+}
+
+/* 툴바 사용 불가 버튼 hover 시 스타일 주지 않기 */
+.fc .fc-toolbar-chunk .fc-button:disabled:hover {
+  @apply bg-transparent;
+}
+
+/* 툴바 버튼 포커스 시 그림자 제거 */
+.fc .fc-toolbar-chunk .fc-button:focus {
+  @apply shadow-none;
+}
+
+/* 툴바 버튼 hover 시 배경색 변경 */
+.fc .fc-toolbar-chunk .fc-button:hover {
+  @apply bg-brand brightness-125;
+}
+
+/* 날짜변경 화살표 아이콘 */
+.fc .fc-button-primary span {
+  @apply font-bold w-8;
+}
+
+/* 요일 헤더 */
+.fc-theme-standard th {
+  @apply h-8 2xl:h-10 !important;
+}
+
+.fc-direction-ltr .fc-toolbar > * > :not(:first-child) {
+  @apply m-0;
+}
+
+/* 오늘 날짜 */
+.fc-day-today {
+  background: transparent !important;
+}
+
+/* 오늘 날짜 숫자 스타일 변경 */
+.fc-day-today .fc-daygrid-day-number {
+  @apply bg-brand rounded-full w-7 h-7 flex justify-center items-center font-bold text-white !important;
+}
+
+/* 날짜 상단 글자 */
+.fc-daygrid-day-top a {
+  @apply text-sm 2xl:text-base;
+}
+
+/* 날짜 상단 높이 */
+.fc .fc-daygrid-day-top {
+  @apply h-7 !important;
+}
+
+/* 일요일 날짜: 빨간색 */
+.fc .fc-day-sun a {
+  @apply text-negative;
+}
+
+/* 토요일 날짜: 파란색 */
+.fc .fc-day-sat a {
+  @apply text-positive;
+}
+
+/* 제목(월/년)*/
+.fc .fc-toolbar-title {
+  @apply font-bold text-base 2xl:text-2xl;
+}
+
+/* 요일의 높이 */
+.fc-theme-standard th {
+  @apply h-[40px] bg-gray-150 border border-gray-300 font-normal text-base leading-[19px] text-gray-500 align-middle;
+}
+
+/* 날짜 Cell 프레임 */
+.fc .fc-daygrid-day-frame {
+  @apply p-1 2xl:p-2 2xl:pt-2.5;
+}
+
+/* 월간,주간 view의 Cell이 시작하는 위치 */
+.fc .fc-daygrid-day-top {
+  @apply flex-row h-10 mb-1;
+}
+
+/* 날짜 숫자 z-index 초기화 */
+.fc .fc-daygrid-day-number {
+  z-index: auto !important;
+}
+
+/* 이벤트 막대 스타일 */
+.fc-event {
+  @apply px-5 py-10 mb-1 rounded-md font-medium;
+}
+
+.selected-day-border .fc-daygrid-day-frame {
+  @apply border border-2 border-brand rounded-lg;
+}
+
+/* 선택된 날짜에만 적용될 테두리 */
+/* .selected-day-border .fc-daygrid-day-frame {
+  @apply border border-2 border-brand rounded-lg outline-offset-[-2px];
+} */
+
+.fc .fc-daygrid-event {
+  @apply text-xs px-1 py-0.5 rounded;
+}
+
+/* 이벤트에 마우스 hover */
+.fc-event {
+  @apply cursor-pointer;
+}
+/* 이벤트 제목 */
+.fc-event-title {
+  @apply 2xl:text-sm overflow-hidden whitespace-nowrap text-ellipsis w-4/5;
+}
+
+.fc-daygrid-day-events {
+  @apply min-h-24 mb-0;
+}
+
+.fc .fc-daygrid-body-natural .fc-daygrid-day-events {
+  @apply mb-0;
+}
+
+/* 한칸 최소 높이 */
+.fc .fc-daygrid-day-frame {
+  @apply max-h-36;
+}

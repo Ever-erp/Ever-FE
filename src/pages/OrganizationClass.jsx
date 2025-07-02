@@ -6,6 +6,7 @@ import OrganizationHeader from "../components/specific/organization/Organization
 import OrganizationBody from "../components/specific/organization/OrganizationBody";
 import { ReactFlowProvider } from "reactflow";
 import { calculateGridPositions } from "../util/organizationUtil";
+import Loading from "../components/common/Loading";
 
 const OrganizationClass = () => {
   const { classId } = useParams();
@@ -15,24 +16,28 @@ const OrganizationClass = () => {
   });
 
   const [classTitle, setClassTitle] = useState("");
-  const [classDescription, setClassDescription] = useState("");
-  const [setStartDate, setSetStartDate] = useState("");
-  const [setEndDate, setSetEndDate] = useState("");
+  //   const [classDescription, setClassDescription] = useState("");
+  //   const [setStartDate, setSetStartDate] = useState("");
+  //   const [setEndDate, setSetEndDate] = useState("");
   const [classMembers, setClassMembers] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchClassData = async () => {
+      setLoading(true);
       try {
-        const data = await singleClassFetch(classId);
+        const token = localStorage.getItem("accessToken");
+        const data = await singleClassFetch(classId, token);
         setClassTitle(data.name + " " + data.cohort);
-        setClassDescription(data.classDesc);
-        setSetStartDate(data.startDate);
-        setSetEndDate(data.endDate);
+        // setClassDescription(data.schedules[0].classDesc);
+        // setSetStartDate(data.schedules[0].startDate);
+        // setSetEndDate(data.schedules[0].endDate);
         setClassMembers(data.members);
       } catch (error) {
         console.error("Error fetching class data:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchClassData();
@@ -57,34 +62,33 @@ const OrganizationClass = () => {
 
   const classNode = {
     id: "class-1",
-    type: "organizationNodeVertical",
+    type: "organizationNodeHorizontal",
     position: positions.classPosition,
     data: {
       id: 1,
       name: classTitle,
-      classDesc: classDescription,
-      startDate: setStartDate,
-      endDate: setEndDate,
     },
   };
 
   const memberNodes = classMembers.map((member, index) => ({
-    id: `member-${member.id}`,
-    type: "organizationNodeVertical",
+    id: `member-${member.email}`,
+    type: "organizationNodeHorizontal",
     position: positions.memberPositions[index] || {
       x: 600 + index * 200,
       y: 300,
     },
     data: {
-      id: member.id,
+      id: member.email,
       name: member.name,
       email: member.email,
-      phone_num: member.phone_num,
-      profile_image: member.profile_image,
+      phone: member.phone,
+      profile_image: member.profileImage,
       birth: member.birth,
       gender: member.gender,
       address: member.address,
-      is_active: member.is_active,
+      position: member.position,
+      classId: member.classId,
+      is_active: true,
     },
   }));
 
@@ -100,9 +104,9 @@ const OrganizationClass = () => {
     for (let i = 0; i < firstColMembers; i++) {
       const member = classMembers[i];
       edges.push({
-        id: `class-1-member-${member.id}`,
+        id: `class-1-member-${member.email}`,
         source: "class-1",
-        target: `member-${member.id}`,
+        target: `member-${member.email}`,
         sourceHandle: "right",
         targetHandle: "left",
         type: "smoothstep",
@@ -120,9 +124,9 @@ const OrganizationClass = () => {
           const nextMember = classMembers[nextIndex];
 
           edges.push({
-            id: `member-${currentMember.id}-member-${nextMember.id}`,
-            source: `member-${currentMember.id}`,
-            target: `member-${nextMember.id}`,
+            id: `member-${currentMember.email}-member-${nextMember.email}`,
+            source: `member-${currentMember.email}`,
+            target: `member-${nextMember.email}`,
             sourceHandle: "right",
             targetHandle: "left",
             type: "smoothstep",
@@ -136,12 +140,12 @@ const OrganizationClass = () => {
 
   const initialEdges = createEdges();
 
-  const findMemberById = (memberId) => {
-    return classMembers.find((member) => member.id === memberId);
+  const findMemberById = (memberEmail) => {
+    return classMembers.find((member) => member.email === memberEmail);
   };
 
-  const handleMemberClick = (memberId) => {
-    setSelectedMember(findMemberById(memberId));
+  const handleMemberClick = (memberEmail) => {
+    setSelectedMember(findMemberById(memberEmail));
     setModalOpen(true);
   };
 
@@ -178,9 +182,9 @@ const OrganizationClass = () => {
               <div className="flex items-start space-x-4">
                 <div className="flex-shrink-0">
                   <div className="w-24 h-24 bg-gray-200 rounded-lg overflow-hidden border-2 border-gray-300">
-                    {selectedMember?.profile_image ? (
+                    {selectedMember?.profileImage ? (
                       <img
-                        src={selectedMember.profile_image}
+                        src={selectedMember.profileImage}
                         alt={selectedMember.name}
                         className="w-full h-full object-cover"
                       />
@@ -206,15 +210,6 @@ const OrganizationClass = () => {
                     <h3 className="text-xl font-bold text-gray-800 mb-1">
                       {selectedMember?.name}
                     </h3>
-                    <div
-                      className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                        selectedMember?.is_active
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {selectedMember?.is_active ? "활성" : "비활성"}
-                    </div>
                   </div>
 
                   <div className="space-y-2 text-sm">
@@ -232,7 +227,7 @@ const OrganizationClass = () => {
                         전화번호:
                       </span>
                       <span className="text-gray-800">
-                        {selectedMember?.phone_num}
+                        {selectedMember?.phone}
                       </span>
                     </div>
 
@@ -259,7 +254,9 @@ const OrganizationClass = () => {
                         주소:
                       </span>
                       <span className="text-gray-800">
-                        {selectedMember?.address}
+                        {selectedMember?.address
+                          ? selectedMember?.address
+                          : "등록된 주소가 없습니다"}
                       </span>
                     </div>
                   </div>
@@ -283,14 +280,18 @@ const OrganizationClass = () => {
         <OrganizationHeader />
       </div>
       <div className="flex-1 flex justify-center items-center p-4">
-        <ReactFlowProvider>
-          <OrganizationBody
-            initialNodes={initialNodes}
-            initialEdges={initialEdges}
-            handleMemberClick={handleMemberClick}
-            containerSize={containerSize}
-          />
-        </ReactFlowProvider>
+        {loading ? (
+          <Loading text="데이터를 불러오고 있습니다..." />
+        ) : (
+          <ReactFlowProvider>
+            <OrganizationBody
+              initialNodes={initialNodes}
+              initialEdges={initialEdges}
+              handleMemberClick={handleMemberClick}
+              containerSize={containerSize}
+            />
+          </ReactFlowProvider>
+        )}
       </div>
     </div>
   );

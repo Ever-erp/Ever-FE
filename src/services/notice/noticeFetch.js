@@ -1,14 +1,25 @@
-const noticeSingleFetch = async (id) => {
+const noticeSingleFetch = async (id, token) => {
+  const requestInit = {
+    credentials: "include",
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  };
+
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_NOTICE_API_URL}/${id}`
+      `${import.meta.env.VITE_NOTICE_API_URL}/${id}`,
+      requestInit
     );
     if (200 <= response.status && response.status < 300) {
       const responseJson = await response.json();
       return responseJson.data;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
+      const errorJson = await response.json();
+      const errorStatus = errorJson.status || response.status;
+      const errorMessage = errorJson.message || response.statusText;
       throw new Error(`${errorStatus} : ${errorMessage}`);
     }
   } catch (error) {
@@ -17,43 +28,28 @@ const noticeSingleFetch = async (id) => {
   }
 };
 
-const noticePageFetch = async (page, size) => {
+const noticePageFetch = async (page, size, token) => {
+  const requestInit = {
+    credentials: "include",
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  };
+
   try {
-    const url = new URL(`${import.meta.env.VITE_NOTICE_API_URL}/page`);
-    url.searchParams.set("page", page);
-    url.searchParams.set("size", size);
-
-    const response = await fetch(url);
-
-    if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
-
-      return responseJson.data;
-    } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
-      throw new Error(`${errorStatus} : ${errorMessage}`);
-    }
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
-
-const noticeSearchFetch = async (category, searchInput) => {
-  try {
-    const url = new URL(`${import.meta.env.VITE_NOTICE_API_URL}`);
-    url.searchParams.set("field", category);
-    url.searchParams.set("input", searchInput);
-
-    const response = await fetch(url);
-
+    const response = await fetch(
+      `${import.meta.env.VITE_NOTICE_API_URL}?page=${page}&size=${size}`,
+      requestInit
+    );
     if (200 <= response.status && response.status < 300) {
       const responseJson = await response.json();
       return responseJson.data;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
+      const errorJson = await response.json();
+      const errorStatus = errorJson.status || response.status;
+      const errorMessage = errorJson.message || response.statusText;
       throw new Error(`${errorStatus} : ${errorMessage}`);
     }
   } catch (error) {
@@ -62,8 +58,46 @@ const noticeSearchFetch = async (category, searchInput) => {
   }
 };
 
-const noticeCreateFetch = async (
-  noticeType,
+const noticeSearchFetch = async (
+  targetRange,
+  type,
+  searchInput,
+  page,
+  size,
+  token
+) => {
+  const requestInit = {
+    credentials: "include",
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  };
+
+  const input = searchInput ? searchInput : "empty";
+  const url = `${
+    import.meta.env.VITE_NOTICE_API_URL
+  }/search?targetRange=${targetRange}&type=${type}&input=${input}&page=${page}&size=${size}`;
+  try {
+    const response = await fetch(url, requestInit);
+    if (200 <= response.status && response.status < 300) {
+      const responseJson = await response.json();
+      return responseJson.data;
+    } else {
+      const errorJson = await response.json();
+      const errorStatus = errorJson.status;
+      const errorMessage = errorJson.message;
+      throw new Error(`${errorStatus} : ${errorMessage}`);
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+/*
+noticeType,
   noticeTitle,
   noticeContent,
   noticeFile,
@@ -71,36 +105,64 @@ const noticeCreateFetch = async (
   noticePin,
   noticeTargetRange,
   noticeTargetDate
-) => {
+*/
+const noticeCreateFetch = async (data, token) => {
   const noticeBody = {
-    noticeType,
-    noticeTitle,
-    noticeContent,
-    noticeFile,
-    noticeImage,
-    noticePin,
-    noticeTargetRange,
-    noticeTargetDate,
+    type: data.type,
+    title: data.title,
+    contents: data.contents,
+    isPinned: data.isPinned !== undefined ? data.isPinned : false,
+    targetRange: data.targetRange,
+    targetDate: data.targetDate,
   };
 
   const requestInit = {
     credentials: "include",
-    mehtod: "POST",
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(noticeBody),
   };
 
+  // 파일 업로드 기능 비활성화
+  // const formData = new FormData();
+
+  // const fileRequestInit = {
+  //   credentials: "include",
+  //   method: "POST",
+  //   headers: {
+  //     Authorization: `Bearer ${token}`,
+  //   },
+  // };
+
+  // if (data.files && data.files.length > 0) {
+  //   data.files.forEach((file, index) => {
+  //     formData.append("files", file);
+  //   });
+  // }
+
   try {
-    const response = await fetch(`${process.env.NOTICE_API_URL}`, requestInit);
-    if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+    const noticeResponse = await fetch(
+      `${import.meta.env.VITE_NOTICE_API_URL}`,
+      requestInit
+    );
+
+    if (200 <= noticeResponse.status && noticeResponse.status < 300) {
+      const responseJson = await noticeResponse.json();
       return responseJson.data;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
-      throw new Error(`${errorStatus} : ${errorMessage}`);
+      let errorMessage = `HTTP ${noticeResponse.status}: ${noticeResponse.statusText}`;
+      try {
+        const errorJson = await noticeResponse.json();
+        errorMessage = `${errorJson.status || noticeResponse.status} : ${
+          errorJson.message || noticeResponse.statusText
+        }`;
+      } catch (jsonError) {
+        console.error(jsonError);
+      }
+      throw new Error(errorMessage);
     }
   } catch (error) {
     console.error(error);
@@ -108,26 +170,16 @@ const noticeCreateFetch = async (
   }
 };
 
-const noticeUpdateFetch = async (
-  id,
-  noticeType,
-  noticeTitle,
-  noticeContent,
-  noticeFile,
-  noticeImage,
-  noticePin,
-  noticeTargetRange,
-  noticeTargetDate
-) => {
+const noticeUpdateFetch = async (noticeId, data, token) => {
   const noticeBody = {
-    noticeType,
-    noticeTitle,
-    noticeContent,
-    noticeFile,
-    noticeImage,
-    noticePin,
-    noticeTargetRange,
-    noticeTargetDate,
+    type: data.type,
+    title: data.title,
+    contents: data.contents,
+    // noticeFile: data.files,
+    // noticeImage: data.image,
+    isPinned: data.isPinned !== undefined ? data.isPinned : false,
+    targetRange: data.targetRange,
+    targetDate: data.targetDate,
   };
 
   const requestInit = {
@@ -135,22 +187,31 @@ const noticeUpdateFetch = async (
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(noticeBody),
   };
 
   try {
     const response = await fetch(
-      `${process.env.NOTICE_API_URL}/${id}`,
+      `${import.meta.env.VITE_NOTICE_API_URL}/${noticeId}`,
       requestInit
     );
+
     if (200 <= response.status && response.status < 300) {
       const responseJson = await response.json();
       return responseJson.data;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
-      throw new Error(`${errorStatus} : ${errorMessage}`);
+      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      try {
+        const errorJson = await response.json();
+        errorMessage = `${errorJson.status || response.status} : ${
+          errorJson.message || response.statusText
+        }`;
+      } catch (jsonError) {
+        console.error(jsonError);
+      }
+      throw new Error(errorMessage);
     }
   } catch (error) {
     console.error(error);
@@ -158,15 +219,19 @@ const noticeUpdateFetch = async (
   }
 };
 
-const noticeDeleteFetch = async (id) => {
+const noticeDeleteFetch = async (id, token) => {
   const requestInit = {
     credentials: "include",
     method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
   };
 
   try {
     const response = await fetch(
-      `${process.env.NOTICE_API_URL}/${id}`,
+      `${import.meta.env.VITE_NOTICE_API_URL}/${id}`,
       requestInit
     );
     if (200 <= response.status && response.status < 300) {
@@ -177,8 +242,9 @@ const noticeDeleteFetch = async (id) => {
         return false;
       }
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
+      const errorJson = await response.json();
+      const errorStatus = errorJson.status || response.status;
+      const errorMessage = errorJson.message || response.statusText;
       throw new Error(`${errorStatus} : ${errorMessage}`);
     }
   } catch (error) {

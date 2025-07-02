@@ -11,6 +11,7 @@ const LoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false); // 폼 제출 중일 때 중복막기
+  const [errors, setErrors] = useState({});
 
   const [member, setMember] = useState({
     email: "",
@@ -23,10 +24,17 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!member.email || !member.password) {
+      alert("이메일과 비밀번호를 입력해주세요.");
+      return;
+    }
+
+    if (Object.keys(errors).length > 0) {
+      alert("입력한 정보를 다시 확인해주세요.");
+      return;
+    }
     if (isSubmitting) return; // 이미 요청 중이면 무시
     setIsSubmitting(true);
-
-    console.log("회원 정보:", member);
 
     try {
       const response = await fetch("http://localhost:8080/auth/login", {
@@ -42,14 +50,14 @@ const LoginForm = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.log(errorData);
         alert("로그인 실패: " + errorData.message);
         return;
       }
 
       const res = await response.json();
-      console.log(res.data);
-      alert("로그인 성공! 환영합니다, " + res.data.memberResponseDto.name);
+      alert(
+        "로그인 성공! 환영합니다, " + res.data.memberResponseDto.name + "님"
+      );
       dispatch(setUser(res.data.memberResponseDto));
       localStorage.setItem("accessToken", res.data.tokenDto.accessToken);
       localStorage.setItem("refreshToken", res.data.tokenDto.refreshToken);
@@ -70,7 +78,12 @@ const LoginForm = () => {
           text="Log in to join the journey with Ever."
         />
         <form onSubmit={handleSubmit} className="w-full">
-          <LoginAccountInfo member={member} updateMember={updateMember} />
+          <LoginAccountInfo
+            member={member}
+            updateMember={updateMember}
+            errors={errors}
+            setErrors={setErrors}
+          />
         </form>
         <AuthSwitchPrompt
           message="계정이 없으신가요?"
