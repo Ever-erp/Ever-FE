@@ -1,3 +1,4 @@
+import React from "react";
 import { Outlet } from "react-router-dom";
 import VideoLoop from "../components/specific/intro-video/VideoLoop";
 import FullScreenContainer from "./FullScreenContainer";

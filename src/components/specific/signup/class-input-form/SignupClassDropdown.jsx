@@ -1,5 +1,5 @@
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
 import { FiChevronDown } from "react-icons/fi";
 
 const SignupClassDropdown = ({

@@ -1,5 +1,4 @@
-import React, { useEffect } from "react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomInput from "@/components/common/CustomInput";
 import CustomButton from "../../../common/CustomButton";
 import SignupClassDropdown from "./SignupClassDropdown";

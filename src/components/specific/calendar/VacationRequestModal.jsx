@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import CustomButton from "../../common/CustomButton";
 import DatePicker from "react-datepicker";
 import { writeVacation } from "../../../services/calendar/writeVacation";
