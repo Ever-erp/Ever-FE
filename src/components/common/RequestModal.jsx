@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
 const VacationRequestModal = () => {
   const [selectedType, setSelectedType] = useState("");

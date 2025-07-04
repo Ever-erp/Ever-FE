@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import CustomButton from "../../common/CustomButton";
 
 const VacationRequestModal = ({ selectedDate, onClose }) => {

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import BirthInput from "./BirthInput";
 import GenderInput from "./GenderInput";

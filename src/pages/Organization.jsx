@@ -1,7 +1,7 @@
+import React, { useState, useEffect } from "react";
 import OrganizationHeader from "../components/specific/organization/OrganizationHeader";
 import OrganizationBody from "../components/specific/organization/OrganizationBody";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { allClassFetch } from "../services/organization/organizationFetch";
 import { ReactFlowProvider } from "reactflow";
 import { calculateNodePositions } from "../util/organizationUtil";

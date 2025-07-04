@@ -1,6 +1,6 @@
 // import SearchBar from "../components/specific/notice/SearchBar";
 // import CategorySelectBar from "../components/specific/notice/CategorySelectBar";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   noticePageFetch,
   // noticeSearchFetch,

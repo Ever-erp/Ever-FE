@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { singleClassFetch } from "../services/organization/organizationFetch";
-import { useState, useEffect } from "react";
 import OrganizationHeader from "../components/specific/organization/OrganizationHeader";
 import OrganizationBody from "../components/specific/organization/OrganizationBody";
 import { ReactFlowProvider } from "reactflow";

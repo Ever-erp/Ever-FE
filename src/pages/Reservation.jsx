@@ -1,8 +1,8 @@
+import React, { useEffect, useState } from "react";
 import ClassMap from "@/assets/svgs/class-map.svg?react";
 import "@/assets/styles/svg.css";
 import TimeSelector from "../components/specific/reservation/TimeSelector";
 import NoticeBox from "../components/specific/reservation/NoticeBox";
-import { useEffect, useState } from "react";
 import MeetingRoomReservationBtn from "../components/specific/reservation/MeetingRoomReservationBtn";
 import MeetingRoomReservationModal from "../components/specific/reservation/MeetingRoomReservationModal";
 import NoticeColor from "../components/specific/reservation/NoticeColor";
