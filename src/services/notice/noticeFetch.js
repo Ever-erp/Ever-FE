@@ -58,14 +58,7 @@ const noticePageFetch = async (page, size, token) => {
   }
 };
 
-const noticeSearchFetch = async (
-  targetRange,
-  type,
-  searchInput,
-  page,
-  size,
-  token
-) => {
+const noticeSearchFetch = async (type, searchInput, page, size, token) => {
   const requestInit = {
     credentials: "include",
     method: "GET",
@@ -74,11 +67,15 @@ const noticeSearchFetch = async (
       "Content-Type": "application/json",
     },
   };
+  console.log("type", type);
+  console.log("searchInput", searchInput);
+  console.log("page", page);
+  console.log("size", size);
 
   const input = searchInput ? searchInput : "empty";
   const url = `${
     import.meta.env.VITE_NOTICE_API_URL
-  }/search?targetRange=${targetRange}&type=${type}&input=${input}&page=${page}&size=${size}`;
+  }/search?type=${type}&input=${input}&page=${page}&size=${size}`;
   try {
     const response = await fetch(url, requestInit);
     if (200 <= response.status && response.status < 300) {
