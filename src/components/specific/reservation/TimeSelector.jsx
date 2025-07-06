@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import CustomButton from "../../common/CustomButton";
 import { formatHour } from "../../../services/formatHour";
 import { FaCheck } from "react-icons/fa";
+import CustomButton from "../../common/CustomButton";
 
 const TimeSelector = ({
   reservation,

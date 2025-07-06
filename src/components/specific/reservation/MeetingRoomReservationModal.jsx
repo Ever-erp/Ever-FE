@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import CustomInput from "../../common/CustomInput";
-import CustomButton from "../../common/CustomButton";
 import { fetchWithAuth } from "../../../services/apiClient";
 import { formatHour } from "../../../services/formatHour";
+import CustomButton from "../../common/CustomButton";
 
 const MeetingRoomReservationModal = ({
   reservation,
@@ -171,7 +171,6 @@ const MeetingRoomReservationModal = ({
             label="저장"
             className="py-[1vh] rounded-lg"
             variant="brand"
-            size="md"
             type="submit"
           />
         </div>

@@ -1,10 +1,10 @@
 import React, { useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import CustomButton from "../../common/CustomButton";
 import { writeSchedule } from "../../../services/calendar/writeClassSchedule";
 import { formatDateToLocalString } from "../../../services/formatDateToLocalString";
 import { isWeekend } from "../../../services/calendar/calendarService";
+import CustomButton from "../../common/CustomButton";
 
 const ScheduleCreateModal = ({ onClose, classId, loadCalendarData }) => {
   const [startDate, setStartDate] = useState(null);
@@ -147,7 +147,6 @@ const ScheduleCreateModal = ({ onClose, classId, loadCalendarData }) => {
             label="저장"
             className="py-[1vh] rounded-lg"
             variant="brand"
-            size="md"
             type="submit"
           />
         </div>

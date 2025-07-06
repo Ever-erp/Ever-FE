@@ -3,7 +3,6 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import "../assets/styles/calendar.css";
-import CustomButton from "../components/common/CustomButton";
 import ScheduleCreateModal from "../components/specific/calendar/ScheduleCreateModal";
 import VacationRequestModal from "../components/specific/calendar/VacationRequestModal";
 import { useSelector } from "react-redux";
@@ -17,6 +16,7 @@ import NoticePopover from "../components/specific/calendar/NoticePopover";
 import VacationPopover from "../components/specific/calendar/VacationPopover";
 import ScheduleViewModal from "../components/specific/calendar/ScheduleViewModal";
 import Loading from "../components/common/Loading";
+import CustomButton from "../components/common/CustomButton";
 
 const Calender = () => {
   const user = useSelector((state) => state.user.user); // 전역 상태에서 사용자 정보 가져오기
