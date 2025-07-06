@@ -1,21 +1,21 @@
-// import SearchBar from "../components/specific/notice/SearchBar";
-// import CategorySelectBar from "../components/specific/notice/CategorySelectBar";
 import React, { useState, useEffect } from "react";
 import {
   noticePageFetch,
-  // noticeSearchFetch,
+  noticeSearchFetch,
 } from "../services/notice/noticeFetch";
 import GenericPage from "../components/common/GenericPage";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import Loading from "../components/common/Loading";
 import { noticeConfig } from "../util/noticeUtil";
+import CategorySelectBar from "../components/specific/notice/CategorySelectBar";
+import SearchBar from "../components/specific/notice/SearchBar";
 
 const Notice = () => {
-  // const [category, setCategory] = useState({
-  //   targetRange: "ALL_TARGETRANGE",
-  //   type: "ALL_TYPE",
-  // });
-  // const [search, setSearch] = useState("");
+  const [category, setCategory] = useState({
+    targetRange: "ALL_TARGETRANGE",
+    type: "ALL_TYPE",
+  });
+  const [search, setSearch] = useState("");
   const [noticeList, setNoticeList] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
@@ -51,64 +51,50 @@ const Notice = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [size]);
 
-  // const handleCategoryChange = (selectedCategory) => {
-  //   setCategory(selectedCategory);
-  // };
+  const handleCategoryChange = (selectedCategory) => {
+    setCategory(selectedCategory);
+  };
 
-  // const categoryOptions = [
-  //   [
-  //     { value: "ALL_TARGETRANGE", label: "반 전체" },
-  //     { value: "WEB_APP", label: "웹/앱" },
-  //     { value: "SW_EMBEDDED", label: "임베디드" },
-  //     { value: "IT_SECURITY", label: "보안" },
-  //     { value: "SMART_FACTORY", label: "스마트팩토리" },
-  //     { value: "CLOUD_SECURITY", label: "클라우드" },
-  //   ],
-  //   [
-  //     { value: "ALL_TYPE", label: "타입 전체" },
-  //     { value: "NOTICE", label: "공지" },
-  //     { value: "SURVEY", label: "설문" },
-  //   ],
-  // ];
+  const categoryOptions = [
+    [
+      { value: "ALL_TYPE", label: "타입 전체" },
+      { value: "TITLE", label: "제목" },
+      { value: "WRITER", label: "작성자" },
+    ],
+  ];
 
-  // // SearchBar컴포넌트에서 검색버튼을 눌렀을 때 setSearch 변경
-  // const handleSearchChange = async (searchChange) => {
-  //   setSearch(searchChange);
+  // SearchBar컴포넌트에서 검색버튼을 눌렀을 때 setSearch 변경
+  const handleSearchChange = async (searchChange) => {
+    setSearch(searchChange);
 
-  //   const targetRangeAndType = {
-  //     targetRange: category?.targetRange || "ALL_TARGETRANGE",
-  //     type: category?.type || "ALL_TYPE",
-  //   };
+    const token = localStorage.getItem("accessToken");
+    try {
+      const res = await noticeSearchFetch(
+        category || "ALL_TYPE",
+        searchChange,
+        page,
+        size,
+        token
+      );
 
-  //   const token = localStorage.getItem("accessToken");
-  //   try {
-  //     const res = await noticeSearchFetch(
-  //       targetRangeAndType.targetRange,
-  //       targetRangeAndType.type,
-  //       searchChange,
-  //       page,
-  //       size,
-  //       token
-  //     );
-
-  //     // 검색 결과 데이터 구조 확인 후 상태 업데이트
-  //     if (res && res.content) {
-  //       setNoticeList(res.content);
-  //       setTotalPages(res.totalPages);
-  //       setTotalElements(res.totalElements);
-  //     } else if (res) {
-  //       // res가 직접 배열인 경우
-  //       setNoticeList(res);
-  //       setTotalPages(1);
-  //       setTotalElements(res.length);
-  //     }
-  //   } catch (error) {
-  //     console.error("검색 오류:", error);
-  //     setNoticeList([]);
-  //     setTotalPages(0);
-  //     setTotalElements(0);
-  //   }
-  // };
+      // 검색 결과 데이터 구조 확인 후 상태 업데이트
+      if (res && res.content) {
+        setNoticeList(res.content);
+        setTotalPages(res.totalPages);
+        setTotalElements(res.totalElements);
+      } else if (res) {
+        // res가 직접 배열인 경우
+        setNoticeList(res);
+        setTotalPages(1);
+        setTotalElements(res.length);
+      }
+    } catch (error) {
+      console.error("검색 오류:", error);
+      setNoticeList([]);
+      setTotalPages(0);
+      setTotalElements(0);
+    }
+  };
 
   const handlePageChange = (page) => {
     setPage(page);
@@ -138,11 +124,11 @@ const Notice = () => {
   return (
     <div className="flex flex-col w-full h-full px-4 md:px-6 lg:px-8 xl:px-12">
       <div className="flex-shrink-0 flex flex-col md:flex-row items-center w-full justify-center pb-10 gap-4 md:gap-0">
-        {/* <CategorySelectBar
+        <CategorySelectBar
           onCategoryChange={handleCategoryChange}
           categoryOptions={categoryOptions}
         />
-        <SearchBar onSearchChange={handleSearchChange} /> */}
+        <SearchBar onSearchChange={handleSearchChange} />
       </div>
       <div className="flex-1 flex flex-row items-center justify-center w-full min-h-0">
         {loading ? (
