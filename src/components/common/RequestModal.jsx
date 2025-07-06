@@ -12,7 +12,6 @@ const VacationRequestModal = () => {
       return;
     }
 
-    // console.log("제출:", { type: selectedType, reason });
     alert("휴가 신청이 저장되었습니다!");
     setSelectedType("");
     setReason("");

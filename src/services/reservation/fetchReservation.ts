@@ -1,4 +1,16 @@
-export const fetchReservation = async () => {
+interface ReservationData {
+  myReservations: {
+    roomNum: number;
+    startTime: number;
+  }[];
+  fullyBookedRooms: number[];
+}
+
+interface ReservationResponse {
+  data: ReservationData;
+}
+
+export const fetchReservation = async (): Promise<ReservationResponse> => {
   try {
     const accessToken = localStorage.getItem("accessToken");
 

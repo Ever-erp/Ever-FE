@@ -1,4 +1,11 @@
-export const reissueToken = async (navigate, dispatch) => {
+import { NavigateFunction } from "react-router-dom";
+import { Dispatch } from "redux";
+import { clearUser } from "../../store/userSlice";
+
+export const reissueToken = async (
+  navigate: NavigateFunction,
+  dispatch: Dispatch
+): Promise<string> => {
   const refreshToken = localStorage.getItem("refreshToken");
   const accessToken = localStorage.getItem("accessToken");
 
@@ -13,7 +20,13 @@ export const reissueToken = async (navigate, dispatch) => {
 
     if (!response.ok) throw new Error("토큰 재발급 실패");
 
-    const result = await response.json();
+    const result: {
+      data: {
+        accessToken: string;
+        refreshToken: string;
+      };
+    } = await response.json();
+
     const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
       result.data;
 

@@ -1,6 +1,10 @@
 import React from "react";
 
-const SelectedRoom = ({ roomNum }) => {
+interface SelectedRoomProps {
+  roomNum?: string | null;
+}
+
+const SelectedRoom = ({ roomNum }: SelectedRoomProps) => {
   return (
     <>
       {roomNum && (

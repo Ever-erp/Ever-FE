@@ -1,23 +1,35 @@
 import React, { useState } from "react";
 import { formatHour } from "../../../services/formatHour";
-import { FaCheck } from "react-icons/fa";
+// import { FaCheck } from "react-icons/fa";
 import CustomButton from "../../common/CustomButton";
+import Reservation from "../../../pages/Reservation";
+import { MyReservation, ReservationInfo } from "../../../types/reservation";
+
+interface TimeSelectorProps {
+  reservation: ReservationInfo;
+  updateReservation: <K extends keyof ReservationInfo>(
+    field: K,
+    value: ReservationInfo[K]
+  ) => void;
+  reservedTimes?: number[];
+  myReservations?: MyReservation[];
+}
 
 const TimeSelector = ({
   reservation,
   updateReservation,
   reservedTimes = [],
   myReservations = [],
-}) => {
+}: TimeSelectorProps) => {
   const [period, setPeriod] = useState("am"); // "am" 또는 "pm"
 
   // 오전: 8~11, 오후: 12~20
-  const timeRange = {
+  const timeRange: Record<string, number[]> = {
     am: Array.from({ length: 4 }, (_, i) => i + 8), // [8, 9, 10, 11]
     pm: Array.from({ length: 9 }, (_, i) => i + 12), // [12 ~ 20]
   };
 
-  const handleTimeClick = (hour) => {
+  const handleTimeClick = (hour: number) => {
     updateReservation("reservationTime", hour);
   };
 
@@ -71,14 +83,7 @@ const TimeSelector = ({
             <CustomButton
               key={hour}
               label={
-                isMyReservation ? (
-                  <>
-                    <FaCheck className="pt-1 mr-1 text-brand" />
-                    <span className="font-bold">{formatHour(hour)}</span>
-                  </>
-                ) : (
-                  <span>{formatHour(hour)}</span>
-                )
+                isMyReservation ? "✔ " + formatHour(hour) : formatHour(hour)
               }
               className="py-[1vh] flex justify-center items-center"
               variant={variant}

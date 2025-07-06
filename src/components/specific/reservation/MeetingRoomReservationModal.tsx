@@ -1,8 +1,19 @@
-import React, { useState } from "react";
+import React, { FormEvent } from "react";
 import CustomInput from "../../common/CustomInput";
-import { fetchWithAuth } from "../../../services/apiClient";
 import { formatHour } from "../../../services/formatHour";
 import CustomButton from "../../common/CustomButton";
+import { ReservationInfo } from "../../../types/reservation";
+
+interface MeetingRoomReservationModalProps {
+  reservation: ReservationInfo;
+  updateReservation: <K extends keyof ReservationInfo>(
+    field: K,
+    value: ReservationInfo[K]
+  ) => void;
+  reservedTimes?: number[];
+  onClose: () => void;
+  onComplete?: () => Promise<void> | void;
+}
 
 const MeetingRoomReservationModal = ({
   reservation,
@@ -10,12 +21,15 @@ const MeetingRoomReservationModal = ({
   reservedTimes = [],
   onClose,
   onComplete,
-}) => {
-  const handleChange = (field, value) => {
+}: MeetingRoomReservationModalProps) => {
+  const handleChange = <K extends keyof ReservationInfo>(
+    field: K,
+    value: ReservationInfo[K]
+  ) => {
     updateReservation(field, value);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { roomNum, reservationTime, headCount, reservationDesc } =
       reservation;
@@ -63,10 +77,10 @@ const MeetingRoomReservationModal = ({
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            roomNum: roomNum,
+            roomNum,
             startTime: reservationTime,
-            headCount: headCount,
-            reservationDesc: reservationDesc,
+            headCount,
+            reservationDesc,
           }),
         }
       );
@@ -77,12 +91,10 @@ const MeetingRoomReservationModal = ({
         return;
       }
 
-      const res = await response.json();
-
       alert("회의실 예약이 저장되었습니다!");
 
       if (onComplete) {
-        await onComplete(); // ✅ 예약 완료 후 콜백 호출
+        await onComplete(); // 예약 완료 후 콜백 호출
       }
     } catch (error) {
       console.error(error);
@@ -150,9 +162,7 @@ const MeetingRoomReservationModal = ({
                 label="예약 인원"
                 placeholder="예) 3"
                 value={reservation.headCount}
-                type="number" // ✅ 숫자만 입력되도록 설정
-                min={1} // 최소값
-                max={10} // 최대값
+                type="number" // 숫자만 입력되도록 설정
                 onChange={(val) => handleChange("headCount", val)}
               />
 

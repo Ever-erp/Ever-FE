@@ -1,12 +1,20 @@
 import React from "react";
 import CustomButton from "../../common/CustomButton";
+import { MyReservation, ReservationInfo } from "../../../types/reservation";
+
+interface MeetingRoomReservationBtnProps {
+  setShowModal: (value: boolean) => void;
+  myReservations: MyReservation[];
+  reservation: ReservationInfo;
+  onComplete: () => Promise<void> | void;
+}
 
 const MeetingRoomReservationBtn = ({
   setShowModal,
   myReservations,
   reservation,
   onComplete,
-}) => {
+}: MeetingRoomReservationBtnProps) => {
   const handleCancelBtnClick = async () => {
     const token = localStorage.getItem("accessToken");
 
@@ -40,9 +48,7 @@ const MeetingRoomReservationBtn = ({
         return;
       }
 
-      const data = await response.json();
       alert("회의실을 취소하였습니다.");
-
       await onComplete(); // 버튼 클릭 상태 초기화 및 db 로드
     } catch (error) {
       console.error("회의실 취소 중 오류 발생:", error);
@@ -65,7 +71,6 @@ const MeetingRoomReservationBtn = ({
             className="py-[1vh]"
             variant="outline"
             rounded="rounded-lg"
-            size="md"
             onClick={handleCancelBtnClick}
           />
         ) : (
@@ -74,7 +79,6 @@ const MeetingRoomReservationBtn = ({
             className="py-[1vh]"
             variant="brand"
             rounded="rounded-lg"
-            size="md"
             onClick={() => setShowModal(true)}
           />
         )}

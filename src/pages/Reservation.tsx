@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, MouseEvent } from "react";
 import ClassMap from "@/assets/svgs/class-map.svg?react";
 import "@/assets/styles/svg.css";
 import TimeSelector from "../components/specific/reservation/TimeSelector";
@@ -7,39 +7,44 @@ import MeetingRoomReservationBtn from "../components/specific/reservation/Meetin
 import MeetingRoomReservationModal from "../components/specific/reservation/MeetingRoomReservationModal";
 import NoticeColor from "../components/specific/reservation/NoticeColor";
 import SelectedRoom from "../components/specific/reservation/SelectedRoom";
-import { useAuthFetch } from "../hooks/authFetch";
+import { useAuthFetch } from "../hooks/useAuthFetch";
 import { fetchReservedTimes } from "../services/reservation/fetchReservedTime";
 import { fetchReservation } from "../services/reservation/fetchReservation";
+import { ReservationInfo } from "../types/reservation";
+import { MyReservation } from "../types/reservation";
 
 const Reservation = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [isRoomSelected, setIsRoomSelected] = useState(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [selectedRoomNum, setSelectedRoomNum] = useState<string | null>(null);
 
-  const [reservedTimes, setReservedTimes] = useState([]); // 이미 예약된 시간 목록
+  const [reservedTimes, setReservedTimes] = useState<number[]>([]); // 이미 예약된 시간 목록
 
-  const [myReservations, setMyReservations] = useState([]);
-  const [fullyBookedRooms, setFullyBookedRooms] = useState([]);
+  const [myReservations, setMyReservations] = useState<MyReservation[]>([]);
+  const [fullyBookedRooms, setFullyBookedRooms] = useState<number[]>([]);
 
   const { isAuthenticated } = useAuthFetch();
 
   // 예약 상태 (회의실 번호, 예약 시간, 인원수, 예약 상세)
-  const [reservation, setReservation] = useState({
+  const [reservation, setReservation] = useState<ReservationInfo>({
     roomNum: "",
-    reservationTime: "",
+    reservationTime: null,
     headCount: "",
     reservationDesc: "",
   });
 
-  const updateReservation = (field, value) => {
+  const updateReservation = <K extends keyof ReservationInfo>(
+    field: K,
+    value: ReservationInfo[K]
+  ) => {
     setReservation((prev) => ({ ...prev, [field]: value }));
   };
 
   // 회의실 클릭 시
-  const handleClick = async (e) => {
-    const roomGroup = e.target.closest("g.clickable");
+  const handleClick = async (e: MouseEvent<SVGSVGElement>) => {
+    const roomGroup = (e.target as HTMLElement).closest("g.clickable");
     if (roomGroup) {
       const selectedRoomNum = roomGroup.id;
-      setIsRoomSelected(selectedRoomNum);
+      setSelectedRoomNum(selectedRoomNum);
       updateReservation("roomNum", selectedRoomNum);
       updateReservation("reservationTime", null); // 회의 예약 시간 초기화
 
@@ -49,11 +54,11 @@ const Reservation = () => {
 
         const res = await fetchReservation(); // 회의실 정보 다시 불러오기
 
-        setMyReservations(res.data.myReservations || []); // 내 예약 데이터 저장
+        setMyReservations(res.data.myReservations); // 내 예약 데이터 저장
         setFullyBookedRooms(res.data.fullyBookedRooms || []); // 꽉 찬 방 목록 저장
       } catch (error) {
         console.error(error);
-        alert("회의실 예약 중 오류가 발생했습니다.", error);
+        alert("회의실 예약 중 오류가 발생했습니다.");
       }
     }
   };
@@ -65,12 +70,11 @@ const Reservation = () => {
     const fetchData = async () => {
       try {
         const res = await fetchReservation();
-
-        setMyReservations(res.data.myReservations || []); // 내 예약 데이터 저장
+        setMyReservations(res.data.myReservations); // 내 예약 데이터 저장
         setFullyBookedRooms(res.data.fullyBookedRooms || []); // 꽉 찬 방 목록 저장
       } catch (error) {
         console.error(error);
-        alert("회의실 전체 조회 중 오류가 발생했습니다.", error);
+        alert("회의실 전체 조회 중 오류가 발생했습니다.");
       }
     };
 
@@ -88,7 +92,6 @@ const Reservation = () => {
 
     // 1. full 처리 먼저
     fullyBookedRooms.forEach((roomNum) => {
-      console.log(roomNum);
       const target = document.getElementById(String(roomNum));
       if (target) {
         target.classList.add("full");
@@ -106,12 +109,12 @@ const Reservation = () => {
         return;
       }
 
-      if (g.id === isRoomSelected) {
+      if (g.id === selectedRoomNum) {
         g.classList.add("selected");
         return;
       }
     });
-  }, [isRoomSelected, myReservations, fullyBookedRooms]);
+  }, [selectedRoomNum, myReservations, fullyBookedRooms]);
 
   // 예약 완료 후 실행될 콜백 함수
   const handleReservationComplete = async () => {
@@ -149,7 +152,7 @@ const Reservation = () => {
 
       {/* 오른쪽: 시간선택 */}
       {/* 회의실 선택한 경우에만 시간 보여주기 */}
-      {isRoomSelected ? (
+      {selectedRoomNum !== null ? (
         <div className="flex-1">
           <TimeSelector
             reservation={reservation}

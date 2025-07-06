@@ -1,4 +1,6 @@
-export const fetchReservedTimes = async (roomNum) => {
+export const fetchReservedTimes = async (
+  roomNum: string | number
+): Promise<number[]> => {
   const accessToken = localStorage.getItem("accessToken");
   try {
     const response = await fetch(
@@ -18,7 +20,11 @@ export const fetchReservedTimes = async (roomNum) => {
       throw new Error(errorData.message || "예약 시간 조회 실패");
     }
 
-    const data = await response.json();
+    const data: {
+      data: {
+        reservedTimes: number[];
+      };
+    } = await response.json();
     return data.data.reservedTimes;
   } catch (err) {
     console.error("예약 시간 조회 실패:", err);
