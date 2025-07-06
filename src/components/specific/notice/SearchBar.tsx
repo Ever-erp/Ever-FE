@@ -1,14 +1,18 @@
 "use client";
 import React, { useState } from "react";
 
-const SearchBar = ({ onSearchChange }) => {
-  const [inputValue, setInputValue] = useState("");
+interface SearchBarProps {
+  onSearchChange: (searchValue: string) => void;
+}
 
-  const handleChange = (e) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearchChange }) => {
+  const [inputValue, setInputValue] = useState<string>("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (onSearchChange) {

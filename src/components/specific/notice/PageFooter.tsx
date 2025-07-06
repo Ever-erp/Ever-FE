@@ -1,16 +1,26 @@
 import React, { useState, useEffect } from "react";
 
-const PageFooter = ({ currentPage, totalPageLength, onPageChange }) => {
-  const [page, setPage] = useState(currentPage);
+interface PageFooterProps {
+  currentPage: number;
+  totalPageLength: number;
+  onPageChange: (page: number) => void;
+}
 
-  const handlePageChange = (pageNumber) => {
+const PageFooter: React.FC<PageFooterProps> = ({
+  currentPage,
+  totalPageLength,
+  onPageChange,
+}) => {
+  const [page, setPage] = useState<number>(currentPage);
+
+  const handlePageChange = (pageNumber: number) => {
     if (onPageChange && pageNumber >= 0 && pageNumber < totalPageLength) {
       setPage(pageNumber);
       onPageChange(pageNumber);
     }
   };
 
-  const getPageRange = () => {
+  const getPageRange = (): number[] => {
     const pageGroupSize = 5;
     const displayPage = page + 1; // 표시용 페이지 (1부터 시작)
     const currentGroup = Math.ceil(displayPage / pageGroupSize);

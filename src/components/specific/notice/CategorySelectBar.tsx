@@ -1,12 +1,27 @@
 import React, { useState } from "react";
 import CustomDropdown from "../../common/CustomDropdown";
+import { DropdownOption, TargetRange, SearchType } from "../../../types/notice";
 
-const CategorySelectBar = ({ onCategoryChange, categoryOptions }) => {
-  const [targetRange, setTargetRange] = useState("ALL_TARGETRANGE");
-  const [noticeType, setNoticeType] = useState("ALL_TYPE");
-  const [singleCategory, setSingleCategory] = useState("all");
+interface CategoryState {
+  targetRange: TargetRange;
+  type: SearchType;
+}
 
-  const handleTargetRangeChange = (selectedTargetRange) => {
+interface CategorySelectBarProps {
+  onCategoryChange: (category: CategoryState | string) => void;
+  categoryOptions: DropdownOption[][];
+}
+
+const CategorySelectBar: React.FC<CategorySelectBarProps> = ({
+  onCategoryChange,
+  categoryOptions,
+}) => {
+  const [targetRange, setTargetRange] =
+    useState<TargetRange>("ALL_TARGETRANGE");
+  const [noticeType, setNoticeType] = useState<SearchType>("ALL_CATEGORY");
+  const [singleCategory, setSingleCategory] = useState<string>("all");
+
+  const handleTargetRangeChange = (selectedTargetRange: TargetRange) => {
     setTargetRange(selectedTargetRange);
 
     if (onCategoryChange) {
@@ -14,7 +29,7 @@ const CategorySelectBar = ({ onCategoryChange, categoryOptions }) => {
     }
   };
 
-  const handleTypeChange = (selectedType) => {
+  const handleTypeChange = (selectedType: SearchType) => {
     setNoticeType(selectedType);
 
     if (onCategoryChange) {
@@ -22,7 +37,7 @@ const CategorySelectBar = ({ onCategoryChange, categoryOptions }) => {
     }
   };
 
-  const handleSingleCategoryChange = (selectedCategory) => {
+  const handleSingleCategoryChange = (selectedCategory: string) => {
     setSingleCategory(selectedCategory);
 
     if (onCategoryChange) {

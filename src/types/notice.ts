@@ -11,7 +11,7 @@ export type TargetRange =
 export type NoticeType = "ALL_TYPE" | "NOTICE" | "SURVEY";
 
 // 검색 타입
-export type SearchType = "ALL_TYPE" | "TITLE" | "WRITER";
+export type SearchType = "ALL_CATEGORY" | "TITLE" | "WRITER";
 
 // 정렬 정보 타입
 export interface SortInfo {

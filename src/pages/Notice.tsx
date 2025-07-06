@@ -3,23 +3,22 @@ import {
   noticePageFetch,
   noticeSearchFetch,
 } from "../services/notice/noticeFetch";
-import GenericPage from "../components/common/GenericPage.jsx";
+import Page from "../components/specific/notice/Page";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import Loading from "../components/common/Loading";
-import { noticeConfig } from "../util/noticeUtil";
 import CategorySelectBar from "../components/specific/notice/CategorySelectBar";
 import SearchBar from "../components/specific/notice/SearchBar";
-import { NoticeItem, SearchType } from "../types/notice";
+import { NoticeItem, SearchType, TargetRange } from "../types/notice";
 
 interface CategoryState {
-  targetRange: string;
+  targetRange: TargetRange;
   type: SearchType;
 }
 
 const Notice: React.FC = () => {
   const [category, setCategory] = useState<CategoryState>({
     targetRange: "ALL_TARGETRANGE",
-    type: "ALL_TYPE",
+    type: "ALL_CATEGORY",
   });
   const [search, setSearch] = useState<string>("");
   const [noticeList, setNoticeList] = useState<NoticeItem[]>([]);
@@ -57,15 +56,27 @@ const Notice: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [size]);
 
-  const handleCategoryChange = (selectedCategory: CategoryState) => {
+  const handleCategoryChange = (selectedCategory: CategoryState | string) => {
+    if (typeof selectedCategory === "string") {
+      // 단일 카테고리 선택의 경우 (Survey 페이지용)
+      return;
+    }
     setCategory(selectedCategory);
   };
 
   const categoryOptions = [
     [
-      { value: "ALL_TYPE", label: "타입 전체" },
-      { value: "TITLE", label: "제목" },
-      { value: "WRITER", label: "작성자" },
+      { value: "ALL_TARGETRANGE", label: "대상 범위 전체" },
+      { value: "WEB_APP", label: "웹/앱" },
+      { value: "SMART_FACTORY", label: "스마트팩토리" },
+      { value: "SW_EMBEDDED", label: "SW/임베디드" },
+      { value: "IT_SECURITY", label: "IT보안" },
+      { value: "CLOUD", label: "클라우드" },
+    ],
+    [
+      { value: "ALL_CATEGORY", label: "타입 전체" },
+      { value: "NOTICE", label: "공지사항" },
+      { value: "SURVEY", label: "설문조사" },
     ],
   ];
 
@@ -139,8 +150,6 @@ const Notice: React.FC = () => {
     };
 
     fetchData();
-    handlePageChange(page);
-    handleSizeChange(size);
   }, [page, size]);
 
   return (
@@ -158,15 +167,14 @@ const Notice: React.FC = () => {
             <Loading text="로딩중..." />
           </div>
         ) : (
-          <GenericPage
-            dataList={noticeList}
+          <Page
+            noticeList={noticeList}
             page={page}
             size={size}
             totalPages={totalPages}
             totalElements={totalElements}
             onPageChange={handlePageChange}
             onSizeChange={handleSizeChange}
-            config={noticeConfig}
           />
         )}
       </div>
