@@ -1,9 +1,12 @@
-const noticeConfig = {
+import { NoticeConfig } from "../types/notice";
+
+export const noticeConfig: NoticeConfig = {
   title: "게시글",
   writeButtonText: "글 쓰기",
   writeRoute: "/notice/write",
   detailRoute: "/notice",
   showWriteButton: true,
+  showDeleteButton: true,
   columns: [
     { key: "id", label: "번호", width: "w-16", align: "center" },
     {
@@ -33,5 +36,3 @@ const noticeConfig = {
     registedAt: "registedAt",
   },
 };
-
-export { noticeConfig };

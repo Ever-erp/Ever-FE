@@ -7,10 +7,10 @@ import {
 } from "react-router-dom";
 import DefaultLayout from "./layouts/DefaultLayout";
 import Reservation from "./pages/Reservation";
-import Notice from "./pages/Notice";
+import Notice from "./pages/Notice.tsx";
 import Survey from "./pages/Survey";
-import SingleNotice from "./pages/SingleNotice";
-import WritePage from "./pages/WritePage";
+import SingleNotice from "./pages/SingleNotice.tsx";
+import WritePage from "./pages/WritePage.tsx";
 import Organization from "./pages/Organization";
 import OrganizationClass from "./pages/OrganizationClass";
 

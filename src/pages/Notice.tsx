@@ -3,26 +3,32 @@ import {
   noticePageFetch,
   noticeSearchFetch,
 } from "../services/notice/noticeFetch";
-import GenericPage from "../components/common/GenericPage";
+import GenericPage from "../components/common/GenericPage.jsx";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import Loading from "../components/common/Loading";
 import { noticeConfig } from "../util/noticeUtil";
 import CategorySelectBar from "../components/specific/notice/CategorySelectBar";
 import SearchBar from "../components/specific/notice/SearchBar";
+import { NoticeItem, SearchType } from "../types/notice";
 
-const Notice = () => {
-  const [category, setCategory] = useState({
+interface CategoryState {
+  targetRange: string;
+  type: SearchType;
+}
+
+const Notice: React.FC = () => {
+  const [category, setCategory] = useState<CategoryState>({
     targetRange: "ALL_TARGETRANGE",
     type: "ALL_TYPE",
   });
-  const [search, setSearch] = useState("");
-  const [noticeList, setNoticeList] = useState([]);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
-  const [page, setPage] = useState(0);
+  const [search, setSearch] = useState<string>("");
+  const [noticeList, setNoticeList] = useState<NoticeItem[]>([]);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalElements, setTotalElements] = useState<number>(0);
+  const [page, setPage] = useState<number>(0);
 
   // 화면 크기에 따른 페이징 사이즈 계산
-  const getResponsiveSize = () => {
+  const getResponsiveSize = (): number => {
     const width = window.innerWidth;
     if (width >= 2560) return 20; // 2560px 이상 데스크탑
     if (width >= 1920) return 14; // 1920px 이상 데스크탑
@@ -32,8 +38,8 @@ const Notice = () => {
     return 6; // 768px 미만
   };
 
-  const [size, setSize] = useState(() => getResponsiveSize());
-  const [loading, setLoading] = useState(false);
+  const [size, setSize] = useState<number>(() => getResponsiveSize());
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { isAuthenticated } = useAuthFetch();
 
@@ -51,7 +57,7 @@ const Notice = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [size]);
 
-  const handleCategoryChange = (selectedCategory) => {
+  const handleCategoryChange = (selectedCategory: CategoryState) => {
     setCategory(selectedCategory);
   };
 
@@ -64,13 +70,15 @@ const Notice = () => {
   ];
 
   // SearchBar컴포넌트에서 검색버튼을 눌렀을 때 setSearch 변경
-  const handleSearchChange = async (searchChange) => {
+  const handleSearchChange = async (searchChange: string) => {
     setSearch(searchChange);
 
     const token = localStorage.getItem("accessToken");
+    if (!token) return;
+
     try {
       const res = await noticeSearchFetch(
-        category || "ALL_TYPE",
+        category.type,
         searchChange,
         page,
         size,
@@ -83,10 +91,11 @@ const Notice = () => {
         setTotalPages(res.totalPages);
         setTotalElements(res.totalElements);
       } else if (res) {
-        // res가 직접 배열인 경우
-        setNoticeList(res);
+        // res가 직접 배열인 경우 (타입 안전성을 위해 체크)
+        const resArray = Array.isArray(res) ? res : [];
+        setNoticeList(resArray);
         setTotalPages(1);
-        setTotalElements(res.length);
+        setTotalElements(resArray.length);
       }
     } catch (error) {
       console.error("검색 오류:", error);
@@ -96,27 +105,40 @@ const Notice = () => {
     }
   };
 
-  const handlePageChange = (page) => {
+  const handlePageChange = (page: number) => {
     setPage(page);
   };
 
-  const handleSizeChange = (size) => {
+  const handleSizeChange = (size: number) => {
     setSize(size);
   };
 
   useEffect(() => {}, [noticeList]);
 
   useEffect(() => {
-    setLoading(true);
-    const token = localStorage.getItem("accessToken");
-    noticePageFetch(page, size, token).then((res) => {
-      if (res && res.content) {
-        setNoticeList(res.content);
-        setTotalPages(res.totalPages);
-        setTotalElements(res.totalElements);
+    const fetchData = async () => {
+      setLoading(true);
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        setLoading(false);
+        return;
       }
-      setLoading(false);
-    });
+
+      try {
+        const res = await noticePageFetch(page, size, token);
+        if (res && res.content) {
+          setNoticeList(res.content);
+          setTotalPages(res.totalPages);
+          setTotalElements(res.totalElements);
+        }
+      } catch (error) {
+        console.error("공지사항 로딩 오류:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
     handlePageChange(page);
     handleSizeChange(size);
   }, [page, size]);

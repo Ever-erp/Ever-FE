@@ -4,37 +4,67 @@ import FileDisplay from "../../common/file/FileDisplay";
 import CustomDropdown from "../../common/CustomDropdown";
 import { useAuthFetch } from "../../../hooks/useAuthFetch";
 import { useSelector } from "react-redux";
+import {
+  NoticeEditorData,
+  NoticeInitialData,
+  DropdownOption,
+  TargetRange,
+  NoticeType,
+} from "../../../types/notice";
 
-const NoticeEditor = ({
-  mode = "create", // create/edit
+interface NoticeEditorProps {
+  mode?: "create" | "edit";
+  initialData?: NoticeInitialData;
+  onSave?: (data: NoticeEditorData) => void;
+  onCancel?: () => void;
+  isLoading?: boolean;
+}
+
+interface RootState {
+  user: {
+    user: {
+      name: string;
+      position: string;
+    };
+  };
+}
+
+const NoticeEditor: React.FC<NoticeEditorProps> = ({
+  mode = "create",
   initialData = {},
   onSave,
   onCancel,
   isLoading = false,
 }) => {
-  const [title, setTitle] = useState(initialData.title || "");
-  const [contents, setContents] = useState(initialData.contents || "");
-  const [isPinned, setIsPinned] = useState(initialData.isPinned || false);
-  const [targetRange, setTargetRange] = useState(
+  const [title, setTitle] = useState<string>(initialData.title || "");
+  const [contents, setContents] = useState<string>(initialData.contents || "");
+  const [isPinned, setIsPinned] = useState<boolean>(
+    initialData.isPinned || false
+  );
+  const [targetRange, setTargetRange] = useState<TargetRange>(
     initialData.targetRange || "ALL_TARGETRANGE"
   );
-  const [targetDate, setTargetDate] = useState(initialData.targetDate || "");
-  const [files, setFiles] = useState(initialData.files || []);
-  const [noticeType, setNoticeType] = useState(initialData.type || "ALL_TYPE");
-  const [existingFiles, setExistingFiles] = useState([]);
+  const [targetDate, setTargetDate] = useState<string>(
+    initialData.targetDate || ""
+  );
+  const [files, setFiles] = useState<File[]>(initialData.files || []);
+  const [noticeType, setNoticeType] = useState<NoticeType>(
+    initialData.type || "ALL_TYPE"
+  );
+  const [existingFiles, setExistingFiles] = useState<File[]>([]);
 
   const { isAuthenticated } = useAuthFetch();
-  const user = useSelector((state) => state.user.user);
+  const user = useSelector((state: RootState) => state.user.user);
 
   // 타입 옵션 정의
-  const typeOptions = [
+  const typeOptions: DropdownOption[] = [
     { value: "ALL_TYPE", label: "전체" },
     { value: "NOTICE", label: "공지" },
     { value: "SURVEY", label: "설문" },
   ];
 
   // 대상 범위 옵션 정의
-  const targetRangeOptions = [
+  const targetRangeOptions: DropdownOption[] = [
     { value: "ALL_TARGETRANGE", label: "전체" },
     { value: "WEB_APP", label: "웹/앱" },
     { value: "SMART_FACTORY", label: "스마트 팩토리" },
@@ -89,7 +119,7 @@ const NoticeEditor = ({
       return;
     }
 
-    const data = {
+    const data: NoticeEditorData = {
       title: title.trim(),
       contents: contents.trim(),
       isPinned: isPinned,
@@ -119,11 +149,19 @@ const NoticeEditor = ({
     }
   };
 
-  const handleFileDownload = (file) => {};
+  const handleFileDownload = (file: File) => {};
 
-  const getTodayDate = () => {
+  const getTodayDate = (): string => {
     const today = new Date();
     return today.toISOString().split("T")[0];
+  };
+
+  const handleTypeChange = (value: string) => {
+    setNoticeType(value as NoticeType);
+  };
+
+  const handleTargetRangeChange = (value: string) => {
+    setTargetRange(value as TargetRange);
   };
 
   // 사용자 이름 표시 로직
@@ -140,7 +178,7 @@ const NoticeEditor = ({
             <CustomDropdown
               options={typeOptions}
               value={noticeType}
-              onChange={(value) => setNoticeType(value)}
+              onChange={handleTypeChange}
               width="w-32"
               placeholder="구분"
               disabled={isLoading}
@@ -154,7 +192,7 @@ const NoticeEditor = ({
             <CustomDropdown
               options={targetRangeOptions}
               value={targetRange}
-              onChange={(value) => setTargetRange(value)}
+              onChange={handleTargetRangeChange}
               width="w-40"
               placeholder="대상 범위"
               disabled={isLoading}
