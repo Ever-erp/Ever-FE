@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import CustomButton from "../../common/CustomButton";
 import DatePicker from "react-datepicker";
 import { writeVacation } from "../../../services/calendar/writeVacation";
 import { formatDateToLocalString } from "../../../services/formatDateToLocalString";
 import { isWeekend } from "../../../services/calendar/calendarService";
+import CustomButton from "../../common/CustomButton";
 
 const VacationRequestModal = ({ onClose, loadCalendarData, user }) => {
   const [selectedType, setSelectedType] = useState("");

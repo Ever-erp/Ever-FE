@@ -88,7 +88,6 @@ const ScheduleViewModal = ({ onClose, eventData, onCancel, user }) => {
             label="수업 일정 삭제"
             className="py-[1vh] rounded-lg"
             variant="outline"
-            size="md"
             onClick={() => {
               const confirmDelete = window.confirm("정말로 삭제하시겠습니까?");
               if (confirmDelete) {

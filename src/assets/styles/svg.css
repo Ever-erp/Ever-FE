@@ -14,13 +14,15 @@ g.clickable.selected rect {
 g.clickable.selected path {
   @apply fill-white;
 }
-
+g.clickable.selected:hover rect {
+  @apply fill-brand;
+}
 g.clickable:hover rect {
   @apply fill-subBrand;
 }
-g.clickable.selected:hover path {
+/* g.clickable.selected:hover path {
   @apply fill-white;
-}
+} */
 
 /* 내가 예약한 방 */
 g.clickable.reserved rect {
