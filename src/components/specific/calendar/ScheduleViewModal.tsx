@@ -1,9 +1,22 @@
 import DatePicker from "react-datepicker";
 import CustomButton from "../../common/CustomButton";
+import { ExtendedClassSchedule } from "../../../pages/Calendar";
+import { User } from "../../../store/userSlice";
 
-const ScheduleViewModal = ({ onClose, eventData, onCancel, user }) => {
-  const { subjectName, classDesc, classUrl, startDate, endDate, type } =
-    eventData;
+interface ScheduleViewModalProps {
+  onClose: () => void;
+  eventData: ExtendedClassSchedule;
+  onCancel: () => void;
+  user: User | null;
+}
+
+const ScheduleViewModal = ({
+  onClose,
+  eventData,
+  onCancel,
+  user,
+}: ScheduleViewModalProps) => {
+  const { subjectName, classDesc, classUrl, startDate, endDate } = eventData;
 
   return (
     <div className="relative p-8 bg-white rounded-lg shadow-lg w-[500px]">
@@ -83,7 +96,7 @@ const ScheduleViewModal = ({ onClose, eventData, onCancel, user }) => {
           />
         </div>
 
-        {user?.position === "관리자" && (
+        {user?.position === "ROLE_관리자" && (
           <CustomButton
             label="수업 일정 삭제"
             className="py-[1vh] rounded-lg"

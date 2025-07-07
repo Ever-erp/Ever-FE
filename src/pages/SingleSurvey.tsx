@@ -22,7 +22,7 @@ const SingleSurvey = () => {
   };
 
   // 응답 현황 모드 (관리자만)
-  if (user.position === "관리자" && mode === "response") {
+  if (user.position === "ROLE_관리자" && mode === "response") {
     return (
       <SurveyResponseViewer
         surveyId={params.surveyId}
@@ -32,7 +32,7 @@ const SingleSurvey = () => {
   }
 
   // 설문 현황 모드
-  if (user.position === "관리자") {
+  if (user.position === "ROLE_관리자") {
     return (
       <SurveyViewer
         surveyId={params.surveyId}

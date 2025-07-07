@@ -1,20 +1,42 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, MutableRefObject } from "react";
 import { PiClipboardTextBold } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
+import { NoticeItem, Popover } from "../../../pages/Calendar";
 
-const NoticePopover = ({ notices, position, onClose, hideTimeout }) => {
+interface Position {
+  top: number;
+  left: number;
+}
+
+interface ScheduleViewModalProps {
+  notices: NoticeItem[];
+  position: Position;
+  onClose: () => void;
+  hideTimeout: MutableRefObject<ReturnType<typeof setTimeout> | null>;
+}
+
+const NoticePopover = ({
+  notices,
+  position,
+  onClose,
+  hideTimeout,
+}: ScheduleViewModalProps) => {
   const navigate = useNavigate();
   const popoverRef = useRef(null);
 
   useEffect(() => {
     // 컴포넌트가 언마운트 될 때도 타이머 클리어
     return () => {
-      clearTimeout(hideTimeout.current);
+      if (hideTimeout.current !== null) {
+        clearTimeout(hideTimeout.current);
+      }
     };
   }, [hideTimeout]);
 
   const handleMouseEnter = () => {
-    clearTimeout(hideTimeout.current); // 팝오버에 들어오면 타이머 취소
+    if (hideTimeout.current !== null) {
+      clearTimeout(hideTimeout.current);
+    }
   };
 
   const handleMouseLeave = () => {
