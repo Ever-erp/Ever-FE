@@ -5,40 +5,27 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import AuthPageLayout from "./layouts/AuthPageLayout";
 import DefaultLayout from "./layouts/DefaultLayout";
 import Reservation from "./pages/Reservation";
-import Notice from "./pages/Notice.tsx";
+import Notice from "./pages/Notice";
 import Survey from "./pages/Survey";
-import SingleNotice from "./pages/SingleNotice.tsx";
-import WritePage from "./pages/WritePage.tsx";
+import SingleNotice from "./pages/SingleNotice";
+import WritePage from "./pages/WritePage";
 import Organization from "./pages/Organization";
 import OrganizationClass from "./pages/OrganizationClass";
 
-import AuthPageLayout from "./layouts/AuthPageLayout";
-import SignUpForm from "./components/specific/signup/SignupForm";
-import LoginForm from "./components/specific/login/LoginForm";
 import PrivateRoute from "./components/specific/routes/PrivateRoute";
-import { useSelector } from "react-redux";
 import PublicRoute from "./components/specific/routes/PublicRoute";
 import Calendar from "./pages/Calendar";
 
 import SingleSurvey from "./pages/SingleSurvey";
 import SurveyWrite from "./pages/SurveyWrite";
 import SurveySubmit from "./pages/SurveySubmit";
+import Login from "./pages/Login";
+import SignUp from "./pages/Signup";
 
-interface RootState {
-  user: {
-    user: {
-      name: string;
-      position: string;
-      role: string;
-    };
-  };
-}
-
-const App: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user.user);
-
+function App() {
   return (
     <Router>
       <Routes>
@@ -48,7 +35,7 @@ const App: React.FC = () => {
           element={
             <PublicRoute>
               <AuthPageLayout>
-                <LoginForm />
+                <Login />
               </AuthPageLayout>
             </PublicRoute>
           }
@@ -58,7 +45,7 @@ const App: React.FC = () => {
           element={
             <PublicRoute>
               <AuthPageLayout>
-                <SignUpForm />
+                <SignUp />
               </AuthPageLayout>
             </PublicRoute>
           }
@@ -91,6 +78,6 @@ const App: React.FC = () => {
       </Routes>
     </Router>
   );
-};
+}
 
 export default App;
