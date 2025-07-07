@@ -4,11 +4,11 @@ import { reissueToken } from "../services/auth/authService";
 import { useDispatch } from "react-redux";
 
 export const useAuthFetch = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const ping = async (): Promise<Response> => {
+  const ping = async () => {
     const accessToken = localStorage.getItem("accessToken");
 
     const response = await fetch("http://localhost:8080/auth/validate", {

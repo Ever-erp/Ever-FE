@@ -1,6 +1,13 @@
+import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-const MenuItem = ({ to, label, icon }) => {
+interface MenuItemProps {
+  to: string;
+  label: string;
+  icon: ReactNode;
+}
+
+const MenuItem = ({ to, label, icon }: MenuItemProps) => {
   const location = useLocation();
   const isActive = location.pathname === to;
 
