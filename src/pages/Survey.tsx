@@ -222,7 +222,7 @@ const Survey = () => {
             />
             <SearchBar onSearchChange={handleSearchChange} /> */}
           </div>
-          {user.position === "관리자" && (
+          {user.position === "ROLE_관리자" && (
             <div className="flex flex-row items-center justify-start w-full gap-2 pb-3 md:ml-40">
               <button
                 className={`w-[80px] h-[30px] rounded-xl text-white text-sm md:text-base ${

@@ -140,7 +140,7 @@ const SingleNotice = () => {
   return (
     <div className="flex flex-col items-center justify-center h-full w-full">
       {/* 삭제 확인 모달 */}
-      {isDeleteMode && user.position === "관리자" && (
+      {isDeleteMode && user.position === "ROLE_관리자" && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
           <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 animate-modalSlideIn">
             <div className="text-center">
@@ -220,7 +220,7 @@ const SingleNotice = () => {
         </div>
       </div>
       <div className="flex flex-row items-center justify-end w-full py-4 gap-2">
-        {user.position === "관리자" && (
+        {user.position === "ROLE_관리자" && (
           <>
             <button
               className="bg-white text-brand px-10 py-2 rounded-md border border-brand hover:bg-brand hover:text-white transition-colors"

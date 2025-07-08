@@ -16,6 +16,8 @@ export const fetchNotice = async () => {
     }
 
     const data = await response.json();
+    console.log(data);
+
     return data;
   } catch (error) {
     console.error("예약 시간 조회 실패:", error);

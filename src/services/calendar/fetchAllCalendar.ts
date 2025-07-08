@@ -1,4 +1,7 @@
-export const fetchAllCalendar = async (year, month) => {
+export const fetchAllCalendar = async (
+  year: number,
+  month: number
+): Promise<any> => {
   const accessToken = localStorage.getItem("accessToken");
 
   try {

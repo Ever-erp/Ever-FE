@@ -3,7 +3,7 @@ export const formatDateToLocalString = (date: Date): string => {
   return date.toLocaleDateString("sv-SE"); // "sv-SE" 로케일은 ISO 형식 (YYYY-MM-DD)
 };
 
-export const formatDatePlusOne = (dateStr: string) => {
+export const formatDatePlusOne = (dateStr: string | Date) => {
   const date = new Date(dateStr);
   date.setDate(date.getDate() + 1);
   return date.toISOString().split("T")[0]; // yyyy-mm-dd 형식

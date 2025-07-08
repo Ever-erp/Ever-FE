@@ -1,17 +1,39 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, MutableRefObject } from "react";
 import { PiUserBold } from "react-icons/pi"; // 아이콘 변경 (원하는 아이콘으로 교체 가능)
+import { VacationItem } from "../../../pages/Calendar";
 
-const VacationPopover = ({ vacations, position, onClose, hideTimeout }) => {
+interface Position {
+  top: number;
+  left: number;
+}
+
+interface VacationPopoverProps {
+  vacations: VacationItem[];
+  position: Position;
+  onClose: () => void;
+  hideTimeout: MutableRefObject<ReturnType<typeof setTimeout> | null>;
+}
+
+const VacationPopover = ({
+  vacations,
+  position,
+  onClose,
+  hideTimeout,
+}: VacationPopoverProps) => {
   const popoverRef = useRef(null);
 
   useEffect(() => {
     return () => {
-      clearTimeout(hideTimeout.current);
+      if (hideTimeout.current !== null) {
+        clearTimeout(hideTimeout.current);
+      }
     };
   }, [hideTimeout]);
 
   const handleMouseEnter = () => {
-    clearTimeout(hideTimeout.current);
+    if (hideTimeout.current !== null) {
+      clearTimeout(hideTimeout.current);
+    }
   };
 
   const handleMouseLeave = () => {

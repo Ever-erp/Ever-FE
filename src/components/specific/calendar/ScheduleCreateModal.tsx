@@ -6,17 +6,27 @@ import { formatDateToLocalString } from "../../../services/formatDateToLocalStri
 import { isWeekend } from "../../../services/calendar/calendarService";
 import CustomButton from "../../common/CustomButton";
 
-const ScheduleCreateModal = ({ onClose, classId, loadCalendarData }) => {
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [material, setMaterial] = useState("");
+interface ScheduleCreateModalProps {
+  onClose: () => void;
+  classId: number;
+  loadCalendarData: () => Promise<void>;
+}
+
+const ScheduleCreateModal = ({
+  onClose,
+  classId,
+  loadCalendarData,
+}: ScheduleCreateModalProps) => {
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [material, setMaterial] = useState<string>("");
 
   const datePickerRef1 = useRef(null);
   const datePickerRef2 = useRef(null);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!title || !startDate || !endDate) {
@@ -52,7 +62,7 @@ const ScheduleCreateModal = ({ onClose, classId, loadCalendarData }) => {
       setDescription("");
       setMaterial("");
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       alert("수업 일정 작성 실패: " + err.message);
     }
   };

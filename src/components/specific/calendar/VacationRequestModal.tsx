@@ -1,18 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, FormEvent } from "react";
 import DatePicker from "react-datepicker";
 import { writeVacation } from "../../../services/calendar/writeVacation";
 import { formatDateToLocalString } from "../../../services/formatDateToLocalString";
 import { isWeekend } from "../../../services/calendar/calendarService";
 import CustomButton from "../../common/CustomButton";
+import { User } from "../../../store/userSlice";
 
-const VacationRequestModal = ({ onClose, loadCalendarData, user }) => {
-  const [selectedType, setSelectedType] = useState("");
-  const [reason, setReason] = useState(""); // 휴가 사유
-  const [date, setDate] = useState(null); // 날짜 상태 추가
+interface VacationRequestModalProps {
+  onClose: () => void;
+  loadCalendarData: () => Promise<void>;
+  user: User | null;
+}
+
+const VacationRequestModal = ({
+  onClose,
+  loadCalendarData,
+  user,
+}: VacationRequestModalProps) => {
+  const [selectedType, setSelectedType] = useState<string>("");
+  const [reason, setReason] = useState<string>(""); // 휴가 사유
+  const [date, setDate] = useState<Date | null>(null);
 
   const leaveTypes = ["연가", "병가", "조퇴", "외출", "기타"];
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!selectedType || !date || !reason) {
@@ -42,8 +53,12 @@ const VacationRequestModal = ({ onClose, loadCalendarData, user }) => {
       setSelectedType("");
       setReason("");
       onClose();
-    } catch (err) {
-      alert("휴가 신청 실패: " + err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert("휴가 신청 실패: " + err.message);
+      } else {
+        alert("휴가 신청 실패: 알 수 없는 오류");
+      }
     }
   };
 
@@ -70,7 +85,7 @@ const VacationRequestModal = ({ onClose, loadCalendarData, user }) => {
               휴가자
             </div>
             <div className="bg-gray-100 rounded-lg p-2 text-sm text-gray-700 shadow-sm w-fit">
-              <span className="text-gray-700 font-semibold">{user.name}</span>
+              <span className="text-gray-700 font-semibold">{user?.name}</span>
             </div>
           </div>
 
@@ -125,7 +140,6 @@ const VacationRequestModal = ({ onClose, loadCalendarData, user }) => {
             label="신청"
             className="py-[1vh] rounded-lg"
             variant="brand"
-            size="md"
             type="submit"
           />
         </div>
