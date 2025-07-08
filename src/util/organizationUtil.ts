@@ -1,8 +1,39 @@
+// TypeScript 타입 정의
+interface Position {
+  x: number;
+  y: number;
+}
+
+interface GridPositions {
+  classPosition: Position;
+  memberPositions: Position[];
+  totalCols: number;
+  maxRows: number;
+}
+
+interface CalculatedPositions {
+  root: Position;
+  level2: Position[];
+  level3: Position[];
+}
+
+interface Member {
+  email: string;
+  name: string;
+  birth: string;
+  gender: string;
+  phone: string;
+  address: string;
+  profileImage: string | null;
+  classId: number;
+  position: string;
+}
+
 export const calculateGridPositions = (
-  containerWidth,
-  containerHeight,
-  classMembers
-) => {
+  containerWidth: number,
+  containerHeight: number,
+  classMembers: Member[]
+): GridPositions => {
   const maxRows = 3;
   const totalMembers = classMembers.length;
   const totalCols = Math.ceil(totalMembers / maxRows);
@@ -18,7 +49,7 @@ export const calculateGridPositions = (
   const gridCenterY = containerHeight / 2;
   const gridStartY = gridCenterY - ((maxRows - 1) * verticalSpacing) / 2;
 
-  const memberPositions = [];
+  const memberPositions: Position[] = [];
 
   classMembers.forEach((member, index) => {
     const col = Math.floor(index / maxRows);
@@ -40,11 +71,11 @@ export const calculateGridPositions = (
 
 // 반응형 노드 위치 계산 함수
 export const calculateNodePositions = (
-  containerWidth,
-  containerHeight,
-  level2Count = 5,
-  level3Count = 5
-) => {
+  containerWidth: number,
+  containerHeight: number,
+  level2Count: number = 5,
+  level3Count: number = 5
+): CalculatedPositions => {
   const centerX = containerWidth / 2;
   const topY = 80;
   const middleY = 280;
@@ -80,8 +111,8 @@ export const calculateNodePositions = (
       ? centerX - ((level3Count - 1) * level3Spacing) / 2
       : centerX;
 
-  const level2Positions = [];
-  const level3Positions = [];
+  const level2Positions: Position[] = [];
+  const level3Positions: Position[] = [];
 
   for (let i = 0; i < level2Count; i++) {
     level2Positions.push({
@@ -103,3 +134,5 @@ export const calculateNodePositions = (
     level3: level3Positions,
   };
 };
+
+export type { Position, GridPositions, CalculatedPositions, Member };

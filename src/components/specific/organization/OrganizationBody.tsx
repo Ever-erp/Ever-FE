@@ -5,9 +5,41 @@ import {
   addEdge,
   ReactFlow,
   useReactFlow,
+  Node,
+  Edge,
+  Connection,
+  NodeChange,
+  EdgeChange,
+  FitViewOptions,
 } from "reactflow";
 import OrganizationNodeVertical from "./OrganizationNodeVertical";
 import OrganizationNodeHorizontal from "./OrganizationNodeHorizontal";
+
+interface ContainerSize {
+  width: number;
+  height: number;
+}
+
+interface Position {
+  x: number;
+  y: number;
+}
+
+interface CalculatedPositions {
+  root: Position;
+  level2: Position[];
+  level3: Position[];
+}
+
+interface OrganizationBodyProps {
+  initialNodes: Node[];
+  initialEdges: Edge[];
+  handleClassClick?: (id: number | string) => void;
+  handleMemberClick?: (id: number | string) => void;
+  handleInstructorClick?: (id: number | string) => void;
+  containerSize?: ContainerSize;
+  modalOpen?: boolean;
+}
 
 const nodeTypes = {
   organizationNode: OrganizationNodeVertical,
@@ -15,12 +47,14 @@ const nodeTypes = {
   organizationNodeHorizontal: OrganizationNodeHorizontal,
 };
 
-const OrganizationBody = ({
+const OrganizationBody: React.FC<OrganizationBodyProps> = ({
   initialNodes,
   initialEdges,
   handleClassClick,
   handleMemberClick,
+  handleInstructorClick,
   containerSize,
+  modalOpen = false,
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -28,34 +62,35 @@ const OrganizationBody = ({
 
   useEffect(() => {
     setNodes(initialNodes);
-  }, [initialNodes]);
+  }, [initialNodes, setNodes]);
 
   useEffect(() => {
     setEdges(initialEdges);
-  }, [initialEdges]);
+  }, [initialEdges, setEdges]);
 
   useEffect(() => {
-    if (nodes.length > 1) {
+    if (nodes.length > 1 && !modalOpen) {
       const timeoutId = setTimeout(() => {
-        fitView({
+        const fitViewOptions: FitViewOptions = {
           padding: 0.2,
           includeHiddenNodes: false,
           minZoom: 0.1,
           maxZoom: 1.5,
-        });
+        };
+        fitView(fitViewOptions);
       }, 10);
 
       return () => clearTimeout(timeoutId);
     }
-  }, [nodes.length, fitView]);
+  }, [nodes.length, fitView, modalOpen]);
 
   const calculateNodePositions = useMemo(() => {
     return (
-      containerWidth,
-      containerHeight,
-      level2Count = 5,
-      level3Count = 5
-    ) => {
+      containerWidth: number,
+      containerHeight: number,
+      level2Count: number = 5,
+      level3Count: number = 5
+    ): CalculatedPositions => {
       const centerX = containerWidth / 2;
       const topY = 50;
       const middleY = 200;
@@ -90,8 +125,8 @@ const OrganizationBody = ({
           ? centerX - ((level3Count - 1) * level3Spacing) / 2
           : centerX - 80;
 
-      const level2Positions = [];
-      const level3Positions = [];
+      const level2Positions: Position[] = [];
+      const level3Positions: Position[] = [];
 
       for (let i = 0; i < level2Count; i++) {
         level2Positions.push({
@@ -175,40 +210,76 @@ const OrganizationBody = ({
     containerSize?.height,
     calculateNodePositions,
     nodes.length,
+    setNodes,
   ]);
 
   const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
+    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
 
   const onNodeClick = useCallback(
-    (event, node) => {
-      if (handleClassClick) {
+    (event: React.MouseEvent, node: Node) => {
+      // 강사 노드인 경우
+      if (
+        node.id.startsWith("instructor-") &&
+        handleInstructorClick &&
+        node.data?.id
+      ) {
+        handleInstructorClick(node.data.id);
+      }
+      // 클래스 노드인 경우 (id가 11-20 범위)
+      else if (
+        parseInt(node.id) >= 11 &&
+        parseInt(node.id) <= 20 &&
+        handleClassClick &&
+        node.data?.id
+      ) {
         handleClassClick(node.data.id);
       }
-      if (handleMemberClick) {
+      // 멤버 노드인 경우 (기타 모든 노드)
+      else if (handleMemberClick && node.data?.id) {
         handleMemberClick(node.data.id);
       }
     },
-    [handleClassClick, handleMemberClick]
+    [handleClassClick, handleMemberClick, handleInstructorClick]
+  );
+
+  const handleNodesChange = useCallback(
+    (changes: NodeChange[]) => onNodesChange(changes),
+    [onNodesChange]
+  );
+
+  const handleEdgesChange = useCallback(
+    (changes: EdgeChange[]) => onEdgesChange(changes),
+    [onEdgesChange]
   );
 
   return (
-    <div className="w-full h-full">
+    <div
+      className="w-full h-full"
+      style={{ position: "relative", overflow: "hidden" }}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
+        onNodesChange={handleNodesChange}
+        onEdgesChange={handleEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
-        fitView
+        fitView={!modalOpen}
         proOptions={{ hideAttribution: true }}
+        style={{ width: "100%", height: "100%" }}
       />
     </div>
   );
 };
 
 export default OrganizationBody;
+export type {
+  OrganizationBodyProps,
+  ContainerSize,
+  Position,
+  CalculatedPositions,
+};
