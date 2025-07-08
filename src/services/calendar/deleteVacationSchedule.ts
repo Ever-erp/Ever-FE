@@ -1,4 +1,4 @@
-export const deleteVacation = async (id) => {
+export const deleteVacation = async (id: number): Promise<void> => {
   const accessToken = localStorage.getItem("accessToken");
 
   try {
@@ -18,12 +18,14 @@ export const deleteVacation = async (id) => {
       throw new Error(errorData.message || "휴가 삭제 실패");
     }
 
-    const data = await response.json();
     alert("휴가 일정이 삭제되었습니다.");
-
-    return data;
-  } catch (error) {
-    console.error("휴가 일정 삭제 실패:", error);
-    throw error;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("휴가 일정 삭제 실패:", error.message);
+      throw error;
+    } else {
+      console.error("휴가 일정 삭제 실패: 알 수 없는 오류");
+      throw new Error("알 수 없는 오류");
+    }
   }
 };

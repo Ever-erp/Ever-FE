@@ -142,7 +142,7 @@ const GenericPage = ({
         </div>
         {/* 헤더 */}
         <div className="flex w-full border-t-4 border-brand pt-3 md:pt-5 border-b pb-3 md:pb-5 px-2 md:px-6 lg:px-10">
-          {config.showDeleteButton && user.position === "관리자" && (
+          {config.showDeleteButton && user.position === "ROLE_관리자" && (
             <div className="w-8 md:w-12 text-center font-semibold text-sm md:text-base flex-shrink-0">
               <input
                 type="checkbox"
@@ -187,21 +187,22 @@ const GenericPage = ({
                 }`}
               >
                 <div className="flex items-center">
-                  {config.showDeleteButton && user.position === "관리자" && (
-                    <div className="w-8 md:w-12 flex justify-center flex-shrink-0">
-                      <input
-                        type="checkbox"
-                        checked={selectedItems.includes(
-                          item[config.dataKeyMapping.id]
-                        )}
-                        onChange={() =>
-                          handleSelectItem(item[config.dataKeyMapping.id])
-                        }
-                        className="w-3 h-3 md:w-4 md:h-4"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  )}
+                  {config.showDeleteButton &&
+                    user.position === "ROLE_관리자" && (
+                      <div className="w-8 md:w-12 flex justify-center flex-shrink-0">
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.includes(
+                            item[config.dataKeyMapping.id]
+                          )}
+                          onChange={() =>
+                            handleSelectItem(item[config.dataKeyMapping.id])
+                          }
+                          className="w-3 h-3 md:w-4 md:h-4"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    )}
                   <div className="flex-1 min-w-0">
                     <GenericPageRow
                       data={item}
@@ -220,7 +221,7 @@ const GenericPage = ({
         </div>
         {/* 버튼들 */}
         <div className="flex flex-col md:flex-row justify-between items-center mt-5 gap-4 md:gap-0">
-          {user.position === "관리자" && (
+          {user.position === "ROLE_관리자" && (
             <>
               <div>
                 {config.showDeleteButton && selectedItems.length > 0 && (
