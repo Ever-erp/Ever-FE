@@ -197,7 +197,12 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
           );
         }
         if (column.key === "registedAt") {
-          return parsedDate(value);
+          // 날짜 형식 변환 (YYYY-MM-DD HH:mm:ss -> YYYY-MM-DD)
+          const formatDate = (dateString: string): string => {
+            if (!dateString) return "-";
+            return dateString.split(" ")[0]; // 날짜 부분만 추출
+          };
+          return formatDate(value);
         }
         return value || "-";
     }

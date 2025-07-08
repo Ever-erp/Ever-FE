@@ -1,9 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { NoticeItem } from "../../../types/notice";
 import PageFooter from "./PageFooter";
 import PageRow from "./PageRow";
 
-const Page = ({
+interface PageProps {
+  noticeList: NoticeItem[];
+  page: number;
+  size: number;
+  totalPages: number;
+  totalElements: number;
+  onPageChange: (page: number) => void;
+  onSizeChange: (size: number) => void;
+}
+
+const Page: React.FC<PageProps> = ({
   noticeList,
   page,
   size,
@@ -13,14 +24,14 @@ const Page = ({
   onSizeChange,
 }) => {
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(page);
-  const [currentSize, setCurrentSize] = useState(size);
+  const [currentPage, setCurrentPage] = useState<number>(page);
+  const [currentSize, setCurrentSize] = useState<number>(size);
 
-  const handlePageChange = (page) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  const handleSizeChange = (size) => {
+  const handleSizeChange = (size: number) => {
     setCurrentSize(size);
   };
 
@@ -52,8 +63,10 @@ const Page = ({
         {noticeList && noticeList.length > 0 ? (
           noticeList.map((notice, index) => (
             <div
-              key={`notice-${notice.noticeId || notice.id || index}`}
-              className="border-b border-gray-300 pb-3 pt-3 pl-10 pr-10 hover:bg-gray-100"
+              key={`notice-${notice.id || index}`}
+              className={`border-b border-gray-300 pb-3 pt-3 pl-10 pr-10 hover:bg-gray-100 ${
+                notice.pinned ? "bg-blue-50 hover:bg-blue-100" : ""
+              }`}
               style={{ cursor: "pointer" }}
             >
               <PageRow notice={notice} />

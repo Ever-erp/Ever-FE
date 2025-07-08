@@ -80,10 +80,9 @@ export const noticePageFetch = async (
   }
 };
 
-// 공지사항 검색
 export const noticeSearchFetch = async (
-  type: SearchType,
-  searchInput: string,
+  searchType: SearchType,
+  text: string,
   page: number,
   size: number,
   token: string
@@ -97,15 +96,19 @@ export const noticeSearchFetch = async (
     },
   };
 
-  console.log("type", type);
-  console.log("searchInput", searchInput);
-  console.log("page", page);
-  console.log("size", size);
+  const params = new URLSearchParams({
+    page: page.toString(),
+    size: size.toString(),
+  });
 
-  const input = searchInput ? searchInput : "empty";
-  const url = `${
-    import.meta.env.VITE_NOTICE_API_URL
-  }/search?type=${type}&input=${input}&page=${page}&size=${size}`;
+  if (searchType && searchType !== "ALL_CATEGORY") {
+    params.append("searchType", searchType);
+  }
+  if (text && text.trim() !== "") {
+    params.append("text", text.trim());
+  }
+
+  const url = `${import.meta.env.VITE_NOTICE_API_URL}?${params.toString()}`;
 
   try {
     const response = await fetch(url, requestInit);

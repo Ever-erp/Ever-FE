@@ -10,7 +10,12 @@ import NoticeEditor from "../components/specific/notice/NoticeEditor";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import Loading from "../components/common/Loading";
 import { useSelector } from "react-redux";
-import { NoticeType, NoticeEditorData } from "../types/notice";
+import {
+  NoticeType,
+  NoticeEditorData,
+  NoticeItem,
+  TargetRange,
+} from "../types/notice";
 
 interface RootState {
   user: {
@@ -23,6 +28,7 @@ interface RootState {
 
 const SingleNotice: React.FC = () => {
   const { noticeId } = useParams<{ noticeId: string }>();
+  const [noticeData, setNoticeData] = useState<NoticeItem | null>(null);
   const [noticeTitle, setNoticeTitle] = useState<string>("");
   const [noticeContent, setNoticeContent] = useState<string>("");
   const [noticeWriter, setNoticeWriter] = useState<string>("");
@@ -34,6 +40,8 @@ const SingleNotice: React.FC = () => {
   // 수정 모드 관련 상태
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [noticeTargetRange, setNoticeTargetRange] =
+    useState<TargetRange>("ALL_TARGETRANGE");
 
   const navigate = useNavigate();
 
@@ -41,7 +49,7 @@ const SingleNotice: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.user);
 
   // resFile은 배열이어야 함.
-  // const handleFile = (resFiles) => {
+  // const handleFile = (resFiles: File[]) => {
   //   if (resFiles && resFiles.length > 0 && Array.isArray(resFiles)) {
   //     setNoticeFiles(resFiles);
   //   }
@@ -115,12 +123,14 @@ const SingleNotice: React.FC = () => {
 
         const res = await noticeSingleFetch(noticeId, token);
 
+        setNoticeData(res);
         setNoticeTitle(res.title);
         setNoticeContent(res.contents);
         setNoticeWriter(res.writer);
         setNoticeDate(res.targetDate || res.registedAt);
         setNoticeType(res.type);
         setNoticePin(res.pinned);
+        setNoticeTargetRange(res.targetRange);
         // handleFile(res.files || []);
       } catch (error) {
         console.error("공지사항 로딩 중 오류 발생:", error);
@@ -146,13 +156,14 @@ const SingleNotice: React.FC = () => {
   }
 
   if (isEditMode) {
-    const initialData = {
+    const initialData: NoticeEditorData = {
       title: noticeTitle,
       contents: noticeContent,
       files: noticeFiles,
       type: noticeType,
-      writer: noticeWriter,
-      date: noticeDate,
+      targetRange: noticeTargetRange,
+      targetDate: noticeDate,
+      isPinned: noticePin,
     };
 
     return (

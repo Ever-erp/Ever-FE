@@ -10,7 +10,6 @@ export type TargetRange =
 // 공지사항 타입
 export type NoticeType = "ALL_TYPE" | "NOTICE" | "SURVEY";
 
-// 검색 타입
 export type SearchType = "ALL_CATEGORY" | "TITLE" | "WRITER";
 
 // 정렬 정보 타입
@@ -32,7 +31,6 @@ export interface Pageable {
   unpaged: boolean;
 }
 
-// 공지사항 아이템 타입
 export interface NoticeItem {
   id: number;
   title: string;
@@ -45,7 +43,6 @@ export interface NoticeItem {
   pinned: boolean;
 }
 
-// 공지사항 페이지 응답 타입
 export interface NoticePageResponse {
   totalPages: number;
   totalElements: number;
@@ -68,7 +65,6 @@ export interface ApiResponse<T> {
   timestamp: string;
 }
 
-// 공지사항 생성/수정 요청 타입
 export interface NoticeCreateRequest {
   title: string;
   contents: string;
@@ -78,7 +74,6 @@ export interface NoticeCreateRequest {
   type: NoticeType;
 }
 
-// 공지사항 수정 요청 타입 (PATCH)
 export interface NoticeUpdateRequest {
   title: string;
   contents: string;
@@ -92,7 +87,7 @@ export interface NoticeUpdateRequest {
 export interface NoticeEditorData {
   title: string;
   contents: string;
-  isPinned: boolean;
+  isPinned?: boolean;
   targetRange: TargetRange;
   targetDate: string;
   type: NoticeType;
@@ -118,7 +113,6 @@ export interface DropdownOption {
   label: string;
 }
 
-// 공지사항 설정 타입
 export interface NoticeConfig {
   title: string;
   writeButtonText: string;
@@ -136,10 +130,10 @@ export interface NoticeConfig {
   }>;
   dataKeyMapping: {
     id: string;
-    type: string;
+    type?: string;
     title: string;
-    writer: string;
-    targetDate: string;
+    writer?: string;
+    targetDate?: string;
     registedAt: string;
   };
 }

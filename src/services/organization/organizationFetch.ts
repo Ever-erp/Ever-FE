@@ -1,6 +1,5 @@
 import dogImage from "../../assets/images/dog.jpg";
 
-
 enum Role {
   ROLE_강사 = "강사",
   ROLE_학생 = "학생",
