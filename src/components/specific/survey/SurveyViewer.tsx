@@ -336,6 +336,54 @@ const SurveyViewer = ({
   const isViewMode = mode === "view" || mode === "user"; // user 모드도 읽기 전용으로 처리
   const isExpired = isDateExpired(surveyData.dueDate); // 마감일 확인
 
+  // 클래스명 표시 함수 (GenericPageRow의 handleClassName과 동일)
+  const handleClassName = (className: string) => {
+    switch (className) {
+      case "전체":
+        return (
+          <span className="text-brand border border-brand rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+            전체
+          </span>
+        );
+      case "웹앱":
+        return (
+          <span className="text-blue-600 border border-blue-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+            웹앱
+          </span>
+        );
+      case "임베디드":
+        return (
+          <span className="text-purple-600 border border-purple-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+            임베
+          </span>
+        );
+      case "IT보안":
+        return (
+          <span className="text-red-600 border border-red-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+            보안
+          </span>
+        );
+      case "스마트팩토리":
+        return (
+          <span className="text-orange-600 border border-orange-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[50px] md:w-[60px]">
+            팩토리
+          </span>
+        );
+      case "클라우드":
+        return (
+          <span className="text-indigo-600 border border-indigo-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[60px] md:w-[70px]">
+            클라우드
+          </span>
+        );
+      default:
+        return (
+          <span className="text-gray-500 border border-gray-300 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+            {className}
+          </span>
+        );
+    }
+  };
+
   if (isLoading) {
     return <Loading />;
   }
@@ -348,9 +396,7 @@ const SurveyViewer = ({
       {/* 헤더 - 고정 */}
       <div className="flex-shrink-0 p-8 pb-4">
         <div className="flex items-center gap-2 mb-4">
-          <span className="bg-blue-500 text-white px-3 py-1 rounded text-sm font-medium">
-            웹/앱
-          </span>
+          {handleClassName(surveyData.className)}
           <span className="text-gray-600 font-medium">
             {surveyData.surveyTitle}
           </span>

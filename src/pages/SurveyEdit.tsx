@@ -1,22 +1,32 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import { transformDataForAPI, getTodayString } from "../util/surveyUtil";
-import { surveyCreateFetch } from "../services/survey/surveyFetch";
+import {
+  surveyUpdateFetch,
+  singleSurveyFetch,
+} from "../services/survey/surveyFetch";
 import CustomDropdown from "../components/common/CustomDropdown";
-import { SurveyWriteData, SurveyQuestion, ClassName } from "../types/survey";
+import {
+  SurveyWriteData,
+  SurveyQuestion,
+  ClassName,
+  SurveyItem,
+} from "../types/survey";
 
 interface DropdownOption {
   value: ClassName;
   label: string;
 }
 
-const SurveyWrite: React.FC = () => {
+const SurveyEdit: React.FC = () => {
   const navigate = useNavigate();
+  const { surveyId } = useParams<{ surveyId: string }>();
   const { isAuthenticated } = useAuthFetch();
   const token = localStorage.getItem("accessToken");
 
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const targetRangeOptions: DropdownOption[] = [
     { value: "웹앱", label: "웹/앱" },
@@ -31,15 +41,51 @@ const SurveyWrite: React.FC = () => {
     description: "",
     endDate: "",
     className: "웹앱",
-    questions: [
-      {
-        id: 1,
-        type: "객관식", // 객관식 또는 주관식
-        question: "",
-        options: [""],
-      },
-    ],
+    questions: [],
   });
+
+  // 기존 설문 데이터 불러오기
+  useEffect(() => {
+    const fetchSurveyData = async () => {
+      if (!surveyId || !token) {
+        return;
+      }
+
+      try {
+        const data: SurveyItem = await singleSurveyFetch(surveyId, token);
+
+        const transformedQuestions: SurveyQuestion[] = data.questions.map(
+          (q, index) => ({
+            id: index + 1,
+            type: q.type === "MULTIPLE_CHOICE" ? "객관식" : "주관식",
+            question: q.question,
+            options:
+              q.type === "MULTIPLE_CHOICE" && q.options
+                ? q.options
+                : q.type === "SHORT_ANSWER"
+                ? []
+                : [""],
+          })
+        );
+
+        setSurveyData({
+          title: data.title,
+          description: data.description,
+          endDate: data.targetDate.split("T")[0], // ISO 날짜에서 날짜 부분만 추출
+          className: data.className,
+          questions: transformedQuestions,
+        });
+      } catch (error) {
+        console.error("설문 데이터 로딩 오류:", error);
+        alert("설문 데이터를 불러오는데 실패했습니다.");
+        navigate("/survey");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSurveyData();
+  }, [surveyId, token, navigate]);
 
   // 문항 추가 (특정 문항 아래에)
   const addQuestion = (afterIndex: number) => {
@@ -57,6 +103,7 @@ const SurveyWrite: React.FC = () => {
       questions: newQuestions,
     });
   };
+
   // 문항 삭제
   const removeQuestion = (questionId: number) => {
     setSurveyData({
@@ -64,6 +111,7 @@ const SurveyWrite: React.FC = () => {
       questions: surveyData.questions.filter((q) => q.id !== questionId),
     });
   };
+
   // 문항 내용 수정
   const updateQuestion = (
     questionId: number,
@@ -77,6 +125,7 @@ const SurveyWrite: React.FC = () => {
       ),
     });
   };
+
   // 문항 타입 변경
   const changeQuestionType = (
     questionId: number,
@@ -110,6 +159,7 @@ const SurveyWrite: React.FC = () => {
       ),
     });
   };
+
   // 선택지 삭제
   const removeOption = (questionId: number, optionIndex: number) => {
     setSurveyData({
@@ -124,6 +174,7 @@ const SurveyWrite: React.FC = () => {
       ),
     });
   };
+
   // 선택지 내용 수정
   const updateOption = (
     questionId: number,
@@ -144,6 +195,7 @@ const SurveyWrite: React.FC = () => {
       ),
     });
   };
+
   // 설문 저장
   const handleSave = async () => {
     if (isSaving) {
@@ -187,21 +239,22 @@ const SurveyWrite: React.FC = () => {
 
     try {
       setIsSaving(true);
-      const response = await surveyCreateFetch(apiData, token!);
+      const response = await surveyUpdateFetch(surveyId!, apiData, token!);
 
-      if (response.status === 201) {
-        alert("설문이 성공적으로 저장되었습니다.");
+      if (response.status === 200) {
+        alert("설문이 성공적으로 수정되었습니다.");
         navigate("/survey");
       } else {
-        alert("설문 저장에 실패했습니다.");
+        alert("설문 수정에 실패했습니다.");
       }
     } catch (error) {
-      console.error("설문 저장 오류:", error);
-      alert("설문 저장 중 오류가 발생했습니다.");
+      console.error("설문 수정 오류:", error);
+      alert("설문 수정 중 오류가 발생했습니다.");
     } finally {
       setIsSaving(false);
     }
   };
+
   // 취소
   const handleCancel = () => {
     if (isSaving) {
@@ -209,6 +262,14 @@ const SurveyWrite: React.FC = () => {
     }
     navigate("/survey");
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-gray-500">설문 데이터를 불러오는 중...</div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -237,7 +298,7 @@ const SurveyWrite: React.FC = () => {
             className="text-gray-600 border-b border-gray-300 px-2 py-1 flex-1"
           />
           <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs">
-            작성중
+            수정중
           </span>
         </div>
 
@@ -414,7 +475,7 @@ const SurveyWrite: React.FC = () => {
             isSaving ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
-          작성 취소
+          수정 취소
         </button>
         <button
           onClick={handleSave}
@@ -423,11 +484,11 @@ const SurveyWrite: React.FC = () => {
             isSaving ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
-          {isSaving ? "저장 중..." : "설문 저장"}
+          {isSaving ? "저장 중..." : "설문 수정"}
         </button>
       </div>
     </div>
   );
 };
 
-export default SurveyWrite;
+export default SurveyEdit;

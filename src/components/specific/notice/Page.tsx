@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { NoticeItem } from "../../../types/notice";
 import PageFooter from "./PageFooter";
 import PageRow from "./PageRow";
-
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store/store";
 interface PageProps {
   noticeList: NoticeItem[];
   page: number;
@@ -26,7 +27,7 @@ const Page: React.FC<PageProps> = ({
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState<number>(page);
   const [currentSize, setCurrentSize] = useState<number>(size);
-
+  const user = useSelector((state: RootState) => state.user.user);
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -78,15 +79,18 @@ const Page: React.FC<PageProps> = ({
           </div>
         )}
       </div>
-      <div className="flex justify-end gap-4 mt-5">
-        <button
-          className="bg-brand text-white px-10 py-2 rounded-md hover:bg-brand/80 transition-colors"
-          onClick={handleWriteClick}
-        >
-          글 쓰기
-        </button>
-      </div>
-      <div className="flex justify-center">
+
+      {user.position === "ROLE_관리자" && (
+        <div className="flex justify-end gap-4 mt-5">
+          <button
+            className="bg-brand text-white px-10 py-2 rounded-md hover:bg-brand/80 transition-colors"
+            onClick={handleWriteClick}
+          >
+            글 쓰기
+          </button>
+        </div>
+      )}
+      <div className="flex justify-center mt-5">
         <PageFooter
           currentPage={currentPage}
           totalPageLength={totalPages}

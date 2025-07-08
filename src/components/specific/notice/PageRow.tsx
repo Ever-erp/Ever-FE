@@ -68,7 +68,7 @@ const PageRow: React.FC<PageRowProps> = ({ notice }) => {
       </div>
       <div className="flex-1 text-left pl-40">
         {notice.pinned && (
-          <span className="text-blue-600 font-bold mr-2">[고정]</span>
+          <span className="text-blue-600 font-bold mr-2">[공지]</span>
         )}
         {notice.title}
       </div>

@@ -66,17 +66,9 @@ const Notice: React.FC = () => {
 
   const categoryOptions = [
     [
-      { value: "ALL_TARGETRANGE", label: "대상 범위 전체" },
-      { value: "WEB_APP", label: "웹/앱" },
-      { value: "SMART_FACTORY", label: "스마트팩토리" },
-      { value: "SW_EMBEDDED", label: "SW/임베디드" },
-      { value: "IT_SECURITY", label: "IT보안" },
-      { value: "CLOUD", label: "클라우드" },
-    ],
-    [
       { value: "ALL_CATEGORY", label: "타입 전체" },
-      { value: "NOTICE", label: "공지사항" },
-      { value: "SURVEY", label: "설문조사" },
+      { value: "WRITER", label: "작성자" },
+      { value: "TITLE", label: "제목" },
     ],
   ];
 
@@ -87,6 +79,7 @@ const Notice: React.FC = () => {
     const token = localStorage.getItem("accessToken");
     if (!token) return;
 
+    setPage(0);
     try {
       const res = await noticeSearchFetch(
         category.type,
@@ -154,7 +147,7 @@ const Notice: React.FC = () => {
 
   return (
     <div className="flex flex-col w-full h-full px-4 md:px-6 lg:px-8 xl:px-12">
-      <div className="flex-shrink-0 flex flex-col md:flex-row items-center w-full justify-center pb-10 gap-4 md:gap-0">
+      <div className="flex-shrink-0 flex flex-col md:flex-row items-center w-full justify-center pt-20 gap-4 md:gap-0">
         <CategorySelectBar
           onCategoryChange={handleCategoryChange}
           categoryOptions={categoryOptions}
