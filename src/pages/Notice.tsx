@@ -30,10 +30,10 @@ const Notice: React.FC = () => {
   // 화면 크기에 따른 페이징 사이즈 계산
   const getResponsiveSize = (): number => {
     const width = window.innerWidth;
-    if (width >= 2560) return 20; // 2560px 이상 데스크탑
-    if (width >= 1920) return 14; // 1920px 이상 데스크탑
-    if (width >= 1600) return 10; // 1440px 이상 데스크탑
-    if (width >= 1024) return 8; // 1024px 이상 랩탑
+    if (width >= 2560) return 12; // 2560px 이상 데스크탑
+    if (width >= 1920) return 10; // 1920px 이상 데스크탑
+    if (width >= 1600) return 8; // 1440px 이상 데스크탑
+    if (width >= 1024) return 6; // 1024px 이상 랩탑
     if (width >= 768) return 6; // 768px 이상 아이패드
     return 6; // 768px 미만
   };

@@ -341,25 +341,25 @@ const SurveyViewer = ({
     switch (className) {
       case "전체":
         return (
-          <span className="text-brand border border-brand rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          <span className="text-brand border border-brand rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[50px]">
             전체
           </span>
         );
       case "웹앱":
         return (
-          <span className="text-blue-600 border border-blue-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          <span className="text-blue-600 border border-blue-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[50px]">
             웹앱
           </span>
         );
       case "임베디드":
         return (
-          <span className="text-purple-600 border border-purple-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          <span className="text-purple-600 border border-purple-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[50px]">
             임베
           </span>
         );
       case "IT보안":
         return (
-          <span className="text-red-600 border border-red-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          <span className="text-red-600 border border-red-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[50px]">
             보안
           </span>
         );
@@ -395,7 +395,7 @@ const SurveyViewer = ({
     >
       {/* 헤더 - 고정 */}
       <div className="flex-shrink-0 p-8 pb-4">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-4 text-center">
           {handleClassName(surveyData.className)}
           <span className="text-gray-600 font-medium">
             {surveyData.surveyTitle}

@@ -153,7 +153,7 @@ const Calender = () => {
           start: date,
           color: "#A594F9",
           display: "block",
-          customOrder: 1,
+          customOrder: 2,
           type: "notice",
           extendedProps: {
             id: noticeList[0].id,
@@ -208,7 +208,7 @@ const Calender = () => {
             end: formatDatePlusOne(range.end),
             color: "#A2D2DF",
             display: "block",
-            customOrder: 2,
+            customOrder: 1,
             type: "classSchedule",
             extendedProps: {
               id: cls.id,

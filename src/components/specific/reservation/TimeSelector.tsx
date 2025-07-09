@@ -64,7 +64,7 @@ const TimeSelector = ({
       <hr className="border-gray-300 mb-[1vw]" />
 
       {/* 시간 버튼 목록 */}
-      <div className="flex flex-col gap-[0.5vw] min-h-[46vh]">
+      <div className="flex flex-col gap-[0.5vw] min-h-[44vh]">
         {timeRange[period].map((hour) => {
           const isReserved = reservedTimes.includes(hour); // 이미 예약한 시간
           const isMyReservation = myReservations.some(

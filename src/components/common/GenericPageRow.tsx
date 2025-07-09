@@ -86,25 +86,25 @@ const GenericPageRow: React.FC<GenericPageRowProps> = ({
     switch (className) {
       case "전체":
         return (
-          <div className="text-brand border border-brand rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          <div className="text-brand border border-brand rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[50px]">
             전체
           </div>
         );
       case "웹앱":
         return (
-          <div className="text-blue-600 border border-blue-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          <div className="text-blue-600 border border-blue-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[50px]">
             웹앱
           </div>
         );
       case "임베디드":
         return (
-          <div className="text-purple-600 border border-purple-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          <div className="text-purple-600 border border-purple-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[50px]">
             임베
           </div>
         );
       case "IT보안":
         return (
-          <div className="text-red-600 border border-red-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          <div className="text-red-600 border border-red-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[50px]">
             보안
           </div>
         );
@@ -133,7 +133,7 @@ const GenericPageRow: React.FC<GenericPageRowProps> = ({
     // 마감일이 지났으면 상태를 "종료"로 변경
     if (dueDate && isDateExpired(dueDate)) {
       return (
-        <div className="text-gray-600 border border-gray-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+        <div className="text-gray-600 border border-gray-600 rounded-md px-2 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[50px]">
           종료
         </div>
       );
@@ -142,25 +142,25 @@ const GenericPageRow: React.FC<GenericPageRowProps> = ({
     switch (status) {
       case "진행중":
         return (
-          <div className="text-green-600 border border-green-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          <div className="text-green-600 border border-green-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[50px]">
             진행
           </div>
         );
       case "완료":
         return (
-          <div className="text-blue-600 border border-blue-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          <div className="text-blue-600 border border-blue-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[50px]">
             완료
           </div>
         );
       case "작성중":
         return (
-          <div className="text-yellow-600 border border-yellow-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          <div className="text-yellow-600 border border-yellow-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[50px]">
             작성
           </div>
         );
       default:
         return (
-          <div className="text-gray-500 border border-gray-300 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          <div className="text-gray-500 border border-gray-300 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[50px]">
             {status}
           </div>
         );

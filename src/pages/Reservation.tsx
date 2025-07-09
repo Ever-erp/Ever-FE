@@ -153,7 +153,7 @@ const Reservation = () => {
       {/* 오른쪽: 시간선택 */}
       {/* 회의실 선택한 경우에만 시간 보여주기 */}
       {selectedRoomNum !== null ? (
-        <div className="flex-1">
+        <div className="flex-1 h-[55vh]">
           <TimeSelector
             reservation={reservation}
             updateReservation={updateReservation}

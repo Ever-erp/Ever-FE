@@ -34,7 +34,7 @@ const VacationRequestModal = ({
     const formattedDate = formatDateToLocalString(date); // "YYYY-MM-DD"
 
     // 주말 체크
-    if (isWeekend(formattedDate)) {
+    if (isWeekend(date)) {
       alert("주말에는 휴가를 신청할 수 없습니다.");
       return;
     }

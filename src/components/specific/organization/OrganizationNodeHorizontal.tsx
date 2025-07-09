@@ -28,7 +28,7 @@ const OrganizationNodeHorizontal: React.FC<OrganizationNodeHorizontalProps> = ({
         position={Position.Left}
         id="left"
         isConnectable={isConnectable}
-        className="w-3 h-3 !bg-teal-500 border-2 border-white"
+        className="w-3 h-3 !bg-brand border-2 border-white"
       />
       <Handle
         type="source"
