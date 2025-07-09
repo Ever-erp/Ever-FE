@@ -1,3 +1,5 @@
+import { formatDateToLocalString } from "../formatDateToLocalString";
+
 // "yyyy-mm-dd" 문자열 → Date 객체 (자정 기준)
 const parseDate = (dateStr: string): Date => {
   const [yearStr, monthStr, dayStr] = dateStr.split("-");
@@ -29,8 +31,8 @@ export const isOverlap = (
 };
 
 // 주말인지 확인하는 함수
-export const isWeekend = (dateStr: string): boolean => {
-  const date = parseDate(dateStr);
+export const isWeekend = (dateStr: Date): boolean => {
+  const date = parseDate(formatDateToLocalString(dateStr));
   const day = date.getDay(); // 0: 일요일, 6: 토요일
   return day === 0 || day === 6;
 };
