@@ -61,8 +61,7 @@ const Survey: React.FC = () => {
   const token = localStorage.getItem("accessToken");
 
   // 디버깅을 위한 로그 추가
-  useEffect(() => {
-  }, [currentMode, surveyState]);
+  useEffect(() => {}, [currentMode, surveyState]);
 
   // 컴포넌트 마운트 시 Redux 상태 확인 및 초기화
   useEffect(() => {
@@ -207,10 +206,6 @@ const Survey: React.FC = () => {
     setLoading(true);
     surveyPageFetch(page, size, token)
       .then((res) => {
-        console.log("API 응답 데이터:", res.content[0]); // 첫 번째 항목 로그 출력
-        console.log("className:", res.content[0]?.className);
-        console.log("createdAt:", res.content[0]?.createdAt);
-        console.log("dueDate:", res.content[0]?.dueDate);
         const processedSurveyList: SurveyItemWithRate[] = res.content.map(
           (survey) => {
             const responseRate =

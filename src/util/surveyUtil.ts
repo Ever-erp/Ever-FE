@@ -56,6 +56,7 @@ const surveyConfig = {
     questionCount: "surveySize",
     className: "className", // className 필드를 직접 매핑
     writer: "className", // GenericPage에서 기대하는 writer 필드 (className으로 대체)
+    responseRate: "responseRate", // 응답률 필드 매핑 추가
     targetDate: "dueDate",
     registedAt: "createdAt", // 생성일 매핑 수정
     createdAt: "createdAt", // GenericPage에서 기대하는 createdAt 필드 추가

@@ -57,6 +57,27 @@ const PageRow: React.FC<PageRowProps> = ({ notice }) => {
     }
   };
 
+  // 화면 크기에 따른 제목 텍스트 줄임 함수
+  const truncateTitle = (title: string): string => {
+    if (!title) return "-";
+
+    // 화면 크기에 따른 동적 maxLength 계산
+    const getResponsiveMaxLength = (): number => {
+      const width = window.innerWidth;
+      if (width >= 2560) return 60; // 2560px 이상 데스크탑
+      if (width >= 1920) return 50; // 1920px 이상 데스크탑
+      if (width >= 1600) return 40; // 1600px 이상 데스크탑
+      if (width >= 1024) return 30; // 1024px 이상 랩탑
+      if (width >= 768) return 25; // 768px 이상 태블릿
+      return 20; // 768px 미만 모바일
+    };
+
+    const maxLength = getResponsiveMaxLength();
+
+    if (title.length <= maxLength) return title;
+    return title.substring(0, maxLength) + "...";
+  };
+
   return (
     <div
       className={`flex flex-row ${notice.pinned ? "bg-blue-50" : ""}`}
@@ -66,11 +87,16 @@ const PageRow: React.FC<PageRowProps> = ({ notice }) => {
       <div className="w-24 text-center flex justify-center">
         {renderTypeBadge(notice.type)}
       </div>
-      <div className="flex-1 text-left pl-40">
-        {notice.pinned && (
-          <span className="text-blue-600 font-bold mr-2">[공지]</span>
-        )}
-        {notice.title}
+      <div className="flex-1 text-left pl-4 md:pl-20 lg:pl-40 min-w-0">
+        <div
+          className="truncate w-full overflow-hidden text-ellipsis whitespace-nowrap"
+          title={notice.title}
+        >
+          {notice.pinned && (
+            <span className="text-blue-600 font-bold mr-2">[공지]</span>
+          )}
+          {truncateTitle(notice.title)}
+        </div>
       </div>
       <div className="flex-1 text-center">{notice.writer}</div>
       <div className="w-28 text-center">{formatDate(notice.registedAt)}</div>

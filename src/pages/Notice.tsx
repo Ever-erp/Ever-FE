@@ -21,6 +21,7 @@ const Notice: React.FC = () => {
     type: "ALL_CATEGORY",
   });
   const [search, setSearch] = useState<string>("");
+  const [isSearchMode, setIsSearchMode] = useState<boolean>(false); // 검색 모드 상태 추가
   const [noticeList, setNoticeList] = useState<NoticeItem[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [totalElements, setTotalElements] = useState<number>(0);
@@ -58,9 +59,15 @@ const Notice: React.FC = () => {
 
   const handleCategoryChange = (selectedCategory: CategoryState | string) => {
     if (typeof selectedCategory === "string") {
-      // 단일 카테고리 선택의 경우 (Survey 페이지용)
+      // Notice 페이지에서 검색 타입 변경 처리
+      setCategory((prevCategory) => ({
+        ...prevCategory,
+        type: selectedCategory as SearchType,
+      }));
       return;
     }
+
+    // CategoryState 객체 처리 (현재는 사용하지 않음)
     setCategory(selectedCategory);
   };
 
@@ -79,12 +86,31 @@ const Notice: React.FC = () => {
     const token = localStorage.getItem("accessToken");
     if (!token) return;
 
+    // 빈 검색어일 때는 검색 모드 해제하고 일반 목록 로드
+    if (!searchChange.trim()) {
+      setIsSearchMode(false);
+      setPage(0);
+      try {
+        const res = await noticePageFetch(0, size, token);
+        if (res && res.content) {
+          setNoticeList(res.content);
+          setTotalPages(res.totalPages);
+          setTotalElements(res.totalElements);
+        }
+      } catch (error) {
+        console.error("공지사항 로딩 오류:", error);
+      }
+      return;
+    }
+
+    // 검색 모드 활성화
+    setIsSearchMode(true);
     setPage(0);
     try {
       const res = await noticeSearchFetch(
         category.type,
         searchChange,
-        page,
+        0, // 검색 시 항상 첫 페이지부터 시작
         size,
         token
       );
@@ -121,6 +147,9 @@ const Notice: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      // 검색 모드일 때는 일반 목록을 로드하지 않음
+      if (isSearchMode) return;
+
       setLoading(true);
       const token = localStorage.getItem("accessToken");
       if (!token) {
@@ -143,7 +172,7 @@ const Notice: React.FC = () => {
     };
 
     fetchData();
-  }, [page, size]);
+  }, [page, size, isSearchMode]); // isSearchMode 의존성 추가
 
   return (
     <div className="flex flex-col w-full h-full px-4 md:px-6 lg:px-8 xl:px-12">

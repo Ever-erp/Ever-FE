@@ -133,7 +133,7 @@ const GenericPageRow: React.FC<GenericPageRowProps> = ({
     // 마감일이 지났으면 상태를 "종료"로 변경
     if (dueDate && isDateExpired(dueDate)) {
       return (
-        <div className="text-red-600 border border-red-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+        <div className="text-gray-600 border border-gray-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
           종료
         </div>
       );
@@ -204,13 +204,24 @@ const GenericPageRow: React.FC<GenericPageRowProps> = ({
       default:
         // 제목 컬럼인 경우 텍스트 오버플로우 처리
         if (column.key === "title") {
-          const truncateText = (
-            text: string,
-            maxLength: number = 30
-          ): string => {
+          const truncateText = (text: string, maxLength?: number): string => {
             if (!text) return "-";
-            if (text.length <= maxLength) return text;
-            return text.substring(0, maxLength) + "...";
+
+            // 화면 크기에 따른 동적 maxLength 계산
+            const getResponsiveMaxLength = (): number => {
+              const width = window.innerWidth;
+              if (width >= 2560) return 60; // 2560px 이상 데스크탑
+              if (width >= 1920) return 50; // 1920px 이상 데스크탑
+              if (width >= 1600) return 40; // 1600px 이상 데스크탑
+              if (width >= 1024) return 30; // 1024px 이상 랩탑
+              if (width >= 768) return 25; // 768px 이상 태블릿
+              return 20; // 768px 미만 모바일
+            };
+
+            const responsiveMaxLength = maxLength || getResponsiveMaxLength();
+
+            if (text.length <= responsiveMaxLength) return text;
+            return text.substring(0, responsiveMaxLength) + "...";
           };
 
           return (
