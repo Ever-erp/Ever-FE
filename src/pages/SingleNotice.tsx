@@ -10,27 +10,46 @@ import NoticeEditor from "../components/specific/notice/NoticeEditor";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import Loading from "../components/common/Loading";
 import { useSelector } from "react-redux";
-const SingleNotice = () => {
-  const { noticeId } = useParams();
-  const [noticeTitle, setNoticeTitle] = useState("");
-  const [noticeContent, setNoticeContent] = useState("");
-  const [noticeWriter, setNoticeWriter] = useState("");
-  const [noticeDate, setNoticeDate] = useState("");
-  const [noticeType, setNoticeType] = useState("");
-  const [noticePin, setNoticePin] = useState(false);
-  const [noticeFiles, setNoticeFiles] = useState([]);
-  const [isDeleteMode, setIsDeleteMode] = useState(false);
+import {
+  NoticeType,
+  NoticeEditorData,
+  NoticeItem,
+  TargetRange,
+} from "../types/notice";
+
+interface RootState {
+  user: {
+    user: {
+      name: string;
+      position: string;
+    };
+  };
+}
+
+const SingleNotice: React.FC = () => {
+  const { noticeId } = useParams<{ noticeId: string }>();
+  const [noticeData, setNoticeData] = useState<NoticeItem | null>(null);
+  const [noticeTitle, setNoticeTitle] = useState<string>("");
+  const [noticeContent, setNoticeContent] = useState<string>("");
+  const [noticeWriter, setNoticeWriter] = useState<string>("");
+  const [noticeDate, setNoticeDate] = useState<string>("");
+  const [noticeType, setNoticeType] = useState<NoticeType>("ALL_TYPE");
+  const [noticePin, setNoticePin] = useState<boolean>(false);
+  const [noticeFiles, setNoticeFiles] = useState<File[]>([]);
+  const [isDeleteMode, setIsDeleteMode] = useState<boolean>(false);
   // 수정 모드 관련 상태
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [noticeTargetRange, setNoticeTargetRange] =
+    useState<TargetRange>("ALL_TARGETRANGE");
 
   const navigate = useNavigate();
 
   const { isAuthenticated } = useAuthFetch();
-  const user = useSelector((state) => state.user.user);
+  const user = useSelector((state: RootState) => state.user.user);
 
   // resFile은 배열이어야 함.
-  // const handleFile = (resFiles) => {
+  // const handleFile = (resFiles: File[]) => {
   //   if (resFiles && resFiles.length > 0 && Array.isArray(resFiles)) {
   //     setNoticeFiles(resFiles);
   //   }
@@ -45,25 +64,38 @@ const SingleNotice = () => {
   };
 
   const handleDeleteConfirm = async () => {
+    if (!noticeId) return;
+
     const token = localStorage.getItem("accessToken");
-    await noticeDeleteFetch(noticeId, token);
-    setIsDeleteMode(false);
-    alert("삭제가 완료되었습니다.");
-    navigate("/notice");
+    if (!token) return;
+
+    try {
+      await noticeDeleteFetch(noticeId, token);
+      setIsDeleteMode(false);
+      alert("삭제가 완료되었습니다.");
+      navigate("/notice");
+    } catch (error) {
+      console.error("삭제 중 오류 발생:", error);
+      alert("삭제 중 오류가 발생했습니다.");
+    }
   };
 
   const handleDeleteCancel = () => {
     setIsDeleteMode(false);
   };
 
-  const handleSave = async (data) => {
+  const handleSave = async (data: NoticeEditorData) => {
+    if (!noticeId) return;
+
     setLoading(true);
     try {
       const token = localStorage.getItem("accessToken");
+      if (!token) return;
+
       await noticeUpdateFetch(noticeId, data, token);
 
       setNoticeTitle(data.title);
-      setNoticeContent(data.content);
+      setNoticeContent(data.contents);
       // setNoticeFiles(data.files);
       setNoticeType(data.type);
       setIsEditMode(false);
@@ -82,17 +114,23 @@ const SingleNotice = () => {
 
   useEffect(() => {
     const fetchNoticeData = async () => {
+      if (!noticeId) return;
+
       try {
         setLoading(true);
         const token = localStorage.getItem("accessToken");
+        if (!token) return;
+
         const res = await noticeSingleFetch(noticeId, token);
 
+        setNoticeData(res);
         setNoticeTitle(res.title);
         setNoticeContent(res.contents);
         setNoticeWriter(res.writer);
-        setNoticeDate(res.targetDate || res.createdAt || res.registedAt);
+        setNoticeDate(res.targetDate || res.registedAt);
         setNoticeType(res.type);
-        setNoticePin(res.pinned || res.pin);
+        setNoticePin(res.pinned);
+        setNoticeTargetRange(res.targetRange);
         // handleFile(res.files || []);
       } catch (error) {
         console.error("공지사항 로딩 중 오류 발생:", error);
@@ -109,7 +147,7 @@ const SingleNotice = () => {
     alert("URL이 복사되었습니다.");
   };
 
-  const handleFileDownload = (file) => {
+  const handleFileDownload = (file: File) => {
     //console.log("downloading file : ", file);
   };
 
@@ -118,13 +156,14 @@ const SingleNotice = () => {
   }
 
   if (isEditMode) {
-    const initialData = {
+    const initialData: NoticeEditorData = {
       title: noticeTitle,
-      content: noticeContent,
+      contents: noticeContent,
       files: noticeFiles,
       type: noticeType,
-      writer: noticeWriter,
-      date: noticeDate,
+      targetRange: noticeTargetRange,
+      targetDate: noticeDate,
+      isPinned: noticePin,
     };
 
     return (
@@ -137,6 +176,7 @@ const SingleNotice = () => {
       />
     );
   }
+
   return (
     <div className="flex flex-col items-center justify-center h-full w-full">
       {/* 삭제 확인 모달 */}

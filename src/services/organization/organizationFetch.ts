@@ -1,5 +1,79 @@
 import dogImage from "../../assets/images/dog.jpg";
 
+enum Role {
+  ROLE_강사 = "강사",
+  ROLE_학생 = "학생",
+  ROLE_관리자 = "관리자",
+}
+
+interface Schedule {
+  id: number;
+  subjectName: string;
+  startDate: string;
+  endDate: string;
+  classDesc: string;
+  classUrl: string;
+}
+
+interface ClassWithScheduleDto {
+  classId: number;
+  name: string;
+  cohort: number;
+  schedules: Schedule[];
+}
+
+interface Instructor {
+  email: string;
+  name: string;
+  birth: string;
+  gender: string;
+  phone: string;
+  address: string;
+  profileImage: string | null;
+  classId: number;
+  position: string;
+}
+
+interface Member {
+  email: string;
+  name: string;
+  birth: string;
+  gender: string;
+  phone: string;
+  address: string;
+  profileImage: string | null;
+  classId: number;
+  position: string;
+}
+
+interface SingleClassData {
+  id: number;
+  name: string;
+  cohort: number;
+  schedules: Schedule[];
+  members: Member[];
+}
+
+interface ApiResponse<T> {
+  data: T;
+  status?: number;
+  message?: string;
+}
+
+// Role을 변환하는 유틸리티 함수
+const convertRole = (position: string): string => {
+  switch (position) {
+    case "ROLE_강사":
+      return Role.ROLE_강사;
+    case "ROLE_학생":
+      return Role.ROLE_학생;
+    case "ROLE_관리자":
+      return Role.ROLE_관리자;
+    default:
+      return position;
+  }
+};
+
 /*
 classWithScheduleDtos : [{
                 classId : 1,
@@ -28,8 +102,13 @@ instructor : [{
 }]
 */
 
-const allClassFetch = async (token) => {
-  const requestInit = {
+const allClassFetch = async (
+  token: string
+): Promise<{
+  classWithScheduleDtos: ClassWithScheduleDto[];
+  instructors: Instructor[];
+}> => {
+  const requestInit: RequestInit = {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -40,17 +119,34 @@ const allClassFetch = async (token) => {
   const response = await fetch(url, requestInit);
 
   if (200 <= response.status && response.status < 300) {
-    const responseJson = await response.json();
-    return responseJson.data;
+    const responseJson: ApiResponse<{
+      classWithScheduleDtos: ClassWithScheduleDto[];
+      instructors: Instructor[];
+    }> = await response.json();
+
+    // instructors의 position을 변환
+    const convertedData = {
+      ...responseJson.data,
+      instructors: responseJson.data.instructors.map((instructor) => ({
+        ...instructor,
+        position: convertRole(instructor.position),
+      })),
+    };
+
+    return convertedData;
   } else {
-    const errorStatus = response.json().status;
-    const errorMessage = response.json().message;
+    const errorResponse = await response.json();
+    const errorStatus = errorResponse.status;
+    const errorMessage = errorResponse.message;
     throw new Error(`${errorStatus} : ${errorMessage}`);
   }
 };
 
-const singleClassFetch = async (id, token) => {
-  const requestInit = {
+const singleClassFetch = async (
+  id: string | number,
+  token: string
+): Promise<SingleClassData> => {
+  const requestInit: RequestInit = {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -63,13 +159,32 @@ const singleClassFetch = async (id, token) => {
   const response = await fetch(url, requestInit);
 
   if (200 <= response.status && response.status < 300) {
-    const responseJson = await response.json();
-    return responseJson.data;
+    const responseJson: ApiResponse<SingleClassData> = await response.json();
+
+    // members의 position을 변환
+    const convertedData = {
+      ...responseJson.data,
+      members: responseJson.data.members.map((member) => ({
+        ...member,
+        position: convertRole(member.position),
+      })),
+    };
+
+    return convertedData;
   } else {
-    const errorStatus = response.json().status;
-    const errorMessage = response.json().message;
+    const errorResponse = await response.json();
+    const errorStatus = errorResponse.status;
+    const errorMessage = errorResponse.message;
     throw new Error(`${errorStatus} : ${errorMessage}`);
   }
 };
 
-export { allClassFetch, singleClassFetch };
+export { allClassFetch, singleClassFetch, convertRole };
+export { Role };
+export type {
+  ClassWithScheduleDto,
+  Instructor,
+  Schedule,
+  Member,
+  SingleClassData,
+};

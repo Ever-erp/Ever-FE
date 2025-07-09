@@ -1,5 +1,19 @@
-const noticeSingleFetch = async (id, token) => {
-  const requestInit = {
+import {
+  ApiResponse,
+  NoticeItem,
+  NoticePageResponse,
+  NoticeCreateRequest,
+  NoticeUpdateRequest,
+  NoticeEditorData,
+  SearchType,
+} from "../../types/notice";
+
+// 단일 공지사항 조회
+export const noticeSingleFetch = async (
+  id: number | string,
+  token: string
+): Promise<NoticeItem> => {
+  const requestInit: RequestInit = {
     credentials: "include",
     method: "GET",
     headers: {
@@ -13,8 +27,9 @@ const noticeSingleFetch = async (id, token) => {
       `${import.meta.env.VITE_NOTICE_API_URL}/${id}`,
       requestInit
     );
+
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse<NoticeItem> = await response.json();
       return responseJson.data;
     } else {
       const errorJson = await response.json();
@@ -28,8 +43,13 @@ const noticeSingleFetch = async (id, token) => {
   }
 };
 
-const noticePageFetch = async (page, size, token) => {
-  const requestInit = {
+// 공지사항 페이지 조회
+export const noticePageFetch = async (
+  page: number,
+  size: number,
+  token: string
+): Promise<NoticePageResponse> => {
+  const requestInit: RequestInit = {
     credentials: "include",
     method: "GET",
     headers: {
@@ -43,8 +63,10 @@ const noticePageFetch = async (page, size, token) => {
       `${import.meta.env.VITE_NOTICE_API_URL}?page=${page}&size=${size}`,
       requestInit
     );
+
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse<NoticePageResponse> =
+        await response.json();
       return responseJson.data;
     } else {
       const errorJson = await response.json();
@@ -58,8 +80,14 @@ const noticePageFetch = async (page, size, token) => {
   }
 };
 
-const noticeSearchFetch = async (type, searchInput, page, size, token) => {
-  const requestInit = {
+export const noticeSearchFetch = async (
+  searchType: SearchType,
+  text: string,
+  page: number,
+  size: number,
+  token: string
+): Promise<NoticePageResponse> => {
+  const requestInit: RequestInit = {
     credentials: "include",
     method: "GET",
     headers: {
@@ -67,19 +95,27 @@ const noticeSearchFetch = async (type, searchInput, page, size, token) => {
       "Content-Type": "application/json",
     },
   };
-  console.log("type", type);
-  console.log("searchInput", searchInput);
-  console.log("page", page);
-  console.log("size", size);
 
-  const input = searchInput ? searchInput : "empty";
-  const url = `${
-    import.meta.env.VITE_NOTICE_API_URL
-  }/search?type=${type}&input=${input}&page=${page}&size=${size}`;
+  const params = new URLSearchParams({
+    page: page.toString(),
+    size: size.toString(),
+  });
+
+  if (searchType && searchType !== "ALL_CATEGORY") {
+    params.append("searchType", searchType);
+  }
+  if (text && text.trim() !== "") {
+    params.append("text", text.trim());
+  }
+
+  const url = `${import.meta.env.VITE_NOTICE_API_URL}?${params.toString()}`;
+
   try {
     const response = await fetch(url, requestInit);
+
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse<NoticePageResponse> =
+        await response.json();
       return responseJson.data;
     } else {
       const errorJson = await response.json();
@@ -93,18 +129,12 @@ const noticeSearchFetch = async (type, searchInput, page, size, token) => {
   }
 };
 
-/*
-noticeType,
-  noticeTitle,
-  noticeContent,
-  noticeFile,
-  noticeImage,
-  noticePin,
-  noticeTargetRange,
-  noticeTargetDate
-*/
-const noticeCreateFetch = async (data, token) => {
-  const noticeBody = {
+// 공지사항 생성
+export const noticeCreateFetch = async (
+  data: NoticeEditorData,
+  token: string
+): Promise<NoticeItem> => {
+  const noticeBody: NoticeCreateRequest = {
     type: data.type,
     title: data.title,
     contents: data.contents,
@@ -113,7 +143,7 @@ const noticeCreateFetch = async (data, token) => {
     targetDate: data.targetDate,
   };
 
-  const requestInit = {
+  const requestInit: RequestInit = {
     credentials: "include",
     method: "POST",
     headers: {
@@ -123,23 +153,6 @@ const noticeCreateFetch = async (data, token) => {
     body: JSON.stringify(noticeBody),
   };
 
-  // 파일 업로드 기능 비활성화
-  // const formData = new FormData();
-
-  // const fileRequestInit = {
-  //   credentials: "include",
-  //   method: "POST",
-  //   headers: {
-  //     Authorization: `Bearer ${token}`,
-  //   },
-  // };
-
-  // if (data.files && data.files.length > 0) {
-  //   data.files.forEach((file, index) => {
-  //     formData.append("files", file);
-  //   });
-  // }
-
   try {
     const noticeResponse = await fetch(
       `${import.meta.env.VITE_NOTICE_API_URL}`,
@@ -147,7 +160,7 @@ const noticeCreateFetch = async (data, token) => {
     );
 
     if (200 <= noticeResponse.status && noticeResponse.status < 300) {
-      const responseJson = await noticeResponse.json();
+      const responseJson: ApiResponse<NoticeItem> = await noticeResponse.json();
       return responseJson.data;
     } else {
       let errorMessage = `HTTP ${noticeResponse.status}: ${noticeResponse.statusText}`;
@@ -167,19 +180,22 @@ const noticeCreateFetch = async (data, token) => {
   }
 };
 
-const noticeUpdateFetch = async (noticeId, data, token) => {
-  const noticeBody = {
+// 공지사항 수정
+export const noticeUpdateFetch = async (
+  noticeId: number | string,
+  data: NoticeEditorData,
+  token: string
+): Promise<NoticeItem> => {
+  const noticeBody: NoticeUpdateRequest = {
     type: data.type,
     title: data.title,
     contents: data.contents,
-    // noticeFile: data.files,
-    // noticeImage: data.image,
     isPinned: data.isPinned !== undefined ? data.isPinned : false,
     targetRange: data.targetRange,
     targetDate: data.targetDate,
   };
 
-  const requestInit = {
+  const requestInit: RequestInit = {
     credentials: "include",
     method: "PATCH",
     headers: {
@@ -196,7 +212,7 @@ const noticeUpdateFetch = async (noticeId, data, token) => {
     );
 
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse<NoticeItem> = await response.json();
       return responseJson.data;
     } else {
       let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
@@ -216,8 +232,12 @@ const noticeUpdateFetch = async (noticeId, data, token) => {
   }
 };
 
-const noticeDeleteFetch = async (id, token) => {
-  const requestInit = {
+// 공지사항 삭제
+export const noticeDeleteFetch = async (
+  id: number | string,
+  token: string
+): Promise<boolean> => {
+  const requestInit: RequestInit = {
     credentials: "include",
     method: "DELETE",
     headers: {
@@ -231,8 +251,9 @@ const noticeDeleteFetch = async (id, token) => {
       `${import.meta.env.VITE_NOTICE_API_URL}/${id}`,
       requestInit
     );
+
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse<{}> = await response.json();
       if (200 <= responseJson.status && responseJson.status < 300) {
         return true;
       } else {
@@ -248,13 +269,4 @@ const noticeDeleteFetch = async (id, token) => {
     console.error(error);
     throw error;
   }
-};
-
-export {
-  noticeSingleFetch,
-  noticePageFetch,
-  noticeSearchFetch,
-  noticeCreateFetch,
-  noticeUpdateFetch,
-  noticeDeleteFetch,
 };

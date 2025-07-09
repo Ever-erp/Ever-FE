@@ -1,4 +1,19 @@
-const singleSurveyFetch = async (surveyId, token) => {
+import {
+  ApiResponse,
+  SurveyItem,
+  SurveyPageResponse,
+  SurveyCreateRequest,
+  SurveyUpdateRequest,
+  SurveyAnswerRequest,
+  SurveyMultipleDeleteRequest,
+  SurveyUserResponse,
+  SurveyMembersResponse,
+} from "../../types/survey";
+
+const singleSurveyFetch = async (
+  surveyId: string,
+  token: string
+): Promise<SurveyItem> => {
   const url = `${import.meta.env.VITE_SURVEY_API_URL}/${surveyId}`;
 
   try {
@@ -10,12 +25,11 @@ const singleSurveyFetch = async (surveyId, token) => {
       },
     });
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse<SurveyItem> = await response.json();
       return responseJson.data;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
-      throw new Error(`${errorStatus} : ${errorMessage}`);
+      const errorResponse = await response.json();
+      throw new Error(`${errorResponse.status} : ${errorResponse.message}`);
     }
   } catch (error) {
     console.error("Error fetching survey:", error);
@@ -23,7 +37,11 @@ const singleSurveyFetch = async (surveyId, token) => {
   }
 };
 
-const surveyPageFetch = async (page, size, token) => {
+const surveyPageFetch = async (
+  page: number,
+  size: number,
+  token: string
+): Promise<SurveyPageResponse> => {
   const url = `${import.meta.env.VITE_SURVEY_API_URL}/page?page=${
     page - 1
   }&size=${size}`;
@@ -37,12 +55,12 @@ const surveyPageFetch = async (page, size, token) => {
       },
     });
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse<SurveyPageResponse> =
+        await response.json();
       return responseJson.data;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
-      throw new Error(`${errorStatus} : ${errorMessage}`);
+      const errorResponse = await response.json();
+      throw new Error(`${errorResponse.status} : ${errorResponse.message}`);
     }
   } catch (error) {
     console.error("Error fetching survey:", error);
@@ -50,7 +68,10 @@ const surveyPageFetch = async (page, size, token) => {
   }
 };
 
-const surveyCreateFetch = async (surveyData, token) => {
+const surveyCreateFetch = async (
+  surveyData: SurveyCreateRequest,
+  token: string
+): Promise<ApiResponse> => {
   try {
     const response = await fetch(`${import.meta.env.VITE_SURVEY_API_URL}`, {
       method: "POST",
@@ -61,12 +82,11 @@ const surveyCreateFetch = async (surveyData, token) => {
       body: JSON.stringify(surveyData),
     });
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse = await response.json();
       return responseJson;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
-      throw new Error(`${errorStatus} : ${errorMessage}`);
+      const errorResponse = await response.json();
+      throw new Error(`${errorResponse.status} : ${errorResponse.message}`);
     }
   } catch (error) {
     console.error("Error creating survey:", error);
@@ -74,7 +94,11 @@ const surveyCreateFetch = async (surveyData, token) => {
   }
 };
 
-const surveyUpdateFetch = async (surveyId, surveyData, token) => {
+const surveyUpdateFetch = async (
+  surveyId: string,
+  surveyData: SurveyUpdateRequest,
+  token: string
+): Promise<any> => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_SURVEY_API_URL}/${surveyId}`,
@@ -89,12 +113,11 @@ const surveyUpdateFetch = async (surveyId, surveyData, token) => {
     );
 
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse = await response.json();
       return responseJson.data;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
-      throw new Error(`${errorStatus} : ${errorMessage}`);
+      const errorResponse = await response.json();
+      throw new Error(`${errorResponse.status} : ${errorResponse.message}`);
     }
   } catch (error) {
     console.error("Error updating survey:", error);
@@ -102,7 +125,10 @@ const surveyUpdateFetch = async (surveyId, surveyData, token) => {
   }
 };
 
-const surveyDeleteFetch = async (surveyId, token) => {
+const surveyDeleteFetch = async (
+  surveyId: string,
+  token: string
+): Promise<any> => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_SURVEY_API_URL}/${surveyId}`,
@@ -116,12 +142,11 @@ const surveyDeleteFetch = async (surveyId, token) => {
     );
 
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse = await response.json();
       return responseJson.data;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
-      throw new Error(`${errorStatus} : ${errorMessage}`);
+      const errorResponse = await response.json();
+      throw new Error(`${errorResponse.status} : ${errorResponse.message}`);
     }
   } catch (error) {
     console.error("Error deleting survey:", error);
@@ -129,8 +154,11 @@ const surveyDeleteFetch = async (surveyId, token) => {
   }
 };
 
-const surveyDeleteMultipleFetch = async (surveyIds, token) => {
-  const body = {
+const surveyDeleteMultipleFetch = async (
+  surveyIds: string[],
+  token: string
+): Promise<any> => {
+  const body: SurveyMultipleDeleteRequest = {
     surveyIds: surveyIds,
   };
   try {
@@ -146,12 +174,11 @@ const surveyDeleteMultipleFetch = async (surveyIds, token) => {
       }
     );
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse = await response.json();
       return responseJson.data;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
-      throw new Error(`${errorStatus} : ${errorMessage}`);
+      const errorResponse = await response.json();
+      throw new Error(`${errorResponse.status} : ${errorResponse.message}`);
     }
   } catch (error) {
     console.error("Error deleting multiple surveys:", error);
@@ -160,7 +187,10 @@ const surveyDeleteMultipleFetch = async (surveyIds, token) => {
 };
 
 // 학생용
-const findSurveyBySurveyIdAndMemberIdFetch = async (surveyId, token) => {
+const findSurveyBySurveyIdAndMemberIdFetch = async (
+  surveyId: string,
+  token: string
+): Promise<SurveyUserResponse> => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_SURVEY_API_URL}/${surveyId}/user`,
@@ -174,12 +204,12 @@ const findSurveyBySurveyIdAndMemberIdFetch = async (surveyId, token) => {
     );
 
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse<SurveyUserResponse> =
+        await response.json();
       return responseJson.data;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
-      throw new Error(`${errorStatus} : ${errorMessage}`);
+      const errorResponse = await response.json();
+      throw new Error(`${errorResponse.status} : ${errorResponse.message}`);
     }
   } catch (error) {
     console.error("Error fetching survey:", error);
@@ -187,7 +217,15 @@ const findSurveyBySurveyIdAndMemberIdFetch = async (surveyId, token) => {
   }
 };
 
-const surveySubmitFetch = async (surveyId, surveyData, token) => {
+interface SurveySubmitData {
+  answers: string[];
+}
+
+const surveySubmitFetch = async (
+  surveyId: string,
+  surveyData: SurveySubmitData,
+  token: string
+): Promise<any> => {
   const answerList = surveyData.answers;
   try {
     const response = await fetch(
@@ -205,12 +243,11 @@ const surveySubmitFetch = async (surveyId, surveyData, token) => {
     );
 
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse = await response.json();
       return responseJson.data;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
-      throw new Error(`${errorStatus} : ${errorMessage}`);
+      const errorResponse = await response.json();
+      throw new Error(`${errorResponse.status} : ${errorResponse.message}`);
     }
   } catch (error) {
     console.error("Error submitting survey:", error);
@@ -218,7 +255,11 @@ const surveySubmitFetch = async (surveyId, surveyData, token) => {
   }
 };
 
-const surveySubmitUpdateFetch = async (surveyId, surveyData, token) => {
+const surveySubmitUpdateFetch = async (
+  surveyId: string,
+  surveyData: SurveySubmitData,
+  token: string
+): Promise<any> => {
   const answerList = surveyData.answers;
   try {
     const response = await fetch(
@@ -236,12 +277,11 @@ const surveySubmitUpdateFetch = async (surveyId, surveyData, token) => {
     );
 
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse = await response.json();
       return responseJson.data;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
-      throw new Error(`${errorStatus} : ${errorMessage}`);
+      const errorResponse = await response.json();
+      throw new Error(`${errorResponse.status} : ${errorResponse.message}`);
     }
   } catch (error) {
     console.error("Error updating survey submission:", error);
@@ -249,7 +289,10 @@ const surveySubmitUpdateFetch = async (surveyId, surveyData, token) => {
   }
 };
 
-const surveyWithMemberAnswerFetch = async (surveyId, token) => {
+const surveyWithMemberAnswerFetch = async (
+  surveyId: string,
+  token: string
+): Promise<SurveyMembersResponse> => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_SURVEY_API_URL}/${surveyId}/members`,
@@ -263,12 +306,12 @@ const surveyWithMemberAnswerFetch = async (surveyId, token) => {
     );
 
     if (200 <= response.status && response.status < 300) {
-      const responseJson = await response.json();
+      const responseJson: ApiResponse<SurveyMembersResponse> =
+        await response.json();
       return responseJson.data;
     } else {
-      const errorStatus = response.json().status;
-      const errorMessage = response.json().message;
-      throw new Error(`${errorStatus} : ${errorMessage}`);
+      const errorResponse = await response.json();
+      throw new Error(`${errorResponse.status} : ${errorResponse.message}`);
     }
   } catch (error) {
     console.error("Error fetching survey with member answer:", error);

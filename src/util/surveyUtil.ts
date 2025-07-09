@@ -1,3 +1,5 @@
+import { SurveyWriteData, SurveyCreateRequest } from "../types/survey";
+
 // 설문 관리 설정
 const surveyConfig = {
   title: "설문",
@@ -42,23 +44,29 @@ const surveyConfig = {
       align: "center",
       render: "responseRate",
     },
-    { key: "dueDate", label: "마감일", width: "w-28", align: "center" },
-    { key: "createdAt", label: "생성일", width: "w-28", align: "center" },
+    { key: "targetDate", label: "마감일", width: "w-28", align: "center" },
+    { key: "registedAt", label: "생성일", width: "w-28", align: "center" },
   ],
   dataKeyMapping: {
     id: "surveyId",
+    type: "status", // GenericPage에서 기대하는 type 필드
     status: "status", // 설문 상태 (진행중, 완료)
-    className: "className", // 반 정보
     title: "surveyTitle", // mock 데이터의 surveyTitle을 title로 매핑
+    memberCount: "answeredCount", // GenericPage에서 기대하는 memberCount 필드
     questionCount: "surveySize",
-    responseRate: "responseRate", // 응답률 (계산된 값)
-    dueDate: "dueDate",
-    createdAt: "createdAt",
+    className: "className", // className 필드를 직접 매핑
+    writer: "className", // GenericPage에서 기대하는 writer 필드 (className으로 대체)
+    responseRate: "responseRate", // 응답률 필드 매핑 추가
+    targetDate: "dueDate",
+    registedAt: "createdAt", // 생성일 매핑 수정
+    createdAt: "createdAt", // GenericPage에서 기대하는 createdAt 필드 추가
   },
 };
 
 // 데이터를 API 형식으로 변환하는 함수
-const transformDataForAPI = (surveyData) => {
+const transformDataForAPI = (
+  surveyData: SurveyWriteData
+): SurveyCreateRequest => {
   const surveyQuestion = surveyData.questions.map((q) => q.question);
   const surveyQuestionMeta = surveyData.questions.map((q) => {
     if (q.type === "객관식") {
@@ -73,7 +81,7 @@ const transformDataForAPI = (surveyData) => {
     surveyTitle: surveyData.title,
     surveyDesc: surveyData.description,
     dueDate: surveyData.endDate,
-    className: surveyData.targetRange, // 대상 범위 추가
+    className: surveyData.className, // 대상 범위
     status: "진행중",
     surveySize: surveyData.questions.length,
     surveyQuestion: surveyQuestion,
@@ -82,7 +90,7 @@ const transformDataForAPI = (surveyData) => {
 };
 
 // 상태에 따른 배지 색상
-const getStatusBadgeColor = (status) => {
+const getStatusBadgeColor = (status: string): string => {
   switch (status) {
     case "진행중":
       return "bg-blue-100 text-blue-600";
@@ -95,7 +103,7 @@ const getStatusBadgeColor = (status) => {
   }
 };
 
-const parsedDate = (date) => {
+const parsedDate = (date: string): string => {
   if (!date) return "";
 
   try {
@@ -117,7 +125,7 @@ const parsedDate = (date) => {
   }
 };
 
-const parsedDateTime = (date) => {
+const parsedDateTime = (date: string): string => {
   if (!date) return "";
 
   try {
@@ -142,7 +150,7 @@ const parsedDateTime = (date) => {
 };
 
 // 날짜 관련 유틸리티 함수들
-const getTodayString = () => {
+const getTodayString = (): string => {
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
@@ -150,13 +158,13 @@ const getTodayString = () => {
   return `${year}-${month}-${day}`;
 };
 
-const isDateExpired = (dueDate) => {
+const isDateExpired = (dueDate: string): boolean => {
   if (!dueDate) return false;
   const today = getTodayString();
   return dueDate < today;
 };
 
-const isDateBeforeToday = (date) => {
+const isDateBeforeToday = (date: string): boolean => {
   if (!date) return false;
   const today = getTodayString();
   return date < today;

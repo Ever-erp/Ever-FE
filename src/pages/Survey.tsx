@@ -1,6 +1,6 @@
 // import SearchBar from "../components/specific/notice/SearchBar";
 // import CategorySelectBar from "../components/specific/notice/CategorySelectBar";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import GenericPage from "../components/common/GenericPage";
 import {
@@ -16,19 +16,30 @@ import {
   getAdminSurveyClick,
   resetSurveyState,
 } from "../store/surveySlice";
+import { SurveyItemWithRate, AdminSurveyMode } from "../types/survey";
 
-const Survey = () => {
+interface RootState {
+  user: {
+    user: {
+      name: string;
+      position: string;
+    };
+  };
+  survey: any;
+}
+
+const Survey: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   // const [category, setCategory] = useState("all");
   // const [search, setSearch] = useState("");
-  const [surveyList, setSurveyList] = useState([]);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
-  const [page, setPage] = useState(1);
+  const [surveyList, setSurveyList] = useState<SurveyItemWithRate[]>([]);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalElements, setTotalElements] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
 
   // 화면 크기에 따른 페이징 사이즈 계산
-  const getResponsiveSize = () => {
+  const getResponsiveSize = (): number => {
     const width = window.innerWidth;
     if (width >= 2560) return 20; // 2560px 이상 데스크탑
     if (width >= 1920) return 14; // 1920px 이상 데스크탑
@@ -38,12 +49,14 @@ const Survey = () => {
     return 6; // 768px 미만
   };
 
-  const [size, setSize] = useState(() => getResponsiveSize());
-  const [loading, setLoading] = useState(false);
+  const [size, setSize] = useState<number>(() => getResponsiveSize());
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const user = useSelector((state) => state.user.user);
-  const surveyState = useSelector((state) => state.survey); // 전체 survey 상태를 가져옴
-  const currentMode = useSelector(getAdminSurveyClick) || "survey"; // 기본값 보장
+  const user = useSelector((state: RootState) => state.user.user);
+  const surveyState = useSelector((state: RootState) => state.survey); // 전체 survey 상태를 가져옴
+  const currentMode: AdminSurveyMode =
+    useSelector((state: RootState) => state.survey?.adminSurveyClick) ||
+    "survey";
   const { isAuthenticated } = useAuthFetch();
   const token = localStorage.getItem("accessToken");
 
@@ -121,11 +134,11 @@ const Survey = () => {
 
   // };
 
-  const handlePageChange = (page) => {
+  const handlePageChange = (page: number) => {
     setPage(page);
   };
 
-  const handleSizeChange = (size) => {
+  const handleSizeChange = (size: number) => {
     setSize(size);
   };
 
@@ -137,8 +150,11 @@ const Survey = () => {
     dispatch(setAdminSurveyClick("response"));
   };
 
+  // 상태 변경 확인을 위한 useEffect 추가
+  useEffect(() => {}, [currentMode]);
+
   // 행 클릭 핸들러 - 라우팅으로 변경
-  const handleRowClick = (item) => {
+  const handleRowClick = (item: SurveyItemWithRate) => {
     if (currentMode === "survey") {
       // 설문 현황 보기
       navigate(`/survey/${item.surveyId}`);
@@ -148,26 +164,28 @@ const Survey = () => {
     }
   };
 
-  const handleDeleteSurveys = async (surveyIds) => {
+  const handleDeleteSurveys = async (surveyIds: string[]) => {
     try {
       setLoading(true);
-      await surveyDeleteMultipleFetch(surveyIds, token);
+      await surveyDeleteMultipleFetch(surveyIds, token!);
       alert(`${surveyIds.length}개의 설문이 성공적으로 삭제되었습니다.`);
 
-      const res = await surveyPageFetch(page, size, token);
-      const processedSurveyList = res.content.map((survey) => {
-        const responseRate =
-          survey.classTotalMemberCount > 0
-            ? Math.round(
-                (survey.answeredCount / survey.classTotalMemberCount) * 100
-              )
-            : 0;
+      const res = await surveyPageFetch(page, size, token!);
+      const processedSurveyList: SurveyItemWithRate[] = res.content.map(
+        (survey) => {
+          const responseRate =
+            survey.classTotalMemberCount > 0
+              ? Math.round(
+                  (survey.answeredCount / survey.classTotalMemberCount) * 100
+                )
+              : 0;
 
-        return {
-          ...survey,
-          responseRate: `${responseRate}% (${survey.answeredCount}/${survey.classTotalMemberCount})`,
-        };
-      });
+          return {
+            ...survey,
+            responseRate: `${responseRate}% (${survey.answeredCount}/${survey.classTotalMemberCount})`,
+          };
+        }
+      );
 
       setSurveyList(processedSurveyList);
       setTotalPages(res.totalPages);
@@ -183,22 +201,26 @@ const Survey = () => {
   useEffect(() => {
     // 유저 권한이면 해당 유저가 갖고있는 설문 리스트 페이지형태로 받음
     // 관리자 권한이면 모든 설문 리스트 페이지형태로 받음
+    if (!token) return;
+
     setLoading(true);
     surveyPageFetch(page, size, token)
       .then((res) => {
-        const processedSurveyList = res.content.map((survey) => {
-          const responseRate =
-            survey.classTotalMemberCount > 0
-              ? Math.round(
-                  (survey.answeredCount / survey.classTotalMemberCount) * 100
-                )
-              : 0;
+        const processedSurveyList: SurveyItemWithRate[] = res.content.map(
+          (survey) => {
+            const responseRate =
+              survey.classTotalMemberCount > 0
+                ? Math.round(
+                    (survey.answeredCount / survey.classTotalMemberCount) * 100
+                  )
+                : 0;
 
-          return {
-            ...survey,
-            responseRate: `${responseRate}% (${survey.answeredCount}/${survey.classTotalMemberCount})`,
-          };
-        });
+            return {
+              ...survey,
+              responseRate: `${responseRate}% (${survey.answeredCount}/${survey.classTotalMemberCount})`,
+            };
+          }
+        );
 
         setSurveyList(processedSurveyList);
         setTotalPages(res.totalPages);
@@ -209,7 +231,7 @@ const Survey = () => {
         console.error("설문 목록 조회 오류:", error);
         setLoading(false);
       });
-  }, [page, size]);
+  }, [page, size, token]);
 
   return (
     <div className="flex flex-col items-center w-full h-full px-4 md:px-6 lg:px-8 xl:px-12">

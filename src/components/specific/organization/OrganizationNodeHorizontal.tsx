@@ -1,7 +1,26 @@
+import React from "react";
 import { Handle, Position } from "reactflow";
 
+// TypeScript 타입 정의
+interface NodeData {
+  id?: number | string;
+  name: string;
+  position?: string;
+  department?: string;
+  team?: string;
+  role?: string;
+}
+
+interface OrganizationNodeHorizontalProps {
+  data: NodeData;
+  isConnectable: boolean;
+}
+
 // 커스텀 노드 컴포넌트 (좌우 연결용 - OrganizationClass.jsx용)
-const OrganizationNodeHorizontal = ({ data, isConnectable }) => {
+const OrganizationNodeHorizontal: React.FC<OrganizationNodeHorizontalProps> = ({
+  data,
+  isConnectable,
+}) => {
   return (
     <div className="px-5 py-4 shadow-lg rounded-lg bg-white border-2 border-gray-300 min-w-[160px] max-w-[200px] hover:shadow-xl transition-shadow duration-200">
       <Handle
@@ -42,3 +61,4 @@ const OrganizationNodeHorizontal = ({ data, isConnectable }) => {
 };
 
 export default OrganizationNodeHorizontal;
+export type { NodeData, OrganizationNodeHorizontalProps };

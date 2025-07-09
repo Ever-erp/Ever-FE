@@ -1,34 +1,58 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { singleClassFetch } from "../services/organization/organizationFetch";
+import {
+  singleClassFetch,
+  Member,
+  SingleClassData,
+} from "../services/organization/organizationFetch";
 import OrganizationHeader from "../components/specific/organization/OrganizationHeader";
 import OrganizationBody from "../components/specific/organization/OrganizationBody";
 import { ReactFlowProvider } from "reactflow";
-import { calculateGridPositions } from "../util/organizationUtil";
+import {
+  calculateGridPositions,
+  GridPositions,
+} from "../util/organizationUtil";
 import Loading from "../components/common/Loading";
 
-const OrganizationClass = () => {
-  const { classId } = useParams();
-  const [containerSize, setContainerSize] = useState({
+// TypeScript 타입 정의
+interface ContainerSize {
+  width: number;
+  height: number;
+}
+
+const OrganizationClass: React.FC = () => {
+  const { classId } = useParams<{ classId: string }>();
+  const [containerSize, setContainerSize] = useState<ContainerSize>({
     width: 1200,
     height: 600,
   });
 
-  const [classTitle, setClassTitle] = useState("");
-  //   const [classDescription, setClassDescription] = useState("");
-  //   const [setStartDate, setSetStartDate] = useState("");
-  //   const [setEndDate, setSetEndDate] = useState("");
-  const [classMembers, setClassMembers] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedMember, setSelectedMember] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [classTitle, setClassTitle] = useState<string>("");
+  //   const [classDescription, setClassDescription] = useState<string>("");
+  //   const [setStartDate, setSetStartDate] = useState<string>("");
+  //   const [setEndDate, setSetEndDate] = useState<string>("");
+  const [classMembers, setClassMembers] = useState<Member[]>([]);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
   useEffect(() => {
-    const fetchClassData = async () => {
+    const fetchClassData = async (): Promise<void> => {
+      if (!classId) {
+        console.error("No classId provided");
+        return;
+      }
+
       setLoading(true);
       try {
         const token = localStorage.getItem("accessToken");
-        const data = await singleClassFetch(classId, token);
-        setClassTitle(data.name + " " + data.cohort);
+        if (!token) {
+          console.error("No access token found");
+          return;
+        }
+
+        const data: SingleClassData = await singleClassFetch(classId, token);
+        setClassTitle(data.name + " " + data.cohort + "기"); // 숫자 타입이므로 "기" 추가
         // setClassDescription(data.schedules[0].classDesc);
         // setSetStartDate(data.schedules[0].startDate);
         // setSetEndDate(data.schedules[0].endDate);
@@ -43,7 +67,7 @@ const OrganizationClass = () => {
   }, [classId]);
 
   useEffect(() => {
-    const updateSize = () => {
+    const updateSize = (): void => {
       const width = window.innerWidth - 40;
       const height = 600;
       setContainerSize({ width, height });
@@ -53,7 +77,7 @@ const OrganizationClass = () => {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
-  const positions = calculateGridPositions(
+  const positions: GridPositions = calculateGridPositions(
     containerSize.width,
     containerSize.height,
     classMembers
@@ -139,21 +163,26 @@ const OrganizationClass = () => {
 
   const initialEdges = createEdges();
 
-  const findMemberById = (memberEmail) => {
+  const findMemberById = (memberEmail: string): Member | undefined => {
     return classMembers.find((member) => member.email === memberEmail);
   };
 
-  const handleMemberClick = (memberEmail) => {
-    setSelectedMember(findMemberById(memberEmail));
-    setModalOpen(true);
+  const handleMemberClick = (memberEmail: string | number): void => {
+    const member = findMemberById(String(memberEmail));
+    if (member) {
+      setSelectedMember(member);
+      setModalOpen(true);
+    }
   };
 
-  const handleModalClose = () => {
+  const handleModalClose = (): void => {
     setModalOpen(false);
     setSelectedMember(null);
   };
 
-  const handleModalBackdropClick = (e) => {
+  const handleModalBackdropClick = (
+    e: React.MouseEvent<HTMLDivElement>
+  ): void => {
     if (e.target === e.currentTarget) {
       handleModalClose();
     }

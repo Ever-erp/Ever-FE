@@ -1,7 +1,18 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { parsedDate } from "../../util/surveyUtil";
-const GenericPageRow = ({ data, config, onRowClick }) => {
+import { parsedDate, isDateExpired } from "../../util/surveyUtil";
+
+interface GenericPageRowProps {
+  data: any;
+  config: any;
+  onRowClick?: (data: any) => void;
+}
+
+const GenericPageRow: React.FC<GenericPageRowProps> = ({
+  data,
+  config,
+  onRowClick,
+}) => {
   const navigate = useNavigate();
 
   /*
@@ -12,7 +23,7 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
     IT_SECURITY,        // IT 보안
     CLOUD  
   */
-  const handleType = (type) => {
+  const handleType = (type: string) => {
     switch (type) {
       case "ALL_TYPE":
         return (
@@ -71,7 +82,7 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
     }
   };
 
-  const handleClassName = (className) => {
+  const handleClassName = (className: string) => {
     switch (className) {
       case "전체":
         return (
@@ -118,11 +129,12 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
     }
   };
 
-  const handleSurveyStatus = (status, dueDate) => {
+  const handleSurveyStatus = (status: string, dueDate: string) => {
+    // 마감일이 지났으면 상태를 "종료"로 변경
     if (dueDate && isDateExpired(dueDate)) {
       return (
-        <div className="text-brand border border-brand rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
-          마감
+        <div className="text-gray-600 border border-gray-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+          종료
         </div>
       );
     }
@@ -136,8 +148,8 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
         );
       case "완료":
         return (
-          <div className="text-brand border border-brand rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
-            마감
+          <div className="text-blue-600 border border-blue-600 rounded-md px-1 md:px-2 py-1 text-xs font-medium w-[30px] md:w-[40px]">
+            완료
           </div>
         );
       case "작성중":
@@ -166,7 +178,7 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
     }
   };
 
-  const renderCellContent = (column, data) => {
+  const renderCellContent = (column: any, data: any) => {
     let value = data[config.dataKeyMapping[column.key]];
 
     if (column.key === "id" && value.length > 5) {
@@ -177,7 +189,9 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
       case "badge":
         return handleType(value);
       case "status":
-        return handleSurveyStatus(value);
+        // 마감일 정보도 함께 전달
+        const dueDate = data[config.dataKeyMapping.targetDate];
+        return handleSurveyStatus(value, dueDate);
       case "className":
         return handleClassName(value);
       case "responseRate":
@@ -190,14 +204,51 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
       default:
         // 제목 컬럼인 경우 텍스트 오버플로우 처리
         if (column.key === "title") {
+          const truncateText = (text: string, maxLength?: number): string => {
+            if (!text) return "-";
+
+            // 화면 크기에 따른 동적 maxLength 계산
+            const getResponsiveMaxLength = (): number => {
+              const width = window.innerWidth;
+              if (width >= 2560) return 60; // 2560px 이상 데스크탑
+              if (width >= 1920) return 50; // 1920px 이상 데스크탑
+              if (width >= 1600) return 40; // 1600px 이상 데스크탑
+              if (width >= 1024) return 30; // 1024px 이상 랩탑
+              if (width >= 768) return 25; // 768px 이상 태블릿
+              return 20; // 768px 미만 모바일
+            };
+
+            const responsiveMaxLength = maxLength || getResponsiveMaxLength();
+
+            if (text.length <= responsiveMaxLength) return text;
+            return text.substring(0, responsiveMaxLength) + "...";
+          };
+
           return (
-            <div className="truncate w-full" title={value}>
-              {value || "-"}
+            <div
+              className="truncate w-full overflow-hidden text-ellipsis whitespace-nowrap"
+              title={value}
+              style={{ maxWidth: "100%" }}
+            >
+              {truncateText(value)}
             </div>
           );
         }
         if (column.key === "registedAt") {
-          return parsedDate(value);
+          // 날짜 형식 변환 (YYYY-MM-DD HH:mm:ss -> YYYY-MM-DD)
+          const formatDate = (dateString: string): string => {
+            if (!dateString) return "-";
+            return dateString.split(" ")[0]; // 날짜 부분만 추출
+          };
+          return formatDate(value);
+        }
+        if (column.key === "targetDate") {
+          // 마감일 형식 변환
+          const formatDate = (dateString: string): string => {
+            if (!dateString) return "-";
+            return dateString.split(" ")[0]; // 날짜 부분만 추출
+          };
+          return formatDate(value);
         }
         return value || "-";
     }
@@ -205,7 +256,7 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
 
   return (
     <div className="flex flex-row items-center w-full" onClick={handleRowClick}>
-      {config.columns.map((column, index) => (
+      {config.columns.map((column: any, index: number) => (
         <div
           key={index}
           className={`${column.width} text-${
@@ -216,7 +267,7 @@ const GenericPageRow = ({ data, config, onRowClick }) => {
               : ""
           } ${
             column.key === "title"
-              ? "flex justify-start min-w-0 overflow-hidden flex-shrink"
+              ? "flex justify-start min-w-0 overflow-hidden"
               : "flex justify-center flex-shrink-0"
           }`}
         >

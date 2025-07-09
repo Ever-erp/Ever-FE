@@ -4,17 +4,32 @@ import { noticeCreateFetch } from "../services/notice/noticeFetch";
 import NoticeEditor from "../components/specific/notice/NoticeEditor";
 import { useSelector } from "react-redux";
 import { useAuthFetch } from "../hooks/useAuthFetch";
+import { NoticeEditorData } from "../types/notice";
 
-const WritePage = () => {
+interface RootState {
+  user: {
+    user: {
+      name: string;
+      position: string;
+    };
+  };
+}
+
+const WritePage: React.FC = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const user = useSelector((state) => state.user.user);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const user = useSelector((state: RootState) => state.user.user);
 
   const { isAuthenticated } = useAuthFetch();
 
-  const handleSave = async (data) => {
+  const handleSave = async (data: NoticeEditorData) => {
     setIsLoading(true);
     const token = localStorage.getItem("accessToken");
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       await noticeCreateFetch(data, token);
 
